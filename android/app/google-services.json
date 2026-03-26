@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1090385927274",
+    "project_id": "computer-shop-app-cd0e8",
+    "storage_bucket": "computer-shop-app-cd0e8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1090385927274:android:3ba967b1668dd3944bbe13",
+        "android_client_info": {
+          "package_name": "com.example.school_assgn"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1090385927274-f3n0haomens6bsfb5jfo2vn2ties6d1b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.school_assgn",
+            "certificate_hash": "19fd4a97ac0c24eacc16dafad76a71826e788981"
+          }
+        },
+        {
+          "client_id": "1090385927274-mg30frp08c9kb3l7hm76cgpqkja0u34l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHPcEig6FLGEYrjPXlvPm8xMhvm8gRFTA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1090385927274-mg30frp08c9kb3l7hm76cgpqkja0u34l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

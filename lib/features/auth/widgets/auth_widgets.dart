@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:school_assgn/themes/app_color.dart';
 import 'package:school_assgn/widget/text_widget.dart';
 
@@ -7,61 +8,117 @@ class AuthPageScaffold extends StatelessWidget {
     super.key,
     required this.child,
     this.padding = const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+    this.backgroundImageAsset,
+    this.backgroundOverlayColor = Colors.transparent,
   });
 
   final Widget child;
   final EdgeInsets padding;
+  final String? backgroundImageAsset;
+  final Color backgroundOverlayColor;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.kAuthBackground,
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              child: Padding(
-                padding: padding,
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: constraints.maxHeight - padding.vertical,
+      body: Stack(
+        children: [
+          if (backgroundImageAsset != null)
+            Positioned.fill(
+              child: Image.asset(backgroundImageAsset!, fit: BoxFit.cover),
+            ),
+          Positioned.fill(child: ColoredBox(color: backgroundOverlayColor)),
+          SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  child: Padding(
+                    padding: padding,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight - padding.vertical,
+                      ),
+                      child: IntrinsicHeight(child: child),
+                    ),
                   ),
-                  child: IntrinsicHeight(child: child),
-                ),
-              ),
-            );
-          },
-        ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class AuthInputField extends StatelessWidget {
+class AuthInputField extends StatefulWidget {
   const AuthInputField({
     super.key,
     required this.hintText,
     this.obscureText = false,
     this.keyboardType = TextInputType.text,
+    this.controller,
+    this.enabled = true,
+    this.suffixIcon,
   });
 
   final String hintText;
   final bool obscureText;
   final TextInputType keyboardType;
+  final TextEditingController? controller;
+  final bool enabled;
+  final Widget? suffixIcon;
+
+  @override
+  State<AuthInputField> createState() => _AuthInputFieldState();
+}
+
+class _AuthInputFieldState extends State<AuthInputField> {
+  late final FocusNode _focusNode;
+  bool _hasFocus = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+    _focusNode.addListener(_handleFocusChange);
+  }
+
+  void _handleFocusChange() {
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _hasFocus = _focusNode.hasFocus;
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode
+      ..removeListener(_handleFocusChange)
+      ..dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 54,
+      height: 50,
       decoration: BoxDecoration(
         color: AppColor.kAuthSurface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColor.kAuthBorder),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: _hasFocus ? AppColor.kAuthAccent : AppColor.kAuthBorder,
+        ),
       ),
       alignment: Alignment.center,
       child: TextField(
-        keyboardType: keyboardType,
-        obscureText: obscureText,
+        controller: widget.controller,
+        enabled: widget.enabled,
+        focusNode: _focusNode,
+        keyboardType: widget.keyboardType,
+        obscureText: widget.obscureText,
         cursorColor: AppColor.kAuthAccent,
         style: const TextStyle(
           fontFamily: 'Poppins',
@@ -69,12 +126,13 @@ class AuthInputField extends StatelessWidget {
           color: AppColor.kAuthTextPrimary,
         ),
         decoration: InputDecoration(
-          hintText: hintText,
+          hintText: _hasFocus ? '' : widget.hintText,
           hintStyle: const TextStyle(
             fontFamily: 'Poppins',
             fontSize: 14,
             color: AppColor.kAuthTextSecondary,
           ),
+          suffixIcon: widget.suffixIcon,
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
@@ -91,10 +149,14 @@ class AuthPrimaryButton extends StatelessWidget {
     super.key,
     required this.title,
     required this.onPressed,
+    this.isLoading = false,
+    this.enabled = true,
   });
 
   final String title;
   final VoidCallback onPressed;
+  final bool isLoading;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
@@ -102,21 +164,32 @@ class AuthPrimaryButton extends StatelessWidget {
       width: double.infinity,
       height: 52,
       child: ElevatedButton(
-        onPressed: onPressed,
+        onPressed: (isLoading || !enabled) ? null : onPressed,
         style: ElevatedButton.styleFrom(
           elevation: 0,
           backgroundColor: AppColor.kAuthAccent,
-          foregroundColor: AppColor.kPrimary,
+          foregroundColor: AppColor.kTextColor,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(26),
+            borderRadius: BorderRadius.circular(10),
           ),
         ),
-        child: AppText(
-          title,
-          variant: AppTextVariant.label,
-          color: AppColor.kPrimary,
-          fontWeight: FontWeight.w700,
-        ),
+        child: isLoading
+            ? SizedBox(
+                width: 28,
+                height: 28,
+                child: LoadingAnimationWidget.discreteCircle(
+                  color: AppColor.kGoogleRed,
+                  secondRingColor: AppColor.kGoogleYellow,
+                  thirdRingColor: AppColor.kGoogleGreen,
+                  size: 28,
+                ),
+              )
+            : AppText(
+                title,
+                variant: AppTextVariant.label,
+                color: AppColor.kTextColor,
+                fontWeight: FontWeight.w700,
+              ),
       ),
     );
   }
@@ -131,14 +204,16 @@ class AuthSocialButton extends StatelessWidget {
     required this.backgroundColor,
     required this.foregroundColor,
     this.borderColor,
+    this.isLoading = false,
   });
 
   final String label;
   final Widget icon;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final Color backgroundColor;
   final Color foregroundColor;
   final Color? borderColor;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -146,10 +221,21 @@ class AuthSocialButton extends StatelessWidget {
       width: double.infinity,
       height: 50,
       child: ElevatedButton.icon(
-        onPressed: onPressed,
-        icon: icon,
+        onPressed: isLoading ? null : onPressed,
+        icon: isLoading
+            ? SizedBox(
+                width: 20,
+                height: 20,
+                child: LoadingAnimationWidget.discreteCircle(
+                  color: AppColor.kGoogleRed,
+                  secondRingColor: AppColor.kGoogleYellow,
+                  thirdRingColor: AppColor.kGoogleGreen,
+                  size: 20,
+                ),
+              )
+            : icon,
         label: AppText(
-          label,
+          isLoading ? 'Please wait...' : label,
           variant: AppTextVariant.label,
           color: foregroundColor,
           fontWeight: FontWeight.w600,
@@ -159,7 +245,7 @@ class AuthSocialButton extends StatelessWidget {
           backgroundColor: backgroundColor,
           foregroundColor: foregroundColor,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(10),
             side: BorderSide(
               color: borderColor ?? Colors.transparent,
               width: borderColor == null ? 0 : 1.2,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:school_assgn/features/splash/controllers/splash_controller.dart';
 import 'package:school_assgn/themes/app_color.dart';
 import 'package:school_assgn/widget/text_widget.dart';
@@ -14,25 +15,27 @@ class SplashViews extends GetView<SplashController> {
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: const [
-            AppText(
+          children: [
+            const AppText(
               'School Assgn',
               variant: AppTextVariant.title,
               color: AppColor.kAuthTextPrimary,
               fontSize: 30,
               fontWeight: FontWeight.w700,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             SizedBox(
-              width: 28,
-              height: 28,
-              child: CircularProgressIndicator(
-                strokeWidth: 2.2,
-                color: AppColor.kAuthAccent,
+              width: 36,
+              height: 36,
+              child: LoadingAnimationWidget.discreteCircle(
+                color: AppColor.kGoogleBlue,
+                secondRingColor: AppColor.kGoogleRed,
+                thirdRingColor: AppColor.kGoogleYellow,
+                size: 36,
               ),
             ),
-            SizedBox(height: 12),
-            AppText(
+            const SizedBox(height: 12),
+            const AppText(
               'Loading...',
               variant: AppTextVariant.caption,
               color: AppColor.kAuthTextSecondary,

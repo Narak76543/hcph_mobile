@@ -5,4 +5,5 @@ class AppRoutes {
   static const String signIn = '/sign-in';
   static const String register = '/register';
   static const String authWelcome = '/auth-welcome';
+  static const String mainNav = '/main-nav';
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:school_assgn/features/auth/controllers/sign_in_controller.dart';
 import 'package:school_assgn/features/auth/widgets/auth_widgets.dart';
 import 'package:school_assgn/routes/app_routes.dart';
@@ -12,6 +13,8 @@ class SignInView extends GetView<SignInController> {
   @override
   Widget build(BuildContext context) {
     return AuthPageScaffold(
+      backgroundImageAsset: 'assets/images/app-bg.jpg',
+      backgroundOverlayColor: AppColor.kAuthBackgroundOverlay,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -30,13 +33,37 @@ class SignInView extends GetView<SignInController> {
             color: AppColor.kAuthTextSecondary,
             fontSize: 18,
           ),
-          const SizedBox(height: 28),
-          const AuthInputField(
-            hintText: 'email',
-            keyboardType: TextInputType.emailAddress,
+          const SizedBox(height: 14),
+          const _SloganCard(),
+          const SizedBox(height: 22),
+          Obx(
+            () => AuthInputField(
+              hintText: 'Email or Username',
+              keyboardType: TextInputType.emailAddress,
+              controller: controller.usernameController,
+              enabled: !controller.isSubmitting.value,
+            ),
           ),
           const SizedBox(height: 12),
-          const AuthInputField(hintText: 'password', obscureText: true),
+          Obx(
+            () => AuthInputField(
+              hintText: 'Password',
+              obscureText: controller.obscurePassword.value,
+              controller: controller.passwordController,
+              enabled: !controller.isSubmitting.value,
+              suffixIcon: IconButton(
+                onPressed: controller.isSubmitting.value
+                    ? null
+                    : controller.togglePasswordVisibility,
+                icon: Icon(
+                  controller.obscurePassword.value
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                  color: AppColor.kAuthTextSecondary,
+                ),
+              ),
+            ),
+          ),
           const SizedBox(height: 12),
           Row(
             children: [
@@ -60,7 +87,7 @@ class SignInView extends GetView<SignInController> {
                         ? const Icon(
                             Icons.check,
                             size: 13,
-                            color: AppColor.kPrimary,
+                            color: AppColor.kTextColor,
                           )
                         : null,
                   ),
@@ -74,33 +101,48 @@ class SignInView extends GetView<SignInController> {
                 fontSize: 14,
               ),
               const Spacer(),
-              TextButton(
-                onPressed: () {},
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                child: const AppText(
-                  'Forgot Password',
-                  variant: AppTextVariant.caption,
-                  color: AppColor.kAuthLink,
-                  fontSize: 13,
+              Obx(
+                () => TextButton(
+                  onPressed: controller.isResetSending.value
+                      ? null
+                      : controller.openForgotPasswordDialog,
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: controller.isResetSending.value
+                      ? SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: LoadingAnimationWidget.discreteCircle(
+                            color: AppColor.kGoogleBlue,
+                            secondRingColor: AppColor.kGoogleRed,
+                            thirdRingColor: AppColor.kGoogleYellow,
+                            size: 16,
+                          ),
+                        )
+                      : const AppText(
+                          'Forgot Password',
+                          variant: AppTextVariant.caption,
+                          color: AppColor.kAuthLink,
+                          fontSize: 13,
+                        ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          AuthPrimaryButton(title: 'Log in', onPressed: () {}),
-          const SizedBox(height: 20),
-          const Center(
-            child: AppText(
-              'or continue with',
-              variant: AppTextVariant.caption,
-              color: AppColor.kAuthTextSecondary,
-              fontSize: 15,
+          Obx(
+            () => AuthPrimaryButton(
+              title: 'Log in',
+              onPressed: controller.signIn,
+              isLoading: controller.isEmailSubmitting.value,
+              enabled: !controller.isGoogleSubmitting.value,
             ),
           ),
+          const SizedBox(height: 18),
+          const _ContinueWithDivider(),
           const SizedBox(height: 20),
           // AuthSocialButton(
           //   label: 'Continue with Facebook',
@@ -110,32 +152,135 @@ class SignInView extends GetView<SignInController> {
           //   foregroundColor: Colors.white,
           // ),
           const SizedBox(height: 12),
-          AuthSocialButton(
-            label: 'Continue with Google',
-            icon: const GoogleGlyph(),
-            onPressed: () {},
-            backgroundColor: Colors.white,
-            foregroundColor: AppColor.kPrimary,
+          Obx(
+            () => AuthSocialButton(
+              label: 'Continue with Google',
+              icon: Image.asset(
+                'assets/images/google.png',
+                width: 20,
+                height: 20,
+                fit: BoxFit.contain,
+              ),
+              onPressed: controller.isSubmitting.value
+                  ? null
+                  : controller.signInWithGoogle,
+              backgroundColor: AppColor.kAuthAccent,
+              foregroundColor: AppColor.kTextColor,
+              isLoading: controller.isGoogleSubmitting.value,
+            ),
           ),
-          const SizedBox(height: 12),
-          // AuthSocialButton(
-          //   label: 'Continue with Apple',
-          //   icon: const Icon(Icons.apple, size: 20),
-          //   onPressed: () {},
-          //   backgroundColor: Colors.transparent,
-          //   foregroundColor: Colors.white,
-          //   borderColor: AppColor.kAuthBorder,
-          // ),
-          const Spacer(),
-          AuthBottomLink(
-            prompt: 'Don\'t have any account?',
-            linkLabel: 'Register Now',
-            onTap: () {
-              Get.offNamed(AppRoutes.register);
-            },
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const AppText(
+                'Don\'t have any account ?',
+                variant: AppTextVariant.caption,
+                color: AppColor.kAuthTextSecondary,
+              ),
+              const SizedBox(width: 10),
+              const AppText(
+                '|',
+                variant: AppTextVariant.caption,
+                color: AppColor.kAuthTextSecondary,
+              ),
+              const SizedBox(width: 10),
+              TextButton(
+                onPressed: () {
+                  Get.offNamed(AppRoutes.register);
+                },
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: const AppText(
+                  'Register Now',
+                  variant: AppTextVariant.caption,
+                  color: AppColor.kAuthLink,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
           ),
         ],
       ),
+    );
+  }
+}
+
+class _SloganCard extends StatelessWidget {
+  const _SloganCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColor.kAuthSurface.withValues(alpha: 0.76),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const AppText(
+            'HCPH Slogan',
+            variant: AppTextVariant.caption,
+            color: AppColor.kAuthLink,
+            fontWeight: FontWeight.w500,
+          ),
+          const SizedBox(height: 4),
+          Text.rich(
+            const TextSpan(
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 16,
+                height: 1.35,
+                color: AppColor.kAuthTextPrimary,
+                fontWeight: FontWeight.w400,
+              ),
+              children: [
+                TextSpan(text: 'Check Specs. '),
+                TextSpan(
+                  text: 'Compare Prices. ',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                TextSpan(text: 'Trust Experts with '),
+                TextSpan(
+                  text: 'HCPH',
+                  style: TextStyle(
+                    color: AppColor.kAuthLink,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ContinueWithDivider extends StatelessWidget {
+  const _ContinueWithDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(child: Container(height: 1, color: AppColor.kAuthBorder)),
+        const SizedBox(width: 16),
+        const AppText(
+          'or continue with',
+          variant: AppTextVariant.caption,
+          color: AppColor.kAuthTextSecondary,
+          fontSize: 15,
+        ),
+        const SizedBox(width: 16),
+        Expanded(child: Container(height: 1, color: AppColor.kAuthBorder)),
+      ],
     );
   }
 }
