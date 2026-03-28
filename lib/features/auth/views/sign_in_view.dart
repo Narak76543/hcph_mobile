@@ -19,7 +19,7 @@ class SignInView extends GetView<SignInController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 24),
-          const AppText(
+          AppText(
             'Let\'s sign in',
             variant: AppTextVariant.title,
             color: AppColor.kAuthTextPrimary,
@@ -27,7 +27,7 @@ class SignInView extends GetView<SignInController> {
             fontWeight: FontWeight.w700,
           ),
           const SizedBox(height: 10),
-          const AppText(
+          AppText(
             'Welcome Back,You have been missed.',
             variant: AppTextVariant.body,
             color: AppColor.kAuthTextSecondary,
@@ -84,7 +84,7 @@ class SignInView extends GetView<SignInController> {
                       ),
                     ),
                     child: controller.rememberMe.value
-                        ? const Icon(
+                        ? Icon(
                             Icons.check,
                             size: 13,
                             color: AppColor.kTextColor,
@@ -94,7 +94,7 @@ class SignInView extends GetView<SignInController> {
                 ),
               ),
               const SizedBox(width: 10),
-              const AppText(
+              AppText(
                 'Remember Me',
                 variant: AppTextVariant.caption,
                 color: AppColor.kAuthTextSecondary,
@@ -122,7 +122,7 @@ class SignInView extends GetView<SignInController> {
                             size: 16,
                           ),
                         )
-                      : const AppText(
+                      : AppText(
                           'Forgot Password',
                           variant: AppTextVariant.caption,
                           color: AppColor.kAuthLink,
@@ -144,14 +144,6 @@ class SignInView extends GetView<SignInController> {
           const SizedBox(height: 18),
           const _ContinueWithDivider(),
           const SizedBox(height: 20),
-          // AuthSocialButton(
-          //   label: 'Continue with Facebook',
-          //   icon: const Icon(Icons.facebook, size: 20),
-          //   onPressed: () {},
-          //   backgroundColor: const Color(0xFF1F7BEE),
-          //   foregroundColor: Colors.white,
-          // ),
-          const SizedBox(height: 12),
           Obx(
             () => AuthSocialButton(
               label: 'Continue with Google',
@@ -173,13 +165,13 @@ class SignInView extends GetView<SignInController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const AppText(
+              AppText(
                 'Don\'t have any account ?',
                 variant: AppTextVariant.caption,
                 color: AppColor.kAuthTextSecondary,
               ),
               const SizedBox(width: 10),
-              const AppText(
+              AppText(
                 '|',
                 variant: AppTextVariant.caption,
                 color: AppColor.kAuthTextSecondary,
@@ -194,7 +186,7 @@ class SignInView extends GetView<SignInController> {
                   minimumSize: Size.zero,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                child: const AppText(
+                child: AppText(
                   'Register Now',
                   variant: AppTextVariant.caption,
                   color: AppColor.kAuthLink,
@@ -218,13 +210,13 @@ class _SloganCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColor.kAuthSurface.withValues(alpha: 0.76),
+        color: AppColor.kAuthSurface.withOpacity(0.76),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const AppText(
+          AppText(
             'HCPH Slogan',
             variant: AppTextVariant.caption,
             color: AppColor.kAuthLink,
@@ -232,7 +224,7 @@ class _SloganCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text.rich(
-            const TextSpan(
+            TextSpan(
               style: TextStyle(
                 fontFamily: 'Poppins',
                 fontSize: 16,
@@ -241,12 +233,12 @@ class _SloganCard extends StatelessWidget {
                 fontWeight: FontWeight.w400,
               ),
               children: [
-                TextSpan(text: 'Check Specs. '),
-                TextSpan(
+                const TextSpan(text: 'Check Specs. '),
+                const TextSpan(
                   text: 'Compare Prices. ',
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
-                TextSpan(text: 'Trust Experts with '),
+                const TextSpan(text: 'Trust Experts with '),
                 TextSpan(
                   text: 'HCPH',
                   style: TextStyle(
@@ -272,7 +264,7 @@ class _ContinueWithDivider extends StatelessWidget {
       children: [
         Expanded(child: Container(height: 1, color: AppColor.kAuthBorder)),
         const SizedBox(width: 16),
-        const AppText(
+        AppText(
           'or continue with',
           variant: AppTextVariant.caption,
           color: AppColor.kAuthTextSecondary,

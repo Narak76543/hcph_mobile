@@ -120,14 +120,14 @@ class _AuthInputFieldState extends State<AuthInputField> {
         keyboardType: widget.keyboardType,
         obscureText: widget.obscureText,
         cursorColor: AppColor.kAuthAccent,
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: 'Poppins',
           fontSize: 15,
           color: AppColor.kAuthTextPrimary,
         ),
         decoration: InputDecoration(
           hintText: _hasFocus ? '' : widget.hintText,
-          hintStyle: const TextStyle(
+          hintStyle: TextStyle(
             fontFamily: 'Poppins',
             fontSize: 14,
             color: AppColor.kAuthTextSecondary,

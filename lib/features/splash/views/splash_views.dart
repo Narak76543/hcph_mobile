@@ -16,13 +16,7 @@ class SplashViews extends GetView<SplashController> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const AppText(
-              'School Assgn',
-              variant: AppTextVariant.title,
-              color: AppColor.kAuthTextPrimary,
-              fontSize: 30,
-              fontWeight: FontWeight.w700,
-            ),
+            AppText('HCPH', variant: AppTextVariant.title, color: AppColor.kAuthTextPrimary, fontSize: 30),
             const SizedBox(height: 16),
             SizedBox(
               width: 36,
@@ -35,11 +29,7 @@ class SplashViews extends GetView<SplashController> {
               ),
             ),
             const SizedBox(height: 12),
-            const AppText(
-              'Loading...',
-              variant: AppTextVariant.caption,
-              color: AppColor.kAuthTextSecondary,
-            ),
+            AppText('Loading...', variant: AppTextVariant.caption, color: AppColor.kAuthTextSecondary),
           ],
         ),
       ),

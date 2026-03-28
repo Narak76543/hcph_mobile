@@ -1,6 +1,6 @@
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:school_assgn/core/network/api_config.dart';
 import 'package:school_assgn/core/network/api_exception.dart';
 
@@ -24,6 +24,35 @@ class ApiClient {
     );
 
     return _handleResponse(response);
+  }
+
+  Future<dynamic> getRequest(
+    String path, {
+    Map<String, String>? queryParameters,
+    String? bearerToken,
+  }) async {
+    Uri uri = _buildUri(path);
+    if (queryParameters != null) {
+      uri = uri.replace(queryParameters: queryParameters);
+    }
+    final response = await _httpClient.get(
+      uri,
+      headers: {
+        'Accept': 'application/json',
+        if (bearerToken != null) 'Authorization': 'Bearer $bearerToken',
+      },
+    );
+
+    final decoded = _decodeBody(response.body);
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw ApiException(
+        message: _extractErrorMessage(decoded),
+        statusCode: response.statusCode,
+        data: decoded,
+      );
+    }
+    return decoded;
   }
 
   Future<Map<String, dynamic>> postJson(
@@ -61,7 +90,40 @@ class ApiClient {
     request.fields.addAll(fields);
 
     if (fileFieldName != null && filePath != null && filePath.trim().isNotEmpty) {
-      request.files.add(await http.MultipartFile.fromPath(fileFieldName, filePath));
+      request.files.add(await http.MultipartFile.fromPath(
+        fileFieldName,
+        filePath,
+        contentType: MediaType('image', 'jpeg'),
+      ));
+    }
+
+    final streamed = await request.send();
+    final response = await http.Response.fromStream(streamed);
+    return _handleResponse(response);
+  }
+
+  Future<Map<String, dynamic>> patchMultipart(
+    String path, {
+    required Map<String, String> fields,
+    String? fileFieldName,
+    String? filePath,
+    String? bearerToken,
+  }) async {
+    final request = http.MultipartRequest('PATCH', _buildUri(path));
+
+    request.headers['Accept'] = 'application/json';
+    if (bearerToken != null) {
+      request.headers['Authorization'] = 'Bearer $bearerToken';
+    }
+
+    request.fields.addAll(fields);
+
+    if (fileFieldName != null && filePath != null && filePath.trim().isNotEmpty) {
+      request.files.add(await http.MultipartFile.fromPath(
+        fileFieldName,
+        filePath,
+        contentType: MediaType('image', 'jpeg'),
+      ));
     }
 
     final streamed = await request.send();

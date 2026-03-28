@@ -43,15 +43,15 @@ class AppText extends StatelessWidget {
   TextStyle _style() {
     switch (variant) {
       case AppTextVariant.heading:
-        return const TextStyle(
+        return TextStyle(
           fontFamily: 'Poppins',
           fontSize: 28,
           fontWeight: FontWeight.w700,
-          color: AppColors.kPrimary,
+          color: AppColors.textPrimary,
           height: 1.3,
         );
       case AppTextVariant.title:
-        return const TextStyle(
+        return TextStyle(
           fontFamily: 'Poppins',
           fontSize: 20,
           fontWeight: FontWeight.w600,
@@ -59,7 +59,7 @@ class AppText extends StatelessWidget {
           height: 1.4,
         );
       case AppTextVariant.body:
-        return const TextStyle(
+        return TextStyle(
           fontFamily: 'Poppins',
           fontSize: 16,
           fontWeight: FontWeight.w400,
@@ -67,7 +67,7 @@ class AppText extends StatelessWidget {
           height: 1.6,
         );
       case AppTextVariant.caption:
-        return const TextStyle(
+        return TextStyle(
           fontFamily: 'Poppins',
           fontSize: 12,
           fontWeight: FontWeight.w400,
@@ -75,7 +75,7 @@ class AppText extends StatelessWidget {
           height: 1.5,
         );
       case AppTextVariant.label:
-        return const TextStyle(
+        return TextStyle(
           fontFamily: 'Poppins',
           fontSize: 14,
           fontWeight: FontWeight.w500,

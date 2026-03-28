@@ -57,10 +57,7 @@ class SignInController extends GetxController {
                   SizedBox(width: 8),
                   Text(
                     'Forgot Password',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -86,7 +83,8 @@ class SignInController extends GetxController {
                   child: FilledButton(
                     onPressed: isResetSending.value
                         ? null
-                        : () => submitForgotPassword(dialogEmailController.text),
+                        : () =>
+                              submitForgotPassword(dialogEmailController.text),
                     child: isResetSending.value
                         ? SizedBox(
                             width: 22,
@@ -227,7 +225,10 @@ class SignInController extends GetxController {
     final password = passwordController.text.trim();
 
     if (username.isEmpty || password.isEmpty) {
-      Get.snackbar('Missing fields', 'Please fill in username/email and password.');
+      Get.snackbar(
+        'Missing fields',
+        'Please fill in username/email and password.',
+      );
       return;
     }
 
@@ -333,7 +334,7 @@ class SignInController extends GetxController {
 
       if (canFallbackToGoogleSession) {
         await _completeGoogleFirebaseLogin(
-          googleResult!,
+          googleResult,
           fallbackDisplayName: googleDisplayFallback,
         );
         return;
@@ -341,7 +342,10 @@ class SignInController extends GetxController {
 
       Get.snackbar('Google Sign-In Failed', error.message);
     } on FirebaseAuthException catch (error) {
-      Get.snackbar('Google Sign-In Failed', error.message ?? 'Please try again.');
+      Get.snackbar(
+        'Google Sign-In Failed',
+        error.message ?? 'Please try again.',
+      );
     } on FirebaseException catch (error) {
       if (error.code == 'no-app') {
         Get.snackbar(
@@ -366,7 +370,8 @@ class SignInController extends GetxController {
     Map<String, dynamic> backendResponse, {
     required String fallbackDisplayName,
   }) async {
-    final accessToken = backendResponse['access_token']?.toString().trim() ?? '';
+    final accessToken =
+        backendResponse['access_token']?.toString().trim() ?? '';
     if (accessToken.isEmpty) {
       throw ApiException(message: 'Invalid backend login response.');
     }
@@ -383,10 +388,7 @@ class SignInController extends GetxController {
       userName: displayName,
     );
 
-    Get.offAllNamed(
-      AppRoutes.mainNav,
-      arguments: {'welcomeName': displayName},
-    );
+    Get.offAllNamed(AppRoutes.mainNav, arguments: {'welcomeName': displayName});
   }
 
   Future<Map<String, dynamic>?> _tryGoogleBackendLogin({
@@ -521,10 +523,12 @@ class SignInController extends GetxController {
     try {
       await ensureFirebaseInitialized();
 
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: normalizedEmail,
-        password: password,
-      ).timeout(const Duration(seconds: 8));
+      await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+            email: normalizedEmail,
+            password: password,
+          )
+          .timeout(const Duration(seconds: 8));
       await FirebaseAuth.instance.signOut().timeout(const Duration(seconds: 8));
       return;
     } on FirebaseAuthException catch (error) {
@@ -536,10 +540,12 @@ class SignInController extends GetxController {
     }
 
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: normalizedEmail,
-        password: password,
-      ).timeout(const Duration(seconds: 8));
+      await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+            email: normalizedEmail,
+            password: password,
+          )
+          .timeout(const Duration(seconds: 8));
       await FirebaseAuth.instance.signOut().timeout(const Duration(seconds: 8));
     } catch (_) {}
   }

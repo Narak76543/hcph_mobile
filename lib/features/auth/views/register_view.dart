@@ -23,17 +23,17 @@ class RegisterView extends GetView<RegisterController> {
               onPressed: () {
                 Get.offNamed(AppRoutes.signIn);
               },
-              icon: const Icon(
+              icon: Icon(
                 Icons.arrow_back_ios_new_rounded,
                 color: AppColor.kAuthTextPrimary,
               ),
               style: IconButton.styleFrom(
                 backgroundColor: AppColor.kAuthSurface,
-                side: const BorderSide(color: AppColor.kAuthBorder),
+                side: BorderSide(color: AppColor.kAuthBorder),
               ),
             ),
             const SizedBox(height: 22),
-            const AppText(
+            AppText(
               'Let\'s register account',
               variant: AppTextVariant.title,
               color: AppColor.kAuthTextPrimary,
@@ -41,7 +41,7 @@ class RegisterView extends GetView<RegisterController> {
               fontWeight: FontWeight.w700,
             ),
             const SizedBox(height: 10),
-            const AppText(
+            AppText(
               'Fill your details based on the API schema.',
               variant: AppTextVariant.body,
               color: AppColor.kAuthTextSecondary,

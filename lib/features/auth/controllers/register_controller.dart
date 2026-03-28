@@ -60,10 +60,7 @@ class RegisterController extends GetxController {
         lastnameLc: lastnameLc,
       );
       unawaited(
-        _syncFirebaseEmailPasswordAccount(
-          email: email,
-          password: password,
-        ),
+        _syncFirebaseEmailPasswordAccount(email: email, password: password),
       );
 
       Get.snackbar('Success', 'Account created successfully.');
@@ -134,7 +131,7 @@ class RegisterController extends GetxController {
 
       if (canFallbackToGoogleSession) {
         await _completeGoogleFirebaseLogin(
-          googleResult!,
+          googleResult,
           fallbackDisplayName: googleDisplayFallback,
         );
         return;
@@ -142,7 +139,10 @@ class RegisterController extends GetxController {
 
       Get.snackbar('Google Sign-In Failed', error.message);
     } on FirebaseAuthException catch (error) {
-      Get.snackbar('Google Sign-In Failed', error.message ?? 'Please try again.');
+      Get.snackbar(
+        'Google Sign-In Failed',
+        error.message ?? 'Please try again.',
+      );
     } on FirebaseException catch (error) {
       if (error.code == 'no-app') {
         Get.snackbar(
@@ -166,7 +166,8 @@ class RegisterController extends GetxController {
     Map<String, dynamic> backendResponse, {
     required String fallbackDisplayName,
   }) async {
-    final accessToken = backendResponse['access_token']?.toString().trim() ?? '';
+    final accessToken =
+        backendResponse['access_token']?.toString().trim() ?? '';
     if (accessToken.isEmpty) {
       throw ApiException(message: 'Invalid backend login response.');
     }
@@ -183,10 +184,7 @@ class RegisterController extends GetxController {
       userName: displayName,
     );
 
-    Get.offAllNamed(
-      AppRoutes.mainNav,
-      arguments: {'welcomeName': displayName},
-    );
+    Get.offAllNamed(AppRoutes.mainNav, arguments: {'welcomeName': displayName});
   }
 
   Future<Map<String, dynamic>?> _tryGoogleBackendLogin({
@@ -291,10 +289,12 @@ class RegisterController extends GetxController {
     try {
       await ensureFirebaseInitialized();
 
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: normalizedEmail,
-        password: password,
-      ).timeout(const Duration(seconds: 8));
+      await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+            email: normalizedEmail,
+            password: password,
+          )
+          .timeout(const Duration(seconds: 8));
       await FirebaseAuth.instance.signOut().timeout(const Duration(seconds: 8));
     } on FirebaseAuthException catch (error) {
       if (error.code != 'email-already-in-use') {
@@ -302,10 +302,12 @@ class RegisterController extends GetxController {
       }
 
       try {
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: normalizedEmail,
-          password: password,
-        ).timeout(const Duration(seconds: 8));
+        await FirebaseAuth.instance
+            .signInWithEmailAndPassword(
+              email: normalizedEmail,
+              password: password,
+            )
+            .timeout(const Duration(seconds: 8));
       } catch (_) {
         return;
       } finally {
