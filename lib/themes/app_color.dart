@@ -21,10 +21,10 @@ class AppColor {
   static bool get _isDark => Get.find<ThemeService>().isDarkMode.value;
 
   // Backgrounds
-  // Use slightly richer colors for premium feel
-  static Color get kBackground => _isDark ? const Color(0xFF020617) : const Color(0xFFF1F5F9);
-  static Color get kSurface    => _isDark ? const Color(0xFF0F172A) : const Color(0xFFFFFFFF);
-  static Color get kBorder     => _isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0);
+  // Use slightly richer colors for premium feel (Tailwind Slate/Zinc scale)
+  static Color get kBackground => _isDark ? const Color(0xFF000000) : const Color(0xFFF1F5F9);
+  static Color get kSurface    => _isDark ? const Color(0xFF101010) : const Color(0xFFFFFFFF);
+  static Color get kBorder     => _isDark ? const Color(0xFF1E1E1E) : const Color(0xFFE2E8F0);
   
   // High-level Auth Colors
   static Color get kAuthBackground => kBackground;
@@ -34,17 +34,17 @@ class AppColor {
   
   // Overlays (Glassmorphism)
   // Ensure overlay is dense enough to provide contrast for text
-  static Color get kOverlay    => _isDark ? const Color(0xE6020617) : const Color(0xF2FFFFFF);
+  static Color get kOverlay    => _isDark ? const Color(0xE6000000) : const Color(0xF2FFFFFF);
   static Color get kGlassBorder => _isDark ? const Color(0x33FFFFFF) : const Color(0x33000000);
-  static Color get kShadow      => _isDark ? Colors.black.withOpacity(0.5) : const Color(0x0F000000);
+  static Color get kShadow      => _isDark ? Colors.black.withValues(alpha: 0.5) : const Color(0x0F000000);
   
   // Text Colors (Using Zinc/Slate scales for premium feel)
-  static Color get kTextPrimary   => _isDark ? const Color(0xFFF8FAFC) : const Color(0xFF0F172A);
-  static Color get kTextSecondary => _isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+  static Color get kTextPrimary   => _isDark ? const Color(0xFFFFFFFF) : const Color(0xFF0F172A);
+  static Color get kTextSecondary => _isDark ? const Color(0xFFAAAAAA) : const Color(0xFF64748B);
   
   // Navigation
   static Color get kNavIcon             => _isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569);
-  static Color get kNavBarBackground    => _isDark ? const Color(0xFF1E293B).withOpacity(0.8) : const Color(0xFFFDFDFD).withOpacity(0.8);
+  static Color get kNavBarBackground    => _isDark ? const Color(0xFF1A1A1A).withValues(alpha: 0.8) : const Color(0xFFFDFDFD).withValues(alpha: 0.8);
   static Color get kNavSelectedStart    => kAccent;
   static Color get kNavSelectedEnd      => kAccentDark;
   

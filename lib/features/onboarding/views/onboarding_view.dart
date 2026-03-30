@@ -25,7 +25,7 @@ class OnboardingView extends GetView<OnboardingController> {
               return Opacity(
                 opacity: isDark ? 0.6 : 0.8,
                 child: Image.asset(
-                  'assets/images/mac.jpg',
+                  'assets/images/nu.png',
                   fit: BoxFit.cover,
                 ),
               );

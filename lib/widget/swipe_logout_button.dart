@@ -66,13 +66,20 @@ class _SwipeLogoutButtonState extends State<SwipeLogoutButton>
         final double currentPosition = _dragValue * availableWidth;
 
         return Container(
-          height: 62,
+          height: 64,
           width: maxWidth,
           decoration: BoxDecoration(
-            color: AppColor.kSurface.withOpacity(0.8),
+            color: AppColor.kAuthSurface,
             borderRadius: BorderRadius.circular(40),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
             border: Border.all(
-              color: AppColor.kTextSecondary.withOpacity(0.1),
+              color: AppColor.kGoogleRed.withValues(alpha: 0.1),
               width: 1,
             ),
           ),
@@ -86,9 +93,9 @@ class _SwipeLogoutButtonState extends State<SwipeLogoutButton>
                     shaderCallback: (bounds) {
                       return LinearGradient(
                         colors: [
-                          AppColor.kError.withOpacity(0.7),
-                          AppColor.kError.withOpacity(0.4),
-                          AppColor.kError.withOpacity(0.7),
+                          AppColor.kGoogleRed.withValues(alpha: 0.8),
+                          AppColor.kGoogleRed.withValues(alpha: 0.4),
+                          AppColor.kGoogleRed.withValues(alpha: 0.8),
                         ],
                         stops: const [0.0, 0.5, 1.0],
                         begin: Alignment.topLeft,
@@ -99,14 +106,13 @@ class _SwipeLogoutButtonState extends State<SwipeLogoutButton>
                       'Swipe to logout',
                       variant: AppTextVariant.body,
                       fontSize: 16,
-                      fontWeight: FontWeight.w500,
                       color: Colors.white,
                     ),
                   ),
                 ),
               ),
 
-              // The Handle Target Area (Track Background)
+              // The Handle Target Area (Active Track)
               Positioned(
                 left: padding,
                 top: padding,
@@ -114,7 +120,12 @@ class _SwipeLogoutButtonState extends State<SwipeLogoutButton>
                 width: currentPosition + handleSize,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: AppColor.kError.withOpacity(0.15),
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColor.kGoogleRed.withValues(alpha: 0.15),
+                        AppColor.kGoogleRed.withValues(alpha: 0.05),
+                      ],
+                    ),
                     borderRadius: BorderRadius.circular(40),
                   ),
                 ),
@@ -132,21 +143,23 @@ class _SwipeLogoutButtonState extends State<SwipeLogoutButton>
                   child: Container(
                     width: handleSize,
                     height: handleSize,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 10,
-                          offset: Offset(0, 4),
+                          color: AppColor.kGoogleRed.withValues(alpha: 0.3),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
-                    child: Icon(
-                      Icons.logout_rounded,
-                      color: AppColor.kError,
-                      size: 24,
+                    child: const Center(
+                      child: Icon(
+                        Icons.logout_rounded,
+                        color: AppColor.kGoogleRed,
+                        size: 24,
+                      ),
                     ),
                   ),
                 ),

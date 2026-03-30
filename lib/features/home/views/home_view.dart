@@ -15,67 +15,75 @@ class HomeView extends GetView<HomeController> {
       () => Scaffold(
         backgroundColor: Colors.transparent,
         body: SafeArea(
-          child: CustomScrollView(
-            physics: const BouncingScrollPhysics(),
-            slivers: [
-              // ── Header ──
-              SliverToBoxAdapter(child: _buildHeader()),
-
-              // ── Search bar ──
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                  child: _buildSearchBar(),
-                ),
+          child: RefreshIndicator(
+            onRefresh: controller.refreshHome,
+            color: AppColor.kGoogleBlue,
+            backgroundColor: AppColor.kSurface,
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
               ),
+              slivers: [
+                // ── Header ──
+                SliverToBoxAdapter(child: _buildHeader()),
 
-              // ── Category tabs ──
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 16),
-                  child: _buildCategoryTabs(),
-                ),
-              ),
-
-              // ── Promo banner ──
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                  child: _buildPromoBanner(),
-                ),
-              ),
-
-              // ── Featured Products header ──
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
-                  child: AppText(
-                    'Featured Products',
-                    variant: AppTextVariant.title,
-                    color: AppColor.kTextPrimary,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
+                // ── Search bar ──
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                    child: _buildSearchBar(),
                   ),
                 ),
-              ),
 
-              // ── Product grid ──
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
-                sliver: SliverGrid(
-                  delegate: SliverChildBuilderDelegate(
-                    (ctx, i) => _buildProductCard(controller.recentPosts[i]),
-                    childCount: controller.recentPosts.length,
-                  ),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 12,
-                    crossAxisSpacing: 12,
-                    childAspectRatio: 0.65,
+                // ── Category tabs ──
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: _buildCategoryTabs(),
                   ),
                 ),
-              ),
-            ],
+
+                // ── Promo banner ──
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                    child: _buildPromoBanner(),
+                  ),
+                ),
+
+                // ── Featured Products header ──
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
+                    child: AppText(
+                      'Featured Products',
+                      variant: AppTextVariant.title,
+                      color: AppColor.kTextPrimary,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+
+                // ── Product grid ──
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
+                  sliver: SliverGrid(
+                    delegate: SliverChildBuilderDelegate(
+                      (ctx, i) => _buildProductCard(controller.recentPosts[i]),
+                      childCount: controller.recentPosts.length,
+                    ),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: 12,
+                          childAspectRatio: 0.65,
+                        ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -107,7 +115,7 @@ class HomeView extends GetView<HomeController> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: AppColor.kAuthAccent.withOpacity(0.3),
+                      color: AppColor.kAuthAccent.withValues(alpha: 0.3),
                       width: 2,
                     ),
                     image: DecorationImage(
@@ -170,7 +178,6 @@ class HomeView extends GetView<HomeController> {
   }
 
   // ─────────────────── Search bar ───────────────────
-
   Widget _buildSearchBar() {
     return Row(
       children: [
@@ -190,7 +197,7 @@ class HomeView extends GetView<HomeController> {
             borderRadius: BorderRadius.circular(10),
             boxShadow: [
               BoxShadow(
-                color: AppColor.kAuthAccent.withOpacity(0.35),
+                color: AppColor.kAuthAccent.withValues(alpha: 0.35),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -280,13 +287,6 @@ class HomeView extends GetView<HomeController> {
           colors: [Color(0xFF1E88E5), Color(0xFF1565C0)],
         ),
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          // BoxShadow(
-          //   color: AppColor.kAuthAccent.withOpacity(0.3),
-          //   blurRadius: 18,
-          //   offset: const Offset(0, 6),
-          // ),
-        ],
       ),
       child: Stack(
         children: [
@@ -299,7 +299,7 @@ class HomeView extends GetView<HomeController> {
               height: 130,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.07),
+                color: Colors.white.withValues(alpha: 0.07),
               ),
             ),
           ),
@@ -343,7 +343,7 @@ class HomeView extends GetView<HomeController> {
                     vertical: 3,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -370,7 +370,7 @@ class HomeView extends GetView<HomeController> {
                 Text(
                   item.subtitle,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                     fontFamily: 'Poppins',
                     fontSize: 11,
                   ),
@@ -645,7 +645,7 @@ class _CategoryChip extends StatelessWidget {
         boxShadow: selected
             ? [
                 BoxShadow(
-                  color: AppColor.kAuthAccent.withOpacity(0.25),
+                  color: AppColor.kAuthAccent.withValues(alpha: 0.25),
                   blurRadius: 8,
                   offset: const Offset(0, 3),
                 ),

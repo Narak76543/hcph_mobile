@@ -64,6 +64,13 @@ class HomeController extends GetxController {
     _fetchBrandsFromBackend();
   }
 
+  Future<void> refreshHome() async {
+    await Future.wait([
+      _fetchCategoriesFromBackend(),
+      _fetchBrandsFromBackend(),
+    ]);
+  }
+
   Future<void> _fetchCategoriesFromBackend() async {
     try {
       final response = await _apiClient.getRequest('/part-categories/');

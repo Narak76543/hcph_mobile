@@ -12,6 +12,7 @@ class AppText extends StatelessWidget {
   final TextOverflow? overflow;
   final double? fontSize;
   final FontWeight? fontWeight;
+  final TextDecoration? decoration;
 
   const AppText(
     this.text, {
@@ -23,6 +24,7 @@ class AppText extends StatelessWidget {
     this.overflow,
     this.fontSize,
     this.fontWeight,
+    this.decoration,
   });
 
   @override
@@ -36,6 +38,7 @@ class AppText extends StatelessWidget {
         color: color,
         fontSize: fontSize,
         fontWeight: fontWeight,
+        decoration: decoration,
       ),
     );
   }

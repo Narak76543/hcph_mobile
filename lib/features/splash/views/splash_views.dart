@@ -16,7 +16,11 @@ class SplashViews extends GetView<SplashController> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            AppText('HCPH', variant: AppTextVariant.title, color: AppColor.kAuthTextPrimary, fontSize: 30),
+            Image.asset(
+              'assets/images/nu.png',
+              height: 120,
+              fit: BoxFit.contain,
+            ),
             const SizedBox(height: 16),
             SizedBox(
               width: 36,

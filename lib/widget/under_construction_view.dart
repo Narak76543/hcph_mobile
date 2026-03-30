@@ -9,7 +9,16 @@ class UnderConstructionView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColor.kBgColor,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          color: AppColor.kAuthAccent,
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -52,7 +61,7 @@ class UnderConstructionView extends StatelessWidget {
               //   width: double.infinity,
               //   height: 54,
               //   child: ElevatedButton(
-              //     onPressed: () => Get.back(), // Or switch to initial tab?
+              //     onPressed: () => Navigator.pop(context), // Or switch to initial tab?
               //     style: ElevatedButton.styleFrom(
               //       backgroundColor: AppColor.kAuthAccent.withOpacity(0.1),
               //       foregroundColor: AppColor.kAuthAccent,

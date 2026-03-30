@@ -5,7 +5,8 @@ import 'package:school_assgn/core/network/api_config.dart';
 import 'package:school_assgn/core/network/api_exception.dart';
 
 class ApiClient {
-  ApiClient({http.Client? httpClient}) : _httpClient = httpClient ?? http.Client();
+  ApiClient({http.Client? httpClient})
+    : _httpClient = httpClient ?? http.Client();
 
   final http.Client _httpClient;
 
@@ -89,12 +90,16 @@ class ApiClient {
 
     request.fields.addAll(fields);
 
-    if (fileFieldName != null && filePath != null && filePath.trim().isNotEmpty) {
-      request.files.add(await http.MultipartFile.fromPath(
-        fileFieldName,
-        filePath,
-        contentType: MediaType('image', 'jpeg'),
-      ));
+    if (fileFieldName != null &&
+        filePath != null &&
+        filePath.trim().isNotEmpty) {
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          fileFieldName,
+          filePath,
+          contentType: MediaType('image', 'jpeg'),
+        ),
+      );
     }
 
     final streamed = await request.send();
@@ -118,12 +123,16 @@ class ApiClient {
 
     request.fields.addAll(fields);
 
-    if (fileFieldName != null && filePath != null && filePath.trim().isNotEmpty) {
-      request.files.add(await http.MultipartFile.fromPath(
-        fileFieldName,
-        filePath,
-        contentType: MediaType('image', 'jpeg'),
-      ));
+    if (fileFieldName != null &&
+        filePath != null &&
+        filePath.trim().isNotEmpty) {
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          fileFieldName,
+          filePath,
+          contentType: MediaType('image', 'jpeg'),
+        ),
+      );
     }
 
     final streamed = await request.send();

@@ -4,10 +4,15 @@ import 'package:http/http.dart' as http;
 import 'package:school_assgn/core/network/api_client.dart';
 import 'package:school_assgn/core/network/api_config.dart';
 import 'package:school_assgn/core/session/session_service.dart';
+import 'package:school_assgn/features/home/models/home_models.dart';
 import 'package:school_assgn/features/main_nav/controllers/main_nav_controller.dart';
+import 'package:school_assgn/widget/under_construction_view.dart';
+import 'package:school_assgn/features/profile/views/laptop_detail_view.dart';
 import 'package:school_assgn/themes/app_color.dart';
 import 'package:school_assgn/widget/text_widget.dart';
 import 'package:school_assgn/core/theme/theme_service.dart';
+import 'package:image_picker/image_picker.dart' as image_picker;
+import 'package:geolocator/geolocator.dart';
 
 class ProfileController extends GetxController {
   final ApiClient _apiClient = ApiClient();
@@ -16,10 +21,26 @@ class ProfileController extends GetxController {
   final RxString userBadge = 'Member'.obs;
   final RxString userRole = 'user'.obs;
   final RxString userAvatarUrl = 'assets/images/norton_university.png'.obs;
+  final Rx<String?> selectedShopImage = Rx<String?>(null);
 
+  final RxString userRoleIcon = 'assets/images/userr.png'.obs;
   final RxBool isTechnicalRole = false.obs;
   final RxInt shopViews = 0.obs;
   final RxBool hasRequestedRole = false.obs;
+
+  // Shop Profile Data
+  final RxString shopId = ''.obs;
+  final RxString shopName = 'My Shop'.obs;
+  final RxString shopAddress = ''.obs;
+  final RxString shopPhone = ''.obs;
+  final RxString shopTelegram = ''.obs;
+  final RxString shopImageUrl = ''.obs;
+
+  // Detailed Address Fields
+  final RxString shopProvince = ''.obs;
+  final RxString shopDistrict = ''.obs;
+  final RxString shopAddrDetail = ''.obs;
+  final RxString shopGMapUrl = ''.obs;
 
   // Settings
   final RxBool isDarkMode = false.obs;
@@ -27,10 +48,79 @@ class ProfileController extends GetxController {
 
   // Request form controllers (kept here so the sheet is stateless)
   final shopNameCtrl = TextEditingController();
-  final shopAddressCtrl = TextEditingController();
+  final shopAddressCtrl = TextEditingController(); // Legacy or summary
   final shopPhoneCtrl = TextEditingController();
+  final shopTelegramCtrl = TextEditingController();
   final shopReasonCtrl = TextEditingController();
+
+  final shopProvinceCtrl = TextEditingController();
+  final shopDistrictCtrl = TextEditingController();
+  final shopAddrDetailCtrl = TextEditingController();
+  final shopGMapUrlCtrl = TextEditingController();
   final RxBool isRequestLoading = false.obs;
+  final RxBool isShopUpdating = false.obs;
+  final RxBool isLocationLoading = false.obs;
+
+  Future<void> pickShopImage() async {
+    final picker = image_picker.ImagePicker();
+    final image = await picker.pickImage(
+      source: image_picker.ImageSource.gallery,
+    );
+    if (image != null) {
+      selectedShopImage.value = image.path;
+    }
+  }
+
+  Future<void> getCurrentLocation() async {
+    try {
+      isLocationLoading.value = true;
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        throw 'Location services are disabled.';
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          throw 'Location permissions are denied.';
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        throw 'Location permissions are permanently denied.';
+      }
+
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      final url =
+          'https://www.google.com/maps/search/?api=1&query=${position.latitude},${position.longitude}';
+      shopGMapUrlCtrl.text = url;
+      
+      Get.snackbar(
+        'Location Captured',
+        'Your current coordinates have been mapped successfully.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColor.kGoogleBlue.withOpacity(0.9),
+        colorText: Colors.white,
+        margin: const EdgeInsets.all(20),
+        borderRadius: 16,
+        icon: const Icon(Icons.check_circle_rounded, color: Colors.white),
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Location Error',
+        e.toString().replaceFirst('Exception: ', ''),
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.withOpacity(0.9),
+        colorText: Colors.white,
+      );
+    } finally {
+      isLocationLoading.value = false;
+    }
+  }
 
   // ── Laptop model management ──
   final RxList<Map<String, dynamic>> myLaptops = <Map<String, dynamic>>[].obs;
@@ -53,18 +143,29 @@ class ProfileController extends GetxController {
     _fetchMyLaptops();
   }
 
+  Future<void> refreshProfile() async {
+    await Future.wait([
+      _fetchUserProfile(),
+      _fetchMyLaptops(),
+    ]);
+  }
+
   Future<void> _fetchUserProfile() async {
     try {
       final session = Get.find<SessionService>();
       final token = session.accessToken;
       if (token == null || token.isEmpty) return;
 
-      // Fetch user info and existing request in parallel
+      // Fetch user info, request and shop in parallel
       final results = await Future.wait([
         _apiClient.getRequest('/users/me', bearerToken: token),
         _apiClient
             .getRequest('/requests/my-request', bearerToken: token)
             .catchError((_) => null),
+        _apiClient.getRequest('/shops/my-shop', bearerToken: token).catchError((e) {
+          debugPrint('[ProfileController] Shop fetch error: $e');
+          return null;
+        }),
       ]);
 
       // ── User profile ──
@@ -82,21 +183,55 @@ class ProfileController extends GetxController {
           userAvatarUrl.value = 'assets/images/norton_university.png';
         }
 
-        final role = data['role'] as String? ?? 'user';
+        final role = (data['role'] as String? ?? 'user').toUpperCase();
         userRole.value = role;
-        isTechnicalRole.value = role == 'technical' || role == 'admin';
+        isTechnicalRole.value = role == 'TECHNICAL' || role == 'ADMIN';
         userBadge.value = _roleToLabel(role);
+        userRoleIcon.value = _roleToIcon(role);
       }
 
       // ── Pending request ──
       final requestData = results[1];
-      if (!isTechnicalRole.value && requestData != null) {
-        // /requests/my-request returns a single object (not a list)
-        if (requestData is Map<String, dynamic>) {
-          final status =
-              (requestData['status']?.toString().toLowerCase()) ?? '';
-          hasRequestedRole.value = status == 'pending' || status == '';
+      if (requestData != null && requestData is Map<String, dynamic>) {
+        final status = (requestData['status']?.toString().toUpperCase()) ?? '';
+
+        // If approved, update shop profile info
+        if (status == 'APPROVED') {
+          shopName.value = requestData['shop_name'] ?? 'My Shop';
+          shopAddress.value = requestData['shop_address'] ?? '';
+          shopPhone.value = requestData['phone'] ?? '';
+          isTechnicalRole.value = true; // Force tech role if approved
         }
+
+        if (!isTechnicalRole.value) {
+          hasRequestedRole.value = status == 'PENDING' || status == '';
+        }
+      }
+
+      // ── Shop Data (TBL_Shop) ──
+      final shopData = results[2];
+      if (shopData != null && shopData is Map<String, dynamic>) {
+        shopId.value = shopData['id']?.toString() ?? '';
+        shopName.value = shopData['name'] ?? shopName.value;
+        shopPhone.value = shopData['phone'] ?? '';
+        shopTelegram.value = shopData['telegram_handle'] ?? '';
+        shopImageUrl.value = shopData['shop_pro_img_url'] ?? '';
+
+        // Detailed Address
+        shopProvince.value = shopData['province'] ?? '';
+        shopDistrict.value = shopData['district'] ?? '';
+        shopAddrDetail.value = shopData['detail'] ?? '';
+        shopGMapUrl.value = shopData['google_maps_url'] ?? '';
+
+        // Update summary address
+        shopAddress.value = [shopAddrDetail.value, shopDistrict.value, shopProvince.value]
+            .where((s) => s.isNotEmpty)
+            .join(', ');
+        if (shopAddress.value.isEmpty && shopData['address'] != null) {
+          shopAddress.value = shopData['address'];
+        }
+
+        isTechnicalRole.value = true; // If we have shop data, user is tech/admin
       }
     } catch (e) {
       debugPrint('[ProfileController] Could not fetch user profile: $e');
@@ -113,6 +248,19 @@ class ProfileController extends GetxController {
         return 'User';
       default:
         return role.isNotEmpty ? role : 'Member';
+    }
+  }
+
+  String _roleToIcon(String role) {
+    switch (role.toLowerCase()) {
+      case 'admin':
+        return 'assets/images/protection.png';
+      case 'technical':
+        return 'assets/images/screw-driver.png';
+      case 'user':
+        return 'assets/images/userr.png';
+      default:
+        return 'assets/images/userr.png';
     }
   }
 
@@ -558,14 +706,31 @@ class ProfileController extends GetxController {
                                   ],
                           ),
                           child: InkWell(
-                            onTap: alreadySaved || saving
-                                ? null
-                                : () => saveLaptopModel(model['id']),
+                            onTap: () async {
+                              // 1. Fetch specifications for any card click
+                              await fetchSpecsForModel(model['id']);
+
+                              if (selectedModelSpec.value != null) {
+                                Get.to(
+                                  () => LaptopDetailView(
+                                    modelName: model['name'] ?? 'Detail',
+                                    spec: selectedModelSpec.value!,
+                                  ),
+                                );
+                              } else if (!isSpecsLoading.value) {
+                                Get.snackbar(
+                                  "Spec not found",
+                                  "Currently we don't have specifications for this model.",
+                                  snackPosition: SnackPosition.BOTTOM,
+                                );
+                              }
+                            },
                             borderRadius: BorderRadius.circular(16),
                             child: Padding(
                               padding: const EdgeInsets.all(16),
                               child: Row(
                                 children: [
+                                  // Icon area
                                   Container(
                                     width: 48,
                                     height: 48,
@@ -590,6 +755,8 @@ class ProfileController extends GetxController {
                                     ),
                                   ),
                                   const SizedBox(width: 16),
+
+                                  // Text area
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
@@ -598,7 +765,6 @@ class ProfileController extends GetxController {
                                         AppText(
                                           model['name'] ?? 'Unknown Model',
                                           variant: AppTextVariant.title,
-                                          color: AppColor.kAuthTextPrimary,
                                           fontSize: 15,
                                         ),
                                         if (subtitle.isNotEmpty) ...[
@@ -607,43 +773,63 @@ class ProfileController extends GetxController {
                                             subtitle,
                                             variant: AppTextVariant.caption,
                                             fontSize: 12,
-                                            color: AppColor.kAuthTextSecondary,
                                           ),
                                         ],
+                                        // ── NEW: Link to Hardware Details ──
+                                        GestureDetector(
+                                          onTap: () async {
+                                            await fetchSpecsForModel(
+                                              model['id'],
+                                            );
+                                            if (selectedModelSpec.value !=
+                                                null) {
+                                              Get.to(
+                                                () => LaptopDetailView(
+                                                  modelName:
+                                                      model['name'] ?? 'Detail',
+                                                  spec:
+                                                      selectedModelSpec.value!,
+                                                ),
+                                              );
+                                            }
+                                          },
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                              top: 8,
+                                            ),
+                                            child: AppText(
+                                              'View Hardware Detail ›',
+                                              variant: AppTextVariant.label,
+                                              color: AppColor.kGoogleBlue,
+                                              fontSize: 11,
+                                            ),
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
+
+                                  // ───────────────── SAVE BUTTON ONLY ──────────────────
                                   if (saving)
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 20,
                                       height: 20,
                                       child: CircularProgressIndicator(
                                         strokeWidth: 2,
-                                        color: AppColor.kAuthAccent,
                                       ),
                                     )
                                   else if (alreadySaved)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: AppColor.kGoogleGreen,
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: const AppText(
-                                        'Saved',
-                                        variant: AppTextVariant.label,
-                                        color: Colors.white,
-                                        fontSize: 11,
-                                      ),
-                                    )
+                                    _buildSavedBadge()
                                   else
-                                    Icon(
-                                      Icons.add_circle_rounded,
-                                      color: AppColor.kAuthAccent,
-                                      size: 26,
+                                    // Make only this icon clickable for saving
+                                    IconButton(
+                                      onPressed: () =>
+                                          saveLaptopModel(model['id']),
+                                      icon: Icon(
+                                        Icons.add_circle_rounded,
+                                        color: AppColor.kAuthAccent,
+                                        size: 28,
+                                      ),
                                     ),
                                 ],
                               ),
@@ -897,6 +1083,144 @@ class ProfileController extends GetxController {
     }
   }
 
+  Future<void> createShopProfile() async {
+    try {
+      isShopUpdating.value = true;
+      final session = Get.find<SessionService>();
+      final token = session.accessToken;
+      if (token == null) return;
+
+      final fields = {
+        'name': shopNameCtrl.text.trim(),
+        'phone': shopPhoneCtrl.text.trim(),
+        'telegram_handle': shopTelegramCtrl.text.trim(),
+        'province': shopProvinceCtrl.text.trim(),
+        'district': shopDistrictCtrl.text.trim(),
+        'detail': shopAddrDetailCtrl.text.trim(),
+        'google_maps_url': shopGMapUrlCtrl.text.trim(),
+      };
+
+      final response = await _apiClient.postMultipart(
+        '/shops/',
+        fields: fields,
+        fileFieldName: 'shop_pro_img', // or whatever your backend expects
+        filePath: selectedShopImage.value,
+        bearerToken: token,
+      );
+
+      if (response['id'] != null) {
+        shopId.value = response['id'].toString();
+        shopName.value = response['name'] ?? shopNameCtrl.text.trim();
+        shopPhone.value = response['phone'] ?? shopPhoneCtrl.text.trim();
+        shopTelegram.value =
+            response['telegram_handle'] ?? shopTelegramCtrl.text.trim();
+
+        shopProvince.value =
+            response['province'] ?? shopProvinceCtrl.text.trim();
+        shopDistrict.value =
+            response['district'] ?? shopDistrictCtrl.text.trim();
+        shopAddrDetail.value =
+            response['detail'] ?? shopAddrDetailCtrl.text.trim();
+        shopGMapUrl.value =
+            response['google_maps_url'] ?? shopGMapUrlCtrl.text.trim();
+
+        shopAddress.value = [
+          shopAddrDetail.value,
+          shopDistrict.value,
+          shopProvince.value,
+        ].where((s) => s.isNotEmpty).join(', ');
+
+        shopImageUrl.value = response['shop_pro_img_url'] ?? '';
+      }
+
+      selectedShopImage.value = null; // Clear local picker
+      Get.back(); // close sheet
+      _showShopSuccessDialog();
+    } catch (e) {
+      Get.snackbar(
+        'Creation Failed',
+        e.toString().replaceFirst('Exception: ', ''),
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isShopUpdating.value = false;
+    }
+  }
+
+  Future<void> updateShopProfile() async {
+    try {
+      isShopUpdating.value = true;
+      final session = Get.find<SessionService>();
+      final token = session.accessToken;
+      if (token == null) return;
+
+      final fields = {
+        'name': shopNameCtrl.text.trim(),
+        'phone': shopPhoneCtrl.text.trim(),
+        'telegram_handle': shopTelegramCtrl.text.trim(),
+        'province': shopProvinceCtrl.text.trim(),
+        'district': shopDistrictCtrl.text.trim(),
+        'detail': shopAddrDetailCtrl.text.trim(),
+        'google_maps_url': shopGMapUrlCtrl.text.trim(),
+      };
+
+      // Use patchMultipart for updates
+      final response = await _apiClient.patchMultipart(
+        '/shops/me',
+        fields: fields,
+        fileFieldName: 'shop_pro_img',
+        filePath: selectedShopImage.value,
+        bearerToken: token,
+      );
+
+      // Update local state
+      shopName.value = response['name'] ?? shopNameCtrl.text.trim();
+      shopPhone.value = response['phone'] ?? shopPhoneCtrl.text.trim();
+      shopTelegram.value =
+          response['telegram_handle'] ?? shopTelegramCtrl.text.trim();
+
+      shopProvince.value = response['province'] ?? shopProvinceCtrl.text.trim();
+      shopDistrict.value = response['district'] ?? shopDistrictCtrl.text.trim();
+      shopAddrDetail.value =
+          response['detail'] ?? shopAddrDetailCtrl.text.trim();
+      shopGMapUrl.value =
+          response['google_maps_url'] ?? shopGMapUrlCtrl.text.trim();
+
+      shopAddress.value = [
+        shopAddrDetail.value,
+        shopDistrict.value,
+        shopProvince.value,
+      ].where((s) => s.isNotEmpty).join(', ');
+
+      if (response['shop_pro_img_url'] != null) {
+        shopImageUrl.value = response['shop_pro_img_url'];
+      }
+
+      selectedShopImage.value = null;
+      Get.snackbar(
+        'Success',
+        'Shop profile updated securely.',
+        backgroundColor: AppColor.kGoogleGreen,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(20),
+        borderRadius: 16,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Update Failed',
+        e.toString().replaceFirst('Exception: ', ''),
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isShopUpdating.value = false;
+    }
+  }
+
   void logout() {
     try {
       Get.find<MainNavController>().logout();
@@ -910,7 +1234,131 @@ class ProfileController extends GetxController {
     shopNameCtrl.dispose();
     shopAddressCtrl.dispose();
     shopPhoneCtrl.dispose();
+    shopTelegramCtrl.dispose();
+    shopProvinceCtrl.dispose();
+    shopDistrictCtrl.dispose();
+    shopAddrDetailCtrl.dispose();
+    shopGMapUrlCtrl.dispose();
     shopReasonCtrl.dispose();
     super.onClose();
+  }
+
+  final Rx<LaptopSpecModel?> selectedModelSpec = Rx<LaptopSpecModel?>(null);
+  final RxBool isSpecsLoading = false.obs;
+
+  Future<void> fetchSpecsForModel(String modelId) async {
+    try {
+      isSpecsLoading.value = true;
+      selectedModelSpec.value = null; // Clear previous
+
+      // Assuming you have an endpoint like /laptop-specs/?model_id=...
+      final response = await _apiClient.getRequest(
+        '/laptop-specs/',
+        queryParameters: {'model_id': modelId},
+      );
+
+      if (response != null) {
+        // If it returns a list, take the first one; if a single object, parse directly
+        if (response is List && response.isNotEmpty) {
+          selectedModelSpec.value = LaptopSpecModel.fromJson(response[0]);
+        } else if (response is Map<String, dynamic>) {
+          selectedModelSpec.value = LaptopSpecModel.fromJson(response);
+        }
+      }
+    } catch (e) {
+      debugPrint('[ProfileController] Could not fetch specs: $e');
+    } finally {
+      isSpecsLoading.value = false;
+    }
+  }
+
+  void _showShopSuccessDialog() {
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        backgroundColor: AppColor.kBackground,
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColor.kGoogleGreen.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.check_circle_rounded,
+                  color: AppColor.kGoogleGreen,
+                  size: 64,
+                ),
+              ),
+              const SizedBox(height: 24),
+              const AppText(
+                'Shop Created Successfully!',
+                variant: AppTextVariant.title,
+                fontSize: 20,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              AppText(
+                'Your shop is now ready. Start adding your hardware listings to grow your business.',
+                variant: AppTextVariant.body,
+                color: AppColor.kAuthTextSecondary,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Get.back(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColor.kGoogleGreen,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: AppText(
+                    'Get Started',
+                    variant: AppTextVariant.label,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSavedBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColor.kGoogleGreen,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.check_circle_rounded, color: Colors.white, size: 14),
+          SizedBox(width: 4),
+          AppText(
+            'Saved',
+            variant: AppTextVariant.label,
+            color: Colors.white,
+            fontSize: 11,
+          ),
+        ],
+      ),
+    );
+  }
+
+  void showUnderConstruction() {
+    Get.to(() => const UnderConstructionView());
   }
 }
