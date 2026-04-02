@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:school_assgn/core/auth/google_auth_service.dart';
@@ -248,6 +247,7 @@ class SignInController extends GetxController {
       final user = response['user'];
       final displayName = _resolveDisplayName(user, fallback: username);
       final firebaseEmail = _extractEmail(user, fallback: username);
+      final userId = user is Map ? (user['id']?.toString() ?? '') : '';
       unawaited(
         _syncFirebaseEmailPasswordAccount(
           email: firebaseEmail,
@@ -258,6 +258,7 @@ class SignInController extends GetxController {
       await sessionService.saveSession(
         accessToken: accessToken,
         userName: displayName,
+        userId: userId,
       );
 
       Get.offAllNamed(

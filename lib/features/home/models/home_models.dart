@@ -18,32 +18,166 @@ class CategoryModel {
   final String id;
   final String name;
   final String slug;
-  final IconData icon;
+  final IconData? icon;
+  final String? imageUrl;
 
   CategoryModel({
     required this.id,
     required this.name,
     required this.slug,
-    required this.icon,
+    this.icon,
+    this.imageUrl,
   });
 }
 
 class PostModel {
-  final String partName;
+  final String id;
+  final String partName; // legacy title
+  final String brand;
+  final String model;
   final String compatibleModel;
   final String shopName;
+  final String postedBy;
+  final String ownerFullName; // Display name for "Posted by"
+  final String? ownerUserId; // For checking if current user is owner
   final double price;
   final String imageUrl;
   final bool isVerified;
 
   PostModel({
+    required this.id,
     required this.partName,
+    required this.brand,
+    required this.model,
     required this.compatibleModel,
     required this.shopName,
+    required this.postedBy,
+    String? ownerFullName,
+    this.ownerUserId,
     required this.price,
     required this.imageUrl,
     this.isVerified = true,
-  });
+  }) : ownerFullName = ownerFullName ?? postedBy;
+
+  factory PostModel.fromJson(Map<String, dynamic> json) {
+    // ── Shop Name (prefers listing fields) ──
+    // ── Robust Shop Name Resolution ──
+    String shop = 'Unknown Shop';
+    final shopJson = json['shop'];
+    if (json['shop_name'] != null && json['shop_name'].toString().isNotEmpty) {
+      shop = json['shop_name'].toString();
+    } else if (shopJson is Map &&
+        (shopJson['name'] != null || shopJson['shop_name'] != null)) {
+      shop = (shopJson['name'] ?? shopJson['shop_name']).toString();
+    } else if (json['owner'] is Map && json['owner']['shop_name'] != null) {
+      shop = json['owner']['shop_name'].toString();
+    } else if (json['seller'] is Map && json['seller']['shop_name'] != null) {
+      shop = json['seller']['shop_name'].toString();
+    } else if (json['shop_details'] is Map &&
+        json['shop_details']['name'] != null) {
+      shop = json['shop_details']['name'].toString();
+    }
+
+    // ── Robust Price Resolution ──
+    // Handle 'price', 'price_usd', 'cost', 'listing_price', etc.
+    final dynamic priceRaw =
+        json['price'] ??
+        json['listing_price'] ??
+        json['price_usd'] ??
+        json['cost'] ??
+        0.0;
+    double priceVal = 0.0;
+    if (priceRaw is num) {
+      priceVal = priceRaw.toDouble();
+    } else if (priceRaw is String) {
+      // Clean up string price (remove symbols etc)
+      final clean = priceRaw.replaceAll(RegExp(r'[^0-9.]'), '');
+      priceVal = double.tryParse(clean) ?? 0.0;
+    }
+
+    // ── Part Name Resolution (listing first) ──
+    final partMap = json['part'] as Map<String, dynamic>?;
+    final brand =
+        json['part_brand'] ?? partMap?['brand'] ?? json['brand'] ?? '';
+    final model =
+        json['part_model'] ??
+        partMap?['model_name'] ??
+        json['model_name'] ??
+        json['name'] ??
+        '';
+    final partName =
+        [brand, model]
+            .where((s) => s != null && s.toString().isNotEmpty)
+            .join(' ')
+            .trim()
+            .isNotEmpty
+        ? [
+            brand,
+            model,
+          ].whereType<String>().where((s) => s.isNotEmpty).join(' ')
+        : (json['part_model'] ??
+              partMap?['model_name'] ??
+              json['model_name'] ??
+              json['brand'] ??
+              partMap?['brand'] ??
+              json['name'] ??
+              'Unknown Part');
+
+    // ── Image Resolution ──
+    String image = '';
+    if (json['part_image'] != null &&
+        json['part_image'].toString().isNotEmpty) {
+      image = json['part_image'].toString();
+    } else if (json['img_url'] != null &&
+        json['img_url'].toString().isNotEmpty) {
+      image = json['img_url'].toString();
+    } else if (json['image_url'] != null &&
+        json['image_url'].toString().isNotEmpty) {
+      image = json['image_url'].toString();
+    } else if (json['parts_img_url'] != null &&
+        json['parts_img_url'].toString().isNotEmpty) {
+      image = json['parts_img_url'].toString();
+    } else if (partMap != null &&
+        partMap['img_url'] != null &&
+        partMap['img_url'].toString().isNotEmpty) {
+      image = partMap['img_url'].toString();
+    }
+
+    // ── Specification / subtitle ──
+    final compatibleModel =
+        partMap?['specification'] ??
+        json['specification'] ??
+        json['description'] ??
+        '';
+
+    // ── Verification flag (shop ACTIVE means verified) ──
+    final isVerified =
+        json['is_verified'] ??
+        (shopJson is Map &&
+            (shopJson['status'] == 'ACTIVE' ||
+                shopJson['is_verified'] == true)) ??
+        true;
+    final postedBy = shop;
+
+    // ── Owner Info ──
+    final ownerFullName = json['owner_full_name']?.toString() ?? shop;
+    final ownerUserId = json['owner_id']?.toString();
+
+    return PostModel(
+      id: json['id']?.toString() ?? '',
+      partName: partName,
+      brand: brand.toString(),
+      model: model.toString(),
+      compatibleModel: compatibleModel,
+      shopName: shop,
+      postedBy: postedBy,
+      ownerFullName: ownerFullName,
+      ownerUserId: ownerUserId,
+      price: priceVal,
+      imageUrl: image,
+      isVerified: isVerified,
+    );
+  }
 }
 
 class BrandModel {

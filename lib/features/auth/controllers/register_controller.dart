@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get.dart';
 import 'package:school_assgn/core/auth/google_auth_service.dart';
 import 'package:school_assgn/core/firebase/firebase_initializer.dart';
@@ -177,11 +176,15 @@ class RegisterController extends GetxController {
       backendUser,
       fallback: fallbackDisplayName,
     );
+    final userId = backendUser is Map
+        ? (backendUser['id']?.toString() ?? '')
+        : '';
 
     final sessionService = Get.find<SessionService>();
     await sessionService.saveSession(
       accessToken: accessToken,
       userName: displayName,
+      userId: userId,
     );
 
     Get.offAllNamed(AppRoutes.mainNav, arguments: {'welcomeName': displayName});

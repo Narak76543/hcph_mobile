@@ -93,9 +93,9 @@ class _SwipeLogoutButtonState extends State<SwipeLogoutButton>
                     shaderCallback: (bounds) {
                       return LinearGradient(
                         colors: [
-                          AppColor.kGoogleRed.withValues(alpha: 0.8),
-                          AppColor.kGoogleRed.withValues(alpha: 0.4),
-                          AppColor.kGoogleRed.withValues(alpha: 0.8),
+                          AppColor.kGoogleRed.withValues(alpha: 0.9),
+                          AppColor.kGoogleRed.withValues(alpha: 0.6),
+                          AppColor.kGoogleRed.withValues(alpha: 0.7),
                         ],
                         stops: const [0.0, 0.5, 1.0],
                         begin: Alignment.topLeft,

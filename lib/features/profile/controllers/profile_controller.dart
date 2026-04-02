@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'dart:io';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:school_assgn/core/network/api_client.dart';
 import 'package:school_assgn/core/network/api_config.dart';
+import 'package:school_assgn/core/network/api_exception.dart';
 import 'package:school_assgn/core/session/session_service.dart';
+import 'package:school_assgn/features/home/controllers/home_controller.dart';
 import 'package:school_assgn/features/home/models/home_models.dart';
 import 'package:school_assgn/features/main_nav/controllers/main_nav_controller.dart';
 import 'package:school_assgn/widget/under_construction_view.dart';
@@ -19,7 +23,7 @@ class ProfileController extends GetxController {
 
   final RxString userName = 'Sarat Narak'.obs;
   final RxString userBadge = 'Member'.obs;
-  final RxString userRole = 'user'.obs;
+  final RxString userRole = 'technical'.obs;
   final RxString userAvatarUrl = 'assets/images/norton_university.png'.obs;
   final Rx<String?> selectedShopImage = Rx<String?>(null);
 
@@ -41,6 +45,8 @@ class ProfileController extends GetxController {
   final RxString shopDistrict = ''.obs;
   final RxString shopAddrDetail = ''.obs;
   final RxString shopGMapUrl = ''.obs;
+  final RxList<PostModel> myListings = <PostModel>[].obs;
+  final RxBool isListingsLoading = false.obs;
 
   // Settings
   final RxBool isDarkMode = false.obs;
@@ -60,6 +66,90 @@ class ProfileController extends GetxController {
   final RxBool isRequestLoading = false.obs;
   final RxBool isShopUpdating = false.obs;
   final RxBool isLocationLoading = false.obs;
+
+  // --- Post Hardware Basic Controllers ---
+  final hardwareBrandCtrl = TextEditingController();
+  final hardwareModelCtrl = TextEditingController();
+  final hardwarePriceCtrl = TextEditingController();
+
+  // --- RAM Spec Controllers ---
+  final hardwareRamTypeCtrl = TextEditingController();
+  final hardwareRamCapacityGbCtrl = TextEditingController();
+  final hardwareRamBusMhzCtrl = TextEditingController();
+  final hardwareRamFormFactorCtrl = TextEditingController();
+  final hardwareRamLatencyCtrl = TextEditingController();
+
+  final hardwareCpuCtrl = TextEditingController();
+  final hardwareGpuCtrl = TextEditingController();
+  final hardwareRamSlotsCtrl = TextEditingController();
+  final hardwareMaxRamCtrl = TextEditingController();
+  // --- SSD Spec Controllers ---
+  final hardwareSsdTypeCtrl = TextEditingController();
+  final hardwareSsdCapacityGbCtrl = TextEditingController();
+  final hardwareSsdFormFactorCtrl = TextEditingController();
+  final hardwareSsdInterfaceCtrl = TextEditingController();
+  final hardwareSsdReadSpeedCtrl = TextEditingController();
+  final hardwareSsdWriteSpeedCtrl = TextEditingController();
+
+  // --- HDD Spec Controllers ---
+  final hardwareHddCapacityGbCtrl = TextEditingController();
+  final hardwareHddRpmCtrl = TextEditingController();
+  final hardwareHddFormFactorCtrl = TextEditingController();
+  final hardwareHddCacheMbCtrl = TextEditingController();
+
+  final hardwareHddBayCtrl =
+      TextEditingController(); // still for laptop context
+  final hardwareScreenSizeCtrl = TextEditingController();
+  final hardwareResolutionCtrl = TextEditingController();
+  final hardwareRefreshRateCtrl = TextEditingController();
+
+  // --- Thermal Paste Specs ---
+  final hardwareThermalConductivityCtrl = TextEditingController();
+  final hardwareThermalTypeCtrl = TextEditingController();
+  final hardwareThermalWeightCtrl = TextEditingController();
+
+  // --- Battery Spec Controllers ---
+  final hardwareBatteryWhCtrl = TextEditingController();
+  final hardwareBatteryMahCtrl = TextEditingController();
+  final hardwareBatteryCellsCtrl = TextEditingController();
+  final hardwareBatteryVoltageCtrl = TextEditingController();
+  final hardwareBatteryTypeCtrl = TextEditingController();
+  final hardwareBatteryConnectorCtrl = TextEditingController();
+
+  // --- Display Spec Controllers ---
+  final hardwareDisplaySizeInchCtrl = TextEditingController();
+  final hardwareDisplayResolutionCtrl = TextEditingController();
+  final hardwareDisplayRefreshRateCtrl = TextEditingController();
+  final hardwareDisplayPanelTypeCtrl = TextEditingController();
+  final hardwareDisplayConnectorPinCtrl = TextEditingController();
+  final hardwareDisplayBrightnessNitCtrl = TextEditingController();
+
+  // --- Cooling Fan Spec Controllers ---
+  final hardwareFanSizeMmCtrl = TextEditingController();
+  final hardwareFanConnectorCtrl = TextEditingController();
+  final hardwareFanMaxRpmCtrl = TextEditingController();
+  final hardwareFanTypeCtrl = TextEditingController();
+
+  // --- Charger Spec Controllers ---
+  final hardwareChargerWattageCtrl = TextEditingController();
+  final hardwareChargerVoltageCtrl = TextEditingController();
+  final hardwareChargerConnectorCtrl = TextEditingController();
+  final hardwareChargerStandardCtrl = TextEditingController();
+
+  final RxString selectedCategoryIdForPost = ''.obs;
+  final RxBool isPostingHardware = false.obs;
+  final Rx<String?> selectedHardwareImage = Rx<String?>(null);
+
+  Future<void> pickHardwareImage() async {
+    final picker = image_picker.ImagePicker();
+    final image = await picker.pickImage(
+      source: image_picker.ImageSource.gallery,
+      imageQuality: 80,
+    );
+    if (image != null) {
+      selectedHardwareImage.value = image.path;
+    }
+  }
 
   Future<void> pickShopImage() async {
     final picker = image_picker.ImagePicker();
@@ -98,7 +188,7 @@ class ProfileController extends GetxController {
       final url =
           'https://www.google.com/maps/search/?api=1&query=${position.latitude},${position.longitude}';
       shopGMapUrlCtrl.text = url;
-      
+
       Get.snackbar(
         'Location Captured',
         'Your current coordinates have been mapped successfully.',
@@ -147,6 +237,7 @@ class ProfileController extends GetxController {
     await Future.wait([
       _fetchUserProfile(),
       _fetchMyLaptops(),
+      _fetchMyShopParts(),
     ]);
   }
 
@@ -162,7 +253,9 @@ class ProfileController extends GetxController {
         _apiClient
             .getRequest('/requests/my-request', bearerToken: token)
             .catchError((_) => null),
-        _apiClient.getRequest('/shops/my-shop', bearerToken: token).catchError((e) {
+        _apiClient.getRequest('/shops/my-shop', bearerToken: token).catchError((
+          e,
+        ) {
           debugPrint('[ProfileController] Shop fetch error: $e');
           return null;
         }),
@@ -224,14 +317,20 @@ class ProfileController extends GetxController {
         shopGMapUrl.value = shopData['google_maps_url'] ?? '';
 
         // Update summary address
-        shopAddress.value = [shopAddrDetail.value, shopDistrict.value, shopProvince.value]
-            .where((s) => s.isNotEmpty)
-            .join(', ');
+        shopAddress.value = [
+          shopAddrDetail.value,
+          shopDistrict.value,
+          shopProvince.value,
+        ].where((s) => s.isNotEmpty).join(', ');
         if (shopAddress.value.isEmpty && shopData['address'] != null) {
           shopAddress.value = shopData['address'];
         }
 
-        isTechnicalRole.value = true; // If we have shop data, user is tech/admin
+        isTechnicalRole.value =
+            true; // If we have shop data, user is tech/admin
+
+        // Fetch parts for this shop
+        _fetchMyShopParts();
       }
     } catch (e) {
       debugPrint('[ProfileController] Could not fetch user profile: $e');
@@ -272,6 +371,75 @@ class ProfileController extends GetxController {
   void toggleLanguage(bool value) => isKhmerLanguage.value = value;
 
   // ─────────────────────── Laptop Model Methods ───────────────────────
+
+  Future<void> _fetchMyShopParts() async {
+    if (shopId.value.isEmpty || shopId.value == 'test-shop-id') return;
+
+    try {
+      isListingsLoading.value = true;
+      final session = Get.find<SessionService>();
+      final token = session.accessToken;
+
+      // Fetch listings for this shop so we show price + shop meta
+      final response = await _apiClient.getRequest(
+        '/listings/',
+        queryParameters: {'shop_id': shopId.value, 'limit': '50'},
+        bearerToken: token,
+      );
+
+      List<dynamic> list = [];
+      if (response is List) {
+        list = response;
+      } else if (response is Map<String, dynamic> && response['data'] is List) {
+        list = response['data'] as List;
+      }
+
+      myListings.value = list
+          .map((e) {
+            final model = PostModel.fromJson(Map<String, dynamic>.from(e));
+
+            // Normalize image URL
+            String imageUrl = model.imageUrl;
+            if (imageUrl.isNotEmpty) {
+              if (imageUrl.startsWith('http://localhost:8000')) {
+                imageUrl = imageUrl.replaceFirst(
+                  'http://localhost:8000',
+                  ApiConfig.baseUrl,
+                );
+              } else if (imageUrl.startsWith('http://127.0.0.1:8000')) {
+                imageUrl = imageUrl.replaceFirst(
+                  'http://127.0.0.1:8000',
+                  ApiConfig.baseUrl,
+                );
+              } else if (!imageUrl.startsWith('http')) {
+                imageUrl =
+                    '${ApiConfig.baseUrl}${imageUrl.startsWith('/') ? imageUrl : '/$imageUrl'}';
+              }
+            }
+
+            return PostModel(
+              id: model.id,
+              partName: model.partName,
+              brand: model.brand,
+              model: model.model,
+              compatibleModel: model.compatibleModel,
+              shopName: model.shopName,
+              postedBy: model.postedBy,
+              ownerFullName: model.ownerFullName,
+              ownerUserId: model.ownerUserId,
+              price: model.price,
+              imageUrl: imageUrl,
+              isVerified: model.isVerified,
+            );
+          })
+          .cast<PostModel>()
+          .toList();
+    } catch (e) {
+      debugPrint('[ProfileController] Could not fetch shop parts: $e');
+    } finally {
+      isListingsLoading.value = false;
+    }
+  }
 
   Future<void> _fetchMyLaptops() async {
     try {
@@ -618,7 +786,7 @@ class ProfileController extends GetxController {
                                       ? Image.network(
                                           imageUrlStr,
                                           fit: BoxFit.contain,
-                                          errorBuilder: (_, __, ___) => Icon(
+                                          errorBuilder: (_, _, _) => Icon(
                                             Icons.business_rounded,
                                             color: AppColor.kGoogleBlue,
                                             size: 24,
@@ -1240,7 +1408,434 @@ class ProfileController extends GetxController {
     shopAddrDetailCtrl.dispose();
     shopGMapUrlCtrl.dispose();
     shopReasonCtrl.dispose();
+    hardwareBrandCtrl.dispose();
+    hardwareModelCtrl.dispose();
+    hardwarePriceCtrl.dispose();
+    hardwareCpuCtrl.dispose();
+    hardwareGpuCtrl.dispose();
+    hardwareRamTypeCtrl.dispose();
+    hardwareRamCapacityGbCtrl.dispose(); // Fixed name
+    hardwareRamBusMhzCtrl.dispose(); // Added missing
+    hardwareRamFormFactorCtrl.dispose(); // Added missing
+    hardwareRamLatencyCtrl.dispose(); // Added missing
+    hardwareRamSlotsCtrl.dispose();
+    hardwareMaxRamCtrl.dispose();
+    hardwareSsdTypeCtrl.dispose();
+    hardwareSsdCapacityGbCtrl.dispose();
+    hardwareSsdFormFactorCtrl.dispose();
+    hardwareSsdInterfaceCtrl.dispose();
+    hardwareSsdReadSpeedCtrl.dispose();
+    hardwareSsdWriteSpeedCtrl.dispose();
+    hardwareHddCapacityGbCtrl.dispose();
+    hardwareHddRpmCtrl.dispose();
+    hardwareHddFormFactorCtrl.dispose();
+    hardwareHddCacheMbCtrl.dispose();
+    hardwareHddBayCtrl.dispose();
+    hardwareDisplaySizeInchCtrl.dispose();
+    hardwareDisplayResolutionCtrl.dispose();
+    hardwareDisplayRefreshRateCtrl.dispose();
+    hardwareDisplayPanelTypeCtrl.dispose();
+    hardwareDisplayConnectorPinCtrl.dispose();
+    hardwareDisplayBrightnessNitCtrl.dispose();
+    hardwareThermalConductivityCtrl.dispose();
+    hardwareThermalTypeCtrl.dispose();
+    hardwareThermalWeightCtrl.dispose();
+    hardwareBatteryWhCtrl.dispose();
+    hardwareBatteryMahCtrl.dispose();
+    hardwareBatteryCellsCtrl.dispose();
+    hardwareBatteryVoltageCtrl.dispose();
+    hardwareBatteryTypeCtrl.dispose();
+    hardwareBatteryConnectorCtrl.dispose();
+    hardwareChargerWattageCtrl.dispose();
+    hardwareChargerVoltageCtrl.dispose();
+    hardwareChargerConnectorCtrl.dispose();
+    hardwareChargerStandardCtrl.dispose();
+    hardwareFanSizeMmCtrl.dispose();
+    hardwareFanConnectorCtrl.dispose();
+    hardwareFanMaxRpmCtrl.dispose();
+    hardwareFanTypeCtrl.dispose();
     super.onClose();
+  }
+
+  CategoryModel get selectedPostCategory {
+    final homeCtrl = Get.find<HomeController>();
+    return homeCtrl.categories.firstWhere(
+      (c) => c.id == selectedCategoryIdForPost.value,
+      orElse: () => CategoryModel(id: '0', name: 'Other', slug: 'other'),
+    );
+  }
+
+  bool categoryMatches(CategoryModel category, List<String> keywords) {
+    final haystack = '${category.name} ${category.slug}'.toLowerCase();
+    return keywords.any(haystack.contains);
+  }
+
+  int get filledHardwareSpecCount {
+    final controllers = [
+      hardwareCpuCtrl,
+      hardwareGpuCtrl,
+      hardwareRamTypeCtrl,
+      hardwareRamCapacityGbCtrl,
+      hardwareRamBusMhzCtrl,
+      hardwareRamFormFactorCtrl,
+      hardwareRamLatencyCtrl,
+      hardwareRamSlotsCtrl,
+      hardwareMaxRamCtrl,
+      hardwareSsdTypeCtrl,
+      hardwareSsdCapacityGbCtrl,
+      hardwareSsdFormFactorCtrl,
+      hardwareSsdInterfaceCtrl,
+      hardwareSsdReadSpeedCtrl,
+      hardwareSsdWriteSpeedCtrl,
+      hardwareHddCapacityGbCtrl,
+      hardwareHddRpmCtrl,
+      hardwareHddFormFactorCtrl,
+      hardwareHddCacheMbCtrl,
+      hardwareThermalConductivityCtrl,
+      hardwareThermalTypeCtrl,
+      hardwareThermalWeightCtrl,
+      hardwareBatteryWhCtrl,
+      hardwareBatteryMahCtrl,
+      hardwareBatteryCellsCtrl,
+      hardwareBatteryVoltageCtrl,
+      hardwareBatteryTypeCtrl,
+      hardwareBatteryConnectorCtrl,
+      hardwareDisplaySizeInchCtrl,
+      hardwareDisplayResolutionCtrl,
+      hardwareDisplayRefreshRateCtrl,
+      hardwareDisplayPanelTypeCtrl,
+      hardwareDisplayConnectorPinCtrl,
+      hardwareDisplayBrightnessNitCtrl,
+      hardwareFanSizeMmCtrl,
+      hardwareFanConnectorCtrl,
+      hardwareFanMaxRpmCtrl,
+      hardwareFanTypeCtrl,
+      hardwareChargerWattageCtrl,
+      hardwareChargerVoltageCtrl,
+      hardwareChargerConnectorCtrl,
+      hardwareChargerStandardCtrl,
+    ];
+
+    return controllers.where((ctrl) => ctrl.text.trim().isNotEmpty).length;
+  }
+
+  void _putSpec(
+    Map<String, dynamic> specs,
+    String key,
+    TextEditingController controller,
+  ) {
+    final raw = controller.text.trim();
+    if (raw.isEmpty) return;
+
+    final intValue = int.tryParse(raw);
+    if (intValue != null) {
+      specs[key] = intValue;
+      return;
+    }
+
+    final doubleValue = double.tryParse(raw);
+    if (doubleValue != null) {
+      specs[key] = doubleValue;
+      return;
+    }
+
+    specs[key] = raw;
+  }
+
+  void _validateTechnicalForm(CategoryModel category) {
+    if (selectedCategoryIdForPost.value.isEmpty) {
+      throw 'Select a hardware category first.';
+    }
+    if (hardwareBrandCtrl.text.trim().isEmpty) {
+      throw 'Brand is required.';
+    }
+    if (hardwareModelCtrl.text.trim().isEmpty) {
+      throw 'Model name is required.';
+    }
+    if (hardwarePriceCtrl.text.trim().isEmpty) {
+      throw 'Price is required.';
+    }
+
+    if (categoryMatches(category, ['ram', 'memory'])) {
+      if (hardwareRamCapacityGbCtrl.text.trim().isEmpty) {
+        throw 'RAM Capacity (GB) is required.';
+      }
+      if (hardwareRamTypeCtrl.text.trim().isEmpty) {
+        throw 'RAM Type is required.';
+      }
+      if (hardwareRamBusMhzCtrl.text.trim().isEmpty) {
+        throw 'RAM Bus Speed (MHz) is required.';
+      }
+      if (hardwareRamFormFactorCtrl.text.trim().isEmpty) {
+        throw 'RAM Form Factor is required.';
+      }
+    }
+  }
+
+  Map<String, dynamic> _buildPartSpecs(CategoryModel category) {
+    final specs = <String, dynamic>{};
+
+    if (categoryMatches(category, ['cpu', 'gpu', 'motherboard'])) {
+      _putSpec(specs, 'cpu_model', hardwareCpuCtrl);
+      _putSpec(specs, 'gpu_model', hardwareGpuCtrl);
+    }
+
+    if (categoryMatches(category, ['ram', 'memory'])) {
+      _putSpec(specs, 'capacity_gb', hardwareRamCapacityGbCtrl);
+      _putSpec(specs, 'ram_type', hardwareRamTypeCtrl);
+      _putSpec(specs, 'bus_mhz', hardwareRamBusMhzCtrl);
+      _putSpec(specs, 'form_factor', hardwareRamFormFactorCtrl);
+      _putSpec(specs, 'latency', hardwareRamLatencyCtrl);
+    }
+
+    if (categoryMatches(category, ['ssd'])) {
+      _putSpec(specs, 'ssd_type', hardwareSsdTypeCtrl);
+      _putSpec(specs, 'capacity_gb', hardwareSsdCapacityGbCtrl);
+      _putSpec(specs, 'form_factor', hardwareSsdFormFactorCtrl);
+      _putSpec(specs, 'interface', hardwareSsdInterfaceCtrl);
+      _putSpec(specs, 'read_speed_mbps', hardwareSsdReadSpeedCtrl);
+      _putSpec(specs, 'write_speed_mbps', hardwareSsdWriteSpeedCtrl);
+    }
+
+    if (categoryMatches(category, ['hdd', 'hhd'])) {
+      _putSpec(specs, 'capacity_gb', hardwareHddCapacityGbCtrl);
+      _putSpec(specs, 'rpm', hardwareHddRpmCtrl);
+      _putSpec(specs, 'form_factor', hardwareHddFormFactorCtrl);
+      _putSpec(specs, 'cache_mb', hardwareHddCacheMbCtrl);
+    }
+
+    if (categoryMatches(category, ['screen', 'display', 'monitor'])) {
+      _putSpec(specs, 'size_inch', hardwareDisplaySizeInchCtrl);
+      _putSpec(specs, 'resolution', hardwareDisplayResolutionCtrl);
+      _putSpec(specs, 'refresh_rate_hz', hardwareDisplayRefreshRateCtrl);
+      _putSpec(specs, 'panel_type', hardwareDisplayPanelTypeCtrl);
+      _putSpec(specs, 'connector_pin', hardwareDisplayConnectorPinCtrl);
+      _putSpec(specs, 'brightness_nits', hardwareDisplayBrightnessNitCtrl);
+    }
+
+    if (categoryMatches(category, ['thermal', 'paste'])) {
+      _putSpec(specs, 'conductivity_wmk', hardwareThermalConductivityCtrl);
+      _putSpec(specs, 'thermal_type', hardwareThermalTypeCtrl);
+      _putSpec(specs, 'weight_g', hardwareThermalWeightCtrl);
+    }
+
+    if (categoryMatches(category, ['fan', 'cooling'])) {
+      _putSpec(specs, 'size_mm', hardwareFanSizeMmCtrl);
+      _putSpec(specs, 'connector', hardwareFanConnectorCtrl);
+      _putSpec(specs, 'max_rpm', hardwareFanMaxRpmCtrl);
+      _putSpec(specs, 'fan_type', hardwareFanTypeCtrl);
+    }
+
+    if (categoryMatches(category, ['battery'])) {
+      _putSpec(specs, 'capacity_wh', hardwareBatteryWhCtrl);
+      _putSpec(specs, 'capacity_mah', hardwareBatteryMahCtrl);
+      _putSpec(specs, 'cells', hardwareBatteryCellsCtrl);
+      _putSpec(specs, 'voltage_v', hardwareBatteryVoltageCtrl);
+      _putSpec(specs, 'battery_type', hardwareBatteryTypeCtrl);
+      _putSpec(specs, 'connector_type', hardwareBatteryConnectorCtrl);
+    }
+
+    if (categoryMatches(category, ['charger', 'adapter'])) {
+      _putSpec(specs, 'wattage_w', hardwareChargerWattageCtrl);
+      _putSpec(specs, 'voltage_v', hardwareChargerVoltageCtrl);
+      _putSpec(specs, 'connector_type', hardwareChargerConnectorCtrl);
+      _putSpec(specs, 'charging_standard', hardwareChargerStandardCtrl);
+    }
+
+    return specs;
+  }
+
+  String _buildSpecificationSummary(
+    String brand,
+    String modelName,
+    Map<String, dynamic> partSpecs,
+  ) {
+    final fragments = <String>['Brand: $brand', 'Model: $modelName'];
+
+    partSpecs.forEach((key, value) {
+      final label = key
+          .split('_')
+          .map(
+            (segment) => segment.isEmpty
+                ? segment
+                : '${segment[0].toUpperCase()}${segment.substring(1)}',
+          )
+          .join(' ');
+      fragments.add('$label: $value');
+    });
+
+    return fragments.join(', ');
+  }
+
+  String _normalizePostingError(Object error) {
+    if (error is ApiException &&
+        error.statusCode == 422 &&
+        error.message.contains('part_specs') &&
+        error.message.contains('valid dict')) {
+      return 'Backend rejected `part_specs` during image upload. FastAPI is receiving multipart text instead of a real object. The app retried an alternate format, but your `/parts/` endpoint still needs to accept JSON-parsed `part_specs` with multipart uploads.';
+    }
+
+    return error.toString().replaceFirst('Exception: ', '');
+  }
+
+  void _clearHardwareForm() {
+    hardwareBrandCtrl.clear();
+    hardwareModelCtrl.clear();
+    hardwarePriceCtrl.clear();
+    selectedHardwareImage.value = null;
+    hardwareCpuCtrl.clear();
+    hardwareGpuCtrl.clear();
+    hardwareRamTypeCtrl.clear();
+    hardwareRamCapacityGbCtrl.clear();
+    hardwareRamBusMhzCtrl.clear();
+    hardwareRamFormFactorCtrl.clear();
+    hardwareRamLatencyCtrl.clear();
+    hardwareRamSlotsCtrl.clear();
+    hardwareMaxRamCtrl.clear();
+    hardwareSsdTypeCtrl.clear();
+    hardwareSsdCapacityGbCtrl.clear();
+    hardwareSsdFormFactorCtrl.clear();
+    hardwareSsdInterfaceCtrl.clear();
+    hardwareSsdReadSpeedCtrl.clear();
+    hardwareSsdWriteSpeedCtrl.clear();
+    hardwareHddCapacityGbCtrl.clear();
+    hardwareHddRpmCtrl.clear();
+    hardwareHddFormFactorCtrl.clear();
+    hardwareHddCacheMbCtrl.clear();
+    hardwareHddBayCtrl.clear();
+    hardwareDisplaySizeInchCtrl.clear();
+    hardwareDisplayResolutionCtrl.clear();
+    hardwareDisplayRefreshRateCtrl.clear();
+    hardwareDisplayPanelTypeCtrl.clear();
+    hardwareDisplayConnectorPinCtrl.clear();
+    hardwareDisplayBrightnessNitCtrl.clear();
+    hardwareThermalConductivityCtrl.clear();
+    hardwareThermalTypeCtrl.clear();
+    hardwareThermalWeightCtrl.clear();
+    hardwareBatteryWhCtrl.clear();
+    hardwareBatteryMahCtrl.clear();
+    hardwareBatteryCellsCtrl.clear();
+    hardwareBatteryVoltageCtrl.clear();
+    hardwareBatteryTypeCtrl.clear();
+    hardwareBatteryConnectorCtrl.clear();
+    hardwareChargerWattageCtrl.clear();
+    hardwareChargerVoltageCtrl.clear();
+    hardwareChargerConnectorCtrl.clear();
+    hardwareChargerStandardCtrl.clear();
+    hardwareFanSizeMmCtrl.clear();
+    hardwareFanConnectorCtrl.clear();
+    hardwareFanMaxRpmCtrl.clear();
+    hardwareFanTypeCtrl.clear();
+  }
+
+  Future<void> postHardwareListing() async {
+    try {
+      isPostingHardware.value = true;
+      final session = Get.find<SessionService>();
+      final token = session.accessToken;
+      if (token == null) throw 'Authentication required.';
+
+      if (shopId.value.isEmpty) {
+        throw 'Shop ID is empty. Please set up your shop profile first.';
+      }
+      if (shopId.value == 'test-shop-id') {
+        throw 'Shop not set up. Please complete your shop profile before posting hardware.';
+      }
+
+      final category = selectedPostCategory;
+      _validateTechnicalForm(category);
+
+      final brand = hardwareBrandCtrl.text.trim();
+      final modelName = hardwareModelCtrl.text.trim();
+      final price = double.tryParse(hardwarePriceCtrl.text.trim());
+      if (price == null) {
+        throw 'Price must be a valid number.';
+      }
+
+      final partSpecs = _buildPartSpecs(category);
+      final specification = _buildSpecificationSummary(
+        brand,
+        modelName,
+        partSpecs,
+      );
+
+      if (selectedHardwareImage.value != null) {
+        print('📤 Image selected: ${selectedHardwareImage.value}');
+
+        // Debug: verify file exists and get size
+        final imageFile = File(selectedHardwareImage.value!);
+        if (await imageFile.exists()) {
+          final fileSize = await imageFile.length();
+          print('✅ File exists - Size: ${fileSize} bytes');
+        } else {
+          print(
+            '❌ ERROR: File does not exist at path: ${selectedHardwareImage.value!}',
+          );
+          throw 'Image file not found at ${selectedHardwareImage.value!}';
+        }
+
+        // Upload with image file using field name that backend recognizes
+        try {
+          print(
+            '📤 Attempting multipart upload with fileFieldName="product_image"',
+          );
+          print('📤 Brand: $brand, Model: $modelName');
+          print('📤 Spec: $specification');
+          print('📤 File path: ${selectedHardwareImage.value}');
+          await _apiClient.postMultipart(
+            '/parts/',
+            fields: {
+              'category_id': selectedCategoryIdForPost.value,
+              'brand': brand,
+              'model_name': modelName,
+              'specification': specification,
+              'price': price.toString(),
+            },
+            fileFieldName:
+                'product_image', // Backend looks for file in this field first
+            filePath: selectedHardwareImage.value!,
+            bearerToken: token,
+          );
+          print('✅ Multipart upload successful!');
+        } catch (e) {
+          print('❌ Multipart upload failed: $e');
+          rethrow;
+        }
+      } else {
+        print('📤 No image - using JSON upload');
+        final body = {
+          'category_id': selectedCategoryIdForPost.value,
+          'brand': brand,
+          'model_name': modelName,
+          'specification': specification,
+          'price': price,
+        };
+        print('📤 Body: ${jsonEncode(body)}');
+        await _apiClient.postJson('/parts/', body: body, bearerToken: token);
+      }
+
+      await _fetchMyShopParts();
+      Get.back();
+      Get.snackbar(
+        'Success',
+        '${category.name} listing posted successfully.',
+        backgroundColor: AppColor.kGoogleGreen,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
+      _clearHardwareForm();
+    } catch (e) {
+      Get.snackbar(
+        'Posting Failed',
+        _normalizePostingError(e),
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isPostingHardware.value = false;
+    }
   }
 
   final Rx<LaptopSpecModel?> selectedModelSpec = Rx<LaptopSpecModel?>(null);
@@ -1360,5 +1955,39 @@ class ProfileController extends GetxController {
 
   void showUnderConstruction() {
     Get.to(() => const UnderConstructionView());
+  }
+
+  Future<void> deleteListing(String postId) async {
+    try {
+      final session = Get.find<SessionService>();
+      final token = session.accessToken;
+      if (token == null) throw 'Authentication required.';
+
+      // Remove item from list immediately for better UX
+      myListings.removeWhere((item) => item.id == postId);
+
+      await _apiClient.deleteJson('/listings/$postId', bearerToken: token);
+
+      // Refresh the list from server
+      await _fetchMyShopParts();
+      Get.snackbar(
+        'Success',
+        'Listing deleted successfully.',
+        backgroundColor: AppColor.kGoogleGreen,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+      );
+    } catch (e) {
+      // Refresh list to restore deleted item if deletion failed
+      await _fetchMyShopParts();
+      Get.snackbar(
+        'Delete Failed',
+        'Failed to delete listing: $e',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+      );
+      debugPrint('[ProfileController] Could not delete listing: $e');
+    }
   }
 }

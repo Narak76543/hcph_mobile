@@ -4,7 +4,8 @@ import 'package:school_assgn/core/network/api_exception.dart';
 import 'package:school_assgn/core/auth/google_account_sync.dart';
 
 class AuthApiService {
-  AuthApiService({ApiClient? apiClient}) : _apiClient = apiClient ?? ApiClient();
+  AuthApiService({ApiClient? apiClient})
+    : _apiClient = apiClient ?? ApiClient();
 
   final ApiClient _apiClient;
 
@@ -14,10 +15,7 @@ class AuthApiService {
   }) {
     return _apiClient.postForm(
       ApiConfig.loginPath,
-      fields: {
-        'username': username,
-        'password': password,
-      },
+      fields: {'username': username, 'password': password},
     );
   }
 
@@ -38,14 +36,11 @@ class AuthApiService {
       'email': email,
       'phone_number': phoneNumber,
       'password': password,
-      if (firstnameLc != null) 'firstname_lc': firstnameLc,
-      if (lastnameLc != null) 'lastname_lc': lastnameLc,
+      'firstname_lc': ?firstnameLc,
+      'lastname_lc': ?lastnameLc,
     };
 
-    return _apiClient.postMultipart(
-      ApiConfig.registerPath,
-      fields: fields,
-    );
+    return _apiClient.postMultipart(ApiConfig.registerPath, fields: fields);
   }
 
   Future<Map<String, dynamic>> ensureGoogleUserInBackendAndLogin({
@@ -77,10 +72,7 @@ class AuthApiService {
     }
 
     try {
-      return await login(
-        username: username,
-        password: generatedPassword,
-      );
+      return await login(username: username, password: generatedPassword);
     } on ApiException catch (usernameError) {
       try {
         return await login(
@@ -123,7 +115,10 @@ class AuthApiService {
         .toLowerCase();
     final suffix = compactUid.isEmpty
         ? '000000'
-        : compactUid.substring(0, compactUid.length > 6 ? 6 : compactUid.length);
+        : compactUid.substring(
+            0,
+            compactUid.length > 6 ? 6 : compactUid.length,
+          );
 
     return '${safeBase}_$suffix';
   }

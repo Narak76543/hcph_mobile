@@ -408,7 +408,7 @@ class ProfileView extends GetView<ProfileController> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColor.kAuthSurface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(10),
         image: DecorationImage(
           image: const AssetImage('assets/images/norton_university.png'),
           fit: BoxFit.cover,
@@ -421,7 +421,7 @@ class ProfileView extends GetView<ProfileController> {
         boxShadow: [
           BoxShadow(
             color: AppColor.kShadow,
-            blurRadius: 15,
+            blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
@@ -468,9 +468,9 @@ class ProfileView extends GetView<ProfileController> {
                     children: [
                       Image.asset(
                         controller.userRoleIcon.value,
-                        width: 16,
-                        height: 16,
-                        color: AppColor.kAuthTextSecondary,
+                        width: 17,
+                        height: 17,
+                        color: AppColor.kGoogleRed,
                       ),
                       const SizedBox(width: 4),
                       AppText(
@@ -562,7 +562,7 @@ class ProfileView extends GetView<ProfileController> {
                 fontSize: 14,
               ),
             ),
-            if (trailing != null) trailing,
+            ?trailing,
             if (showChevron)
               Icon(
                 Icons.chevron_right_rounded,
@@ -603,7 +603,7 @@ class ProfileView extends GetView<ProfileController> {
           CupertinoSwitch(
             value: value,
             onChanged: onChanged,
-            activeColor: AppColor.kAuthAccent,
+            activeTrackColor: AppColor.kAuthAccent,
           ),
         ],
       ),

@@ -24,10 +24,7 @@ class OnboardingView extends GetView<OnboardingController> {
               final isDark = Get.find<ThemeService>().isDarkMode.value;
               return Opacity(
                 opacity: isDark ? 0.6 : 0.8,
-                child: Image.asset(
-                  'assets/images/nu.png',
-                  fit: BoxFit.cover,
-                ),
+                child: Image.asset('assets/images/nu.png', fit: BoxFit.cover),
               );
             }),
           ),
@@ -35,10 +32,9 @@ class OnboardingView extends GetView<OnboardingController> {
           Positioned.fill(
             child: Obx(() {
               final isDark = Get.find<ThemeService>().isDarkMode.value;
-              final Color overlayStart =
-                  isDark
-                      ? Colors.transparent
-                      : Colors.white.withOpacity(0.1);
+              final Color overlayStart = isDark
+                  ? Colors.transparent
+                  : Colors.white.withOpacity(0.1);
               final Color overlayEnd = isDark ? Colors.black : Colors.white;
 
               return Container(
@@ -79,18 +75,33 @@ class OnboardingView extends GetView<OnboardingController> {
                     child: BackdropFilter(
                       filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColor.kSurface.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColor.kTextPrimary.withOpacity(0.15)),
+                          border: Border.all(
+                            color: AppColor.kTextPrimary.withOpacity(0.15),
+                          ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.memory_rounded, color: AppColor.kTextPrimary, size: 16),
+                            Icon(
+                              Icons.memory_rounded,
+                              color: AppColor.kTextPrimary,
+                              size: 16,
+                            ),
                             const SizedBox(width: 6),
-                            AppText('HCPH', variant: AppTextVariant.caption, color: AppColor.kTextPrimary, fontSize: 14, fontWeight: FontWeight.w600),
+                            AppText(
+                              'HCPH',
+                              variant: AppTextVariant.caption,
+                              color: AppColor.kTextPrimary,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ],
                         ),
                       ),
@@ -98,23 +109,34 @@ class OnboardingView extends GetView<OnboardingController> {
                   ),
                   // Skip button
                   Obx(() {
-                    if (controller.currentPage.value == controller.pages.length - 1) {
+                    if (controller.currentPage.value ==
+                        controller.pages.length - 1) {
                       return const SizedBox.shrink();
                     }
                     return GestureDetector(
                       onTap: controller.skip,
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(5),
                         child: BackdropFilter(
                           filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColor.kSurface.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: AppColor.kTextPrimary.withOpacity(0.15)),
+                              borderRadius: BorderRadius.circular(5),
+                              border: Border.all(
+                                color: AppColor.kTextPrimary.withOpacity(0.15),
+                              ),
                             ),
-                            child: AppText('Skip', variant: AppTextVariant.caption, color: AppColor.kTextSecondary, fontSize: 13),
+                            child: AppText(
+                              'Skip',
+                              variant: AppTextVariant.caption,
+                              color: AppColor.kTextSecondary,
+                              fontSize: 13,
+                            ),
                           ),
                         ),
                       ),
@@ -153,7 +175,9 @@ class OnboardingView extends GetView<OnboardingController> {
                             width: selected ? 28 : 8,
                             height: 8,
                             decoration: BoxDecoration(
-                              color: selected ? accentColor : AppColor.kTextPrimary.withOpacity(0.3),
+                              color: selected
+                                  ? accentColor
+                                  : AppColor.kTextPrimary.withOpacity(0.3),
                               borderRadius: BorderRadius.circular(4),
                             ),
                           );
@@ -177,7 +201,9 @@ class OnboardingView extends GetView<OnboardingController> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: accentColor,
                             elevation: 0,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -192,7 +218,9 @@ class OnboardingView extends GetView<OnboardingController> {
                               ),
                               const SizedBox(width: 8),
                               Icon(
-                                isLast ? Icons.rocket_launch_rounded : Icons.arrow_forward_rounded,
+                                isLast
+                                    ? Icons.rocket_launch_rounded
+                                    : Icons.arrow_forward_ios,
                                 color: Colors.white,
                                 size: 20,
                               ),
@@ -206,7 +234,7 @@ class OnboardingView extends GetView<OnboardingController> {
                           onTap: () => Get.toNamed(AppRoutes.signIn),
                           child: Center(
                             child: AppText(
-                              'Already have an account? Sign In',
+                              'Power by : Sarat Narak @02-APR-2026',
                               variant: AppTextVariant.caption,
                               color: AppColor.kTextSecondary,
                               fontSize: 13,
@@ -223,7 +251,6 @@ class OnboardingView extends GetView<OnboardingController> {
         ],
       ),
     );
-
   }
 
   Widget _buildPage(OnboardingPage page) {
@@ -242,7 +269,10 @@ class OnboardingView extends GetView<OnboardingController> {
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: accentColor.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(20),
@@ -251,7 +281,11 @@ class OnboardingView extends GetView<OnboardingController> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(_badgeIcon(page.badgeIcon), color: accentColor, size: 14),
+                      Icon(
+                        _badgeIcon(page.badgeIcon),
+                        color: accentColor,
+                        size: 14,
+                      ),
                       const SizedBox(width: 6),
                       Text(
                         page.badge,
@@ -304,10 +338,14 @@ class OnboardingView extends GetView<OnboardingController> {
 
   IconData _badgeIcon(String key) {
     switch (key) {
-      case 'check': return Icons.check_circle_rounded;
-      case 'chart': return Icons.bar_chart_rounded;
-      case 'shield': return Icons.verified_rounded;
-      default: return Icons.star_rounded;
+      case 'check':
+        return Icons.check_circle_rounded;
+      case 'chart':
+        return Icons.bar_chart_rounded;
+      case 'shield':
+        return Icons.verified_rounded;
+      default:
+        return Icons.star_rounded;
     }
   }
 
@@ -323,12 +361,16 @@ class OnboardingView extends GetView<OnboardingController> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.07),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(5),
           border: Border.all(color: Colors.white.withOpacity(0.12)),
         ),
         child: Text(
           label,
-          style: const TextStyle(fontFamily: 'Poppins', fontSize: 12, color: Colors.white70),
+          style: const TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: 12,
+            color: Colors.white70,
+          ),
         ),
       );
     }).toList();

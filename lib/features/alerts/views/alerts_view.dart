@@ -12,46 +12,48 @@ class AlertsView extends GetView<AlertsController> {
     return Obx(
       () => Scaffold(
         backgroundColor: Colors.transparent,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-              child: Row(
-                children: [
-                  AppText(
-                    'Notifications',
-                    variant: AppTextVariant.title,
-                    color: AppColor.kTextPrimary,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                  ),
-                  const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppColor.kError.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+                child: Row(
+                  children: [
+                    AppText(
+                      'Notifications',
+                      variant: AppTextVariant.title,
+                      color: AppColor.kTextPrimary,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
                     ),
-                    child: AppText(
-                      '3 New',
-                      variant: AppTextVariant.caption,
-                      color: AppColor.kError,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColor.kError.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: AppText(
+                        '3 New',
+                        variant: AppTextVariant.caption,
+                        color: AppColor.kError,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            Expanded(
-              child: _buildNotificationList(),
-            ),
-          ],
+              Expanded(child: _buildNotificationList()),
+            ],
+          ),
         ),
       ),
-    ));
+    );
   }
 
   Widget _buildNotificationList() {
@@ -85,7 +87,7 @@ class AlertsView extends GetView<AlertsController> {
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 100),
       itemCount: dummyAlerts.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 16),
+      separatorBuilder: (_, _) => const SizedBox(height: 16),
       itemBuilder: (ctx, i) {
         final alert = dummyAlerts[i];
         return Container(
@@ -111,7 +113,11 @@ class AlertsView extends GetView<AlertsController> {
                   color: (alert['color'] as Color).withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(alert['icon'] as IconData, color: alert['color'] as Color, size: 22),
+                child: Icon(
+                  alert['icon'] as IconData,
+                  color: alert['color'] as Color,
+                  size: 22,
+                ),
               ),
               const SizedBox(width: 16),
               Expanded(

@@ -19,6 +19,7 @@ class ApiClient {
       _buildUri(path),
       headers: {
         'Accept': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
         if (bearerToken != null) 'Authorization': 'Bearer $bearerToken',
       },
       body: fields,
@@ -40,6 +41,7 @@ class ApiClient {
       uri,
       headers: {
         'Accept': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
         if (bearerToken != null) 'Authorization': 'Bearer $bearerToken',
       },
     );
@@ -66,9 +68,27 @@ class ApiClient {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
         if (bearerToken != null) 'Authorization': 'Bearer $bearerToken',
       },
       body: jsonEncode(body),
+    );
+
+    return _handleResponse(response);
+  }
+
+  Future<Map<String, dynamic>> deleteJson(
+    String path, {
+    String? bearerToken,
+  }) async {
+    final response = await _httpClient.delete(
+      _buildUri(path),
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
+        if (bearerToken != null) 'Authorization': 'Bearer $bearerToken',
+      },
     );
 
     return _handleResponse(response);
@@ -79,28 +99,50 @@ class ApiClient {
     required Map<String, String> fields,
     String? fileFieldName,
     String? filePath,
+    Map<String, String>? extraFiles, // fieldName -> filePath
     String? bearerToken,
   }) async {
     final request = http.MultipartRequest('POST', _buildUri(path));
 
     request.headers['Accept'] = 'application/json';
+    request.headers['ngrok-skip-browser-warning'] = 'true';
     if (bearerToken != null) {
       request.headers['Authorization'] = 'Bearer $bearerToken';
     }
 
     request.fields.addAll(fields);
 
-    if (fileFieldName != null &&
-        filePath != null &&
-        filePath.trim().isNotEmpty) {
+    // Debug: Log all fields being sent
+    print('🔍 Multipart Fields:');
+    request.fields.forEach((key, value) {
+      print(
+        '  - $key: ${value.length > 50 ? value.substring(0, 50) + '...' : value}',
+      );
+    });
+
+    Future<void> _addFile(String field, String path) async {
+      if (path.trim().isEmpty) return;
       request.files.add(
         await http.MultipartFile.fromPath(
-          fileFieldName,
-          filePath,
-          contentType: MediaType('image', 'jpeg'),
+          field,
+          path,
+          contentType: _guessMediaType(path),
         ),
       );
+      print('📎 File added: fieldName=$field, path=$path');
     }
+
+    if (fileFieldName != null && filePath != null) {
+      await _addFile(fileFieldName, filePath);
+    }
+
+    if (extraFiles != null) {
+      for (final entry in extraFiles.entries) {
+        await _addFile(entry.key, entry.value);
+      }
+    }
+
+    print('📊 Multipart request files count: ${request.files.length}');
 
     final streamed = await request.send();
     final response = await http.Response.fromStream(streamed);
@@ -112,27 +154,38 @@ class ApiClient {
     required Map<String, String> fields,
     String? fileFieldName,
     String? filePath,
+    Map<String, String>? extraFiles, // fieldName -> filePath
     String? bearerToken,
   }) async {
     final request = http.MultipartRequest('PATCH', _buildUri(path));
 
     request.headers['Accept'] = 'application/json';
+    request.headers['ngrok-skip-browser-warning'] = 'true';
     if (bearerToken != null) {
       request.headers['Authorization'] = 'Bearer $bearerToken';
     }
 
     request.fields.addAll(fields);
 
-    if (fileFieldName != null &&
-        filePath != null &&
-        filePath.trim().isNotEmpty) {
+    Future<void> _addFile(String field, String path) async {
+      if (path.trim().isEmpty) return;
       request.files.add(
         await http.MultipartFile.fromPath(
-          fileFieldName,
-          filePath,
-          contentType: MediaType('image', 'jpeg'),
+          field,
+          path,
+          contentType: _guessMediaType(path),
         ),
       );
+    }
+
+    if (fileFieldName != null && filePath != null) {
+      await _addFile(fileFieldName, filePath);
+    }
+
+    if (extraFiles != null) {
+      for (final entry in extraFiles.entries) {
+        await _addFile(entry.key, entry.value);
+      }
     }
 
     final streamed = await request.send();
@@ -147,6 +200,11 @@ class ApiClient {
 
   Map<String, dynamic> _handleResponse(http.Response response) {
     final decoded = _decodeBody(response.body);
+
+    print('📬 Response status: ${response.statusCode}');
+    print(
+      '📬 Response body: ${response.body.length > 200 ? response.body.substring(0, 200) + '...' : response.body}',
+    );
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw ApiException(
@@ -188,7 +246,13 @@ class ApiClient {
       if (detail is List && detail.isNotEmpty) {
         final first = detail.first;
         if (first is Map<String, dynamic> && first['msg'] is String) {
-          return first['msg'] as String;
+          final msg = first['msg'] as String;
+          final loc = first['loc'];
+          if (loc is List && loc.isNotEmpty) {
+            final path = loc.map((e) => e.toString()).join('.');
+            return '$path: $msg';
+          }
+          return msg;
         }
       }
       if (decoded['message'] is String) {
@@ -197,9 +261,22 @@ class ApiClient {
     }
 
     if (decoded is String && decoded.trim().isNotEmpty) {
+      if (decoded.contains('<!DOCTYPE html>') || decoded.contains('<html')) {
+        return 'Server returned an HTML page instead of data. This usually means Ngrok is blocking the request with a warning page. Open the Ngrok URL in your browser once to "Visit Site".';
+      }
       return decoded;
     }
 
     return 'Request failed. Please try again.';
+  }
+
+  // Basic content-type detection to avoid forcing JPEG for PNG/WebP files.
+  MediaType? _guessMediaType(String path) {
+    final lower = path.toLowerCase();
+    if (lower.endsWith('.png')) return MediaType('image', 'png');
+    if (lower.endsWith('.webp')) return MediaType('image', 'webp');
+    if (lower.endsWith('.gif')) return MediaType('image', 'gif');
+    // default to jpeg for common camera images
+    return MediaType('image', 'jpeg');
   }
 }

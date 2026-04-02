@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
 import 'package:school_assgn/core/auth/google_account_sync.dart';
 import 'package:school_assgn/core/firebase/firebase_initializer.dart';

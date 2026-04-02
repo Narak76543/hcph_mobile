@@ -212,24 +212,36 @@ class HomeView extends GetView<HomeController> {
   // ─────────────────── Category tabs ───────────────────
 
   Widget _buildCategoryTabs() {
-    return Obx(() {
-      final cats = controller.categories;
-      return SizedBox(
-        height: 36,
-        child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          itemCount: cats.length + 1, // +1 for "All Parts"
-          separatorBuilder: (_, __) => const SizedBox(width: 8),
-          itemBuilder: (ctx, i) {
+    final cats = controller.categories;
+    return SizedBox(
+      height: 38,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: cats.length + 1, // +1 for "All Parts"
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
+        itemBuilder: (ctx, i) {
+          return Obx(() {
             final isAll = i == 0;
+            final categoryId = isAll ? '0' : cats[i - 1].id;
+            final isSelected =
+                controller.selectedCategoryId.value == categoryId;
+
             final label = isAll ? 'All Parts' : cats[i - 1].name;
             final icon = isAll ? Icons.apps_rounded : cats[i - 1].icon;
-            return _CategoryChip(label: label, icon: icon, selected: isAll);
-          },
-        ),
-      );
-    });
+            final imgUrl = isAll ? null : cats[i - 1].imageUrl;
+
+            return _CategoryChip(
+              label: label,
+              icon: icon,
+              imageUrl: imgUrl,
+              selected: isSelected,
+              onTap: () => controller.selectedCategoryId.value = categoryId,
+            );
+          });
+        },
+      ),
+    );
   }
 
   // ─────────────────── Promo Banner ───────────────────
@@ -313,7 +325,7 @@ class HomeView extends GetView<HomeController> {
                     item.imageUrl,
                     width: 100,
                     fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => const Icon(
+                    errorBuilder: (_, _, _) => const Icon(
                       Icons.memory_rounded,
                       color: Colors.white30,
                       size: 80,
@@ -323,7 +335,7 @@ class HomeView extends GetView<HomeController> {
                     item.imageUrl,
                     width: 120,
                     fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => const Icon(
+                    errorBuilder: (_, _, _) => const Icon(
                       Icons.memory_rounded,
                       color: Colors.white30,
                       size: 80,
@@ -385,7 +397,7 @@ class HomeView extends GetView<HomeController> {
                   ),
                   decoration: BoxDecoration(
                     color: AppColor.kSurface,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(5),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -468,7 +480,7 @@ class HomeView extends GetView<HomeController> {
                                       ),
                                     ),
                                   ),
-                            errorBuilder: (_, __, ___) => Center(
+                            errorBuilder: (_, _, _) => Center(
                               child: Icon(
                                 Icons.memory_rounded,
                                 color: AppColor.kAuthBorder,
@@ -481,7 +493,7 @@ class HomeView extends GetView<HomeController> {
                             width: double.infinity,
                             height: double.infinity,
                             fit: BoxFit.contain,
-                            errorBuilder: (_, __, ___) => Center(
+                            errorBuilder: (_, _, _) => Center(
                               child: Icon(
                                 Icons.memory_rounded,
                                 color: AppColor.kAuthBorder,
@@ -502,7 +514,7 @@ class HomeView extends GetView<HomeController> {
                     ),
                     decoration: BoxDecoration(
                       color: AppColor.kAuthAccent,
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(5),
                     ),
                     child: Text(
                       '\$${post.price.toStringAsFixed(0)}',
@@ -552,10 +564,10 @@ class HomeView extends GetView<HomeController> {
                     if (post.isVerified) const SizedBox(width: 3),
                     Expanded(
                       child: Text(
-                        post.shopName,
+                        post.ownerFullName,
                         style: TextStyle(
                           fontFamily: 'Poppins',
-                          fontSize: 10,
+                          fontSize: 11,
                           color: AppColor.kGoogleBlue,
                         ),
                         maxLines: 1,
@@ -566,7 +578,9 @@ class HomeView extends GetView<HomeController> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  post.partName,
+                  '${post.brand} ${post.model}'.trim().isNotEmpty
+                      ? '${post.brand} ${post.model}'.trim()
+                      : post.partName,
                   style: TextStyle(
                     fontFamily: 'Poppins',
                     fontSize: 12,
@@ -577,27 +591,18 @@ class HomeView extends GetView<HomeController> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 6),
-                // Rating row
+                // Posted by row
                 Row(
                   children: [
                     Icon(
-                      Icons.star_rounded,
+                      Icons.person_rounded,
                       size: 13,
-                      color: Color(0xFFFFC107),
-                    ),
-                    const SizedBox(width: 2),
-                    Text(
-                      '4.5',
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 11,
-                        color: AppColor.kAuthTextSecondary,
-                      ),
+                      color: AppColor.kAuthTextSecondary,
                     ),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
-                        post.compatibleModel,
+                        'By: ${post.shopName}',
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           fontSize: 10,
@@ -622,55 +627,84 @@ class HomeView extends GetView<HomeController> {
 
 class _CategoryChip extends StatelessWidget {
   final String label;
-  final IconData icon;
+  final IconData? icon;
+  final String? imageUrl;
   final bool selected;
+  final VoidCallback? onTap;
 
   const _CategoryChip({
     required this.label,
-    required this.icon,
+    this.icon,
+    this.imageUrl,
     this.selected = false,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-      decoration: BoxDecoration(
-        color: selected ? AppColor.kAuthAccent : AppColor.kAuthSurface,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: selected ? AppColor.kAuthAccent : AppColor.kShadow,
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 100),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        decoration: BoxDecoration(
+          color: selected ? AppColor.kAuthAccent : AppColor.kAuthSurface,
+          borderRadius: BorderRadius.circular(5),
+          border: Border.all(
+            color: selected ? AppColor.kAuthAccent : AppColor.kShadow,
+          ),
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: AppColor.kAuthAccent.withValues(alpha: 0.25),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ]
+              : [],
         ),
-        boxShadow: selected
-            ? [
-                BoxShadow(
-                  color: AppColor.kAuthAccent.withValues(alpha: 0.25),
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
-                ),
-              ]
-            : [],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            size: 14,
-            color: selected ? Colors.white : AppColor.kAuthTextSecondary,
-          ),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: TextStyle(
-              fontFamily: 'Poppins',
-              fontSize: 12,
-              color: selected ? Colors.white : AppColor.kAuthTextSecondary,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildLeading(),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 12,
+                color: selected ? Colors.white : AppColor.kAuthTextSecondary,
+                fontWeight: selected ? FontWeight.w400 : FontWeight.w400,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildLeading() {
+    if (imageUrl != null && imageUrl!.isNotEmpty) {
+      return Image.network(
+        imageUrl!,
+        width: 20,
+        height: 20,
+        fit: BoxFit.contain,
+        // Only apply tint if selected (white), or the user expects it.
+        // Removing the mandatory blue tint allows colorful category icons to shine.
+        color: selected ? Colors.white : null,
+        errorBuilder: (_, _, _) => Icon(
+          icon ?? Icons.widgets_rounded,
+          size: 16,
+          color: selected ? Colors.white : AppColor.kAuthTextSecondary,
+        ),
+      );
+    }
+    return Icon(
+      icon ?? Icons.widgets_rounded,
+      size: 16,
+      color: selected ? Colors.white : AppColor.kAuthTextSecondary,
     );
   }
 }
