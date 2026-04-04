@@ -210,7 +210,7 @@ class _SloganCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColor.kAuthSurface.withOpacity(0.76),
+        color: AppColor.kAuthSurface.withValues(alpha: 0.76),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(

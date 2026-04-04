@@ -945,7 +945,7 @@ class ProfileController extends GetxController {
                                         height: 48,
                                         decoration: BoxDecoration(
                                           color: AppColor.kGoogleBlue
-                                              .withOpacity(0.08),
+                                              .withValues(alpha: 0.08),
                                           shape: BoxShape.circle,
                                         ),
                                         padding:
@@ -2066,12 +2066,12 @@ class ProfileController extends GetxController {
       );
 
       if (selectedHardwareImage.value != null) {
-        print('📤 Image selected: ${selectedHardwareImage.value}');
+        debugPrint('📤 Image selected: ${selectedHardwareImage.value}');
 
         final imageFile = File(selectedHardwareImage.value!);
         if (await imageFile.exists()) {
           final fileSize = await imageFile.length();
-          print('✅ File exists - Size: $fileSize bytes');
+          debugPrint('✅ File exists - Size: $fileSize bytes');
         } else {
           print(
             '❌ ERROR: File does not exist at path: ${selectedHardwareImage.value!}',
@@ -2084,9 +2084,9 @@ class ProfileController extends GetxController {
           print(
             '📤 Attempting multipart upload with fileFieldName="product_image"',
           );
-          print('📤 Brand: $brand, Model: $modelName');
-          print('📤 Spec: $specification');
-          print('📤 File path: ${selectedHardwareImage.value}');
+          debugPrint('📤 Brand: $brand, Model: $modelName');
+          debugPrint('📤 Spec: $specification');
+          debugPrint('📤 File path: ${selectedHardwareImage.value}');
           await _apiClient.postMultipart(
             '/parts/',
             fields: {
@@ -2101,13 +2101,13 @@ class ProfileController extends GetxController {
             filePath: selectedHardwareImage.value!,
             bearerToken: token,
           );
-          print('✅ Multipart upload successful!');
+          debugPrint('✅ Multipart upload successful!');
         } catch (e) {
-          print('❌ Multipart upload failed: $e');
+          debugPrint('❌ Multipart upload failed: $e');
           rethrow;
         }
       } else {
-        print('📤 No image - using JSON upload');
+        debugPrint('📤 No image - using JSON upload');
         final body = {
           'category_id': selectedCategoryIdForPost.value,
           'brand': brand,
@@ -2115,7 +2115,7 @@ class ProfileController extends GetxController {
           'specification': specification,
           'price': price,
         };
-        print('📤 Body: ${jsonEncode(body)}');
+        debugPrint('📤 Body: ${jsonEncode(body)}');
         await _apiClient.postJson('/parts/', body: body, bearerToken: token);
       }
 

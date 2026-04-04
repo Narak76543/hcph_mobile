@@ -112,7 +112,7 @@ class MyListingsView extends GetView<ProfileController> {
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -126,7 +126,7 @@ class MyListingsView extends GetView<ProfileController> {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: AppColor.kGoogleBlue.withOpacity(0.1),
+                color: AppColor.kGoogleBlue.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
                 image: DecorationImage(
                   image: controller.shopImageUrl.value.isNotEmpty
@@ -210,7 +210,7 @@ class MyListingsView extends GetView<ProfileController> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: AppColor.kGoogleBlue.withOpacity(0.1),
+                color: AppColor.kGoogleBlue.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(5),
               ),
               child: const AppText(
@@ -305,10 +305,10 @@ class MyListingsView extends GetView<ProfileController> {
                         width: 100,
                         height: 100,
                         decoration: BoxDecoration(
-                          color: AppColor.kGoogleBlue.withOpacity(0.05),
+                          color: AppColor.kGoogleBlue.withValues(alpha: 0.05),
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: AppColor.kGoogleBlue.withOpacity(0.2),
+                            color: AppColor.kGoogleBlue.withValues(alpha: 0.2),
                             width: 2,
                           ),
                           image: localPath != null
@@ -338,7 +338,7 @@ class MyListingsView extends GetView<ProfileController> {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.black.withValues(alpha: 0.1),
                               blurRadius: 8,
                             ),
                           ],
@@ -475,14 +475,14 @@ class MyListingsView extends GetView<ProfileController> {
       decoration: BoxDecoration(
         color: AppColor.kAuthSurface,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColor.kAuthBorder.withOpacity(0.5)),
+        border: Border.all(color: AppColor.kAuthBorder.withValues(alpha: 0.5)),
       ),
       child: Column(
         children: [
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColor.kGoogleBlue.withOpacity(0.1),
+              color: AppColor.kGoogleBlue.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -530,26 +530,6 @@ class MyListingsView extends GetView<ProfileController> {
     );
   }
 
-  // Widget _buildShopStat(String label, String value) {
-  //   return Column(
-  //     children: [
-  //       AppText(
-  //         value,
-  //         variant: AppTextVariant.title,
-  //         color: AppColor.kAuthTextPrimary,
-  //         fontSize: 16,
-  //       ),
-  //       const SizedBox(height: 2),
-  //       AppText(
-  //         label,
-  //         variant: AppTextVariant.caption,
-  //         color: AppColor.kAuthTextSecondary,
-  //         fontSize: 11,
-  //       ),
-  //     ],
-  //   );
-  // }
-
   Widget _buildEmptyListingsState() {
     return Container(
       width: double.infinity,
@@ -557,7 +537,7 @@ class MyListingsView extends GetView<ProfileController> {
       decoration: BoxDecoration(
         color: AppColor.kAuthSurface,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColor.kAuthBorder.withOpacity(0.35)),
+        border: Border.all(color: AppColor.kAuthBorder.withValues(alpha: 0.35)),
       ),
       child: Column(
         children: [
@@ -595,10 +575,10 @@ class MyListingsView extends GetView<ProfileController> {
       decoration: BoxDecoration(
         color: AppColor.kAuthSurface,
         borderRadius: BorderRadius.circular(5),
-        border: Border.all(color: AppColor.kAuthBorder.withOpacity(0.4)),
+        border: Border.all(color: AppColor.kAuthBorder.withValues(alpha: 0.4)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 15,
             offset: const Offset(0, 4),
           ),
@@ -613,7 +593,7 @@ class MyListingsView extends GetView<ProfileController> {
               width: 100,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColor.kBackground.withOpacity(0.3),
+                color: AppColor.kBackground.withValues(alpha: 0.3),
                 borderRadius: const BorderRadius.horizontal(
                   left: Radius.circular(16),
                 ),
@@ -802,7 +782,10 @@ class MyListingsView extends GetView<ProfileController> {
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10),
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 10,
+            ),
           ],
         ),
         child: trimmed.isEmpty
@@ -915,7 +898,7 @@ class MyListingsView extends GetView<ProfileController> {
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(
-              color: AppColor.kAuthTextSecondary.withOpacity(0.4),
+              color: AppColor.kAuthTextSecondary.withValues(alpha: 0.4),
               fontSize: 13,
             ),
             filled: true,
@@ -931,7 +914,9 @@ class MyListingsView extends GetView<ProfileController> {
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.black.withOpacity(0.03)),
+              borderSide: BorderSide(
+                color: Colors.black.withValues(alpha: 0.03),
+              ),
             ),
           ),
         ),

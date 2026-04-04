@@ -32,18 +32,20 @@ class CategoryModel {
 
 class PostModel {
   final String id;
-  final String partName; // legacy title
+  final String partName;
   final String brand;
   final String model;
   final String compatibleModel;
   final String shopName;
   final String postedBy;
-  final String ownerFullName; // Display name for "Posted by"
-  final String? ownerUserId; // For checking if current user is owner
+  final String ownerFullName;
+  final String? ownerUserId;
   final double price;
   final String imageUrl;
-  final String? categoryId; // Added for filtering
+  final String? categoryId;
+  final String? categorySlug;
   final bool isVerified;
+  final Map<String, dynamic> partSpecs; // ← NEW
 
   PostModel({
     required this.id,
@@ -57,17 +59,17 @@ class PostModel {
     this.ownerUserId,
     required this.price,
     required this.imageUrl,
-    this.categoryId, // Added
+    this.categoryId,
+    this.categorySlug,
     this.isVerified = true,
-  }) : ownerFullName = ownerFullName ?? postedBy;
+    Map<String, dynamic>? partSpecs, // ← NEW
+  }) : ownerFullName = ownerFullName ?? postedBy,
+       partSpecs = partSpecs ?? {}; // ← NEW
 
   factory PostModel.fromJson(Map<String, dynamic> json) {
-    // ── Shop Name (prefers listing fields) ──
-    // ── Robust Shop Name Resolution ──
+    // ── Shop Name ──────────────────────────────────────────────────────────
     String shop = 'Unknown Shop';
     final shopJson = json['shop'];
-
-    // 1. Try nested objects first (higher quality shop name)
     if (shopJson is Map &&
         (shopJson['name'] != null || shopJson['shop_name'] != null)) {
       shop = (shopJson['name'] ?? shopJson['shop_name']).toString();
@@ -78,14 +80,12 @@ class PostModel {
     } else if (json['shop_details'] is Map &&
         json['shop_details']['name'] != null) {
       shop = json['shop_details']['name'].toString();
-    }
-    // 2. Fallback to top-level listing field (which might be a username)
-    else if (json['shop_name'] != null && json['shop_name'].toString().isNotEmpty) {
+    } else if (json['shop_name'] != null &&
+        json['shop_name'].toString().isNotEmpty) {
       shop = json['shop_name'].toString();
     }
 
-    // ── Robust Price Resolution ──
-    // Handle 'price', 'price_usd', 'cost', 'listing_price', etc.
+    // ── Price ──────────────────────────────────────────────────────────────
     final dynamic priceRaw =
         json['price'] ??
         json['listing_price'] ??
@@ -96,12 +96,11 @@ class PostModel {
     if (priceRaw is num) {
       priceVal = priceRaw.toDouble();
     } else if (priceRaw is String) {
-      // Clean up string price (remove symbols etc)
-      final clean = priceRaw.replaceAll(RegExp(r'[^0-9.]'), '');
-      priceVal = double.tryParse(clean) ?? 0.0;
+      priceVal =
+          double.tryParse(priceRaw.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 0.0;
     }
 
-    // ── Part Name Resolution (listing first) ──
+    // ── Part Info ──────────────────────────────────────────────────────────
     final partMap = json['part'] as Map<String, dynamic>?;
     final brand =
         json['part_brand'] ?? partMap?['brand'] ?? json['brand'] ?? '';
@@ -129,7 +128,7 @@ class PostModel {
               json['name'] ??
               'Unknown Part');
 
-    // ── Image Resolution ──
+    // ── Image ──────────────────────────────────────────────────────────────
     String image = '';
     if (json['part_image'] != null &&
         json['part_image'].toString().isNotEmpty) {
@@ -149,47 +148,91 @@ class PostModel {
       image = partMap['img_url'].toString();
     }
 
-    // ── Specification / subtitle ──
+    // ── Compatible Model / Spec Text ───────────────────────────────────────
     final compatibleModel =
         partMap?['specification'] ??
         json['specification'] ??
         json['description'] ??
         '';
 
-    // ── Verification flag (shop ACTIVE means verified) ──
+    // ── Verified ──────────────────────────────────────────────────────────
     final isVerified =
         json['is_verified'] ??
         (shopJson is Map &&
             (shopJson['status'] == 'ACTIVE' ||
                 shopJson['is_verified'] == true)) ??
         true;
-    final postedBy = shop;
 
-    // ── Owner Info ──
+    // ── Owner ──────────────────────────────────────────────────────────────
     final ownerFullName = json['owner_full_name']?.toString() ?? shop;
     final ownerUserId = json['owner_id']?.toString();
 
-    // ── Category ID ──
-    final categoryId = (json['category_id'] ??
-            json['part_category_id'] ??
-            partMap?['category_id'] ??
-            partMap?['part_category_id'])
-        ?.toString();
+    // ── Category ──────────────────────────────────────────────────────────
+    final categoryContainer = json['category'] ?? partMap?['category'];
+    final categoryId =
+        (json['category_id'] ??
+                json['part_category_id'] ??
+                partMap?['category_id'] ??
+                partMap?['part_category_id'] ??
+                (categoryContainer is Map ? categoryContainer['id'] : null))
+            ?.toString();
+    final categorySlug =
+        (json['category_slug'] ??
+                partMap?['category_slug'] ??
+                (categoryContainer is Map ? categoryContainer['slug'] : null))
+            ?.toString();
+
+    // ── Part Specs
+    // Try to find specs from multiple possible locations in the JSON
+    Map<String, dynamic> partSpecs = {};
+
+    // 1. Direct spec object from API
+    if (json['part_specs'] is Map) {
+      partSpecs = Map<String, dynamic>.from(json['part_specs']);
+    }
+    // 2. Nested under 'part'
+    else if (partMap?['specs'] is Map) {
+      partSpecs = Map<String, dynamic>.from(partMap!['specs']);
+    }
+    // 3. Nested under 'spec'
+    else if (json['spec'] is Map) {
+      partSpecs = Map<String, dynamic>.from(json['spec']);
+    }
+    // 4. spec_ram / spec_ssd / spec_battery etc
+    else {
+      for (final key in [
+        'spec_ram',
+        'spec_ssd',
+        'spec_hdd',
+        'spec_battery',
+        'spec_display',
+        'spec_charger',
+        'spec_fan',
+        'spec_thermal',
+      ]) {
+        if (json[key] is Map) {
+          partSpecs = Map<String, dynamic>.from(json[key]);
+          break;
+        }
+      }
+    }
 
     return PostModel(
       id: json['id']?.toString() ?? '',
-      partName: partName,
+      partName: partName.toString(),
       brand: brand.toString(),
       model: model.toString(),
       compatibleModel: compatibleModel,
       shopName: shop,
-      postedBy: postedBy,
+      postedBy: shop,
       ownerFullName: ownerFullName,
       ownerUserId: ownerUserId,
       price: priceVal,
       imageUrl: image,
       categoryId: categoryId,
+      categorySlug: categorySlug,
       isVerified: isVerified,
+      partSpecs: partSpecs,
     );
   }
 }

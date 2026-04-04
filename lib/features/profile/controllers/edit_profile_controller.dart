@@ -108,14 +108,14 @@ class EditProfileController extends GetxController {
       Get.snackbar(
         'Success',
         'Profile updated successfully!',
-        backgroundColor: Colors.green.withOpacity(0.9),
+        backgroundColor: Colors.green.withValues(alpha: 0.9),
         colorText: Colors.white,
       );
     } catch (e) {
       Get.snackbar(
         'Update Failed',
         e.toString(),
-        backgroundColor: Colors.red.withOpacity(0.9),
+        backgroundColor: Colors.red.withValues(alpha: 0.9),
         colorText: Colors.white,
       );
     } finally {

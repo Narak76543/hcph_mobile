@@ -70,16 +70,19 @@ class EditProfileView extends GetView<EditProfileController> {
                                     )
                                   : (hasNetworkImage
                                         ? DecorationImage(
-                                            image: profileCtrl
-                                                    .userAvatarUrl.value
+                                            image:
+                                                profileCtrl.userAvatarUrl.value
                                                     .startsWith('assets/')
                                                 ? AssetImage(
                                                         profileCtrl
-                                                            .userAvatarUrl.value,
-                                                      ) as ImageProvider
+                                                            .userAvatarUrl
+                                                            .value,
+                                                      )
+                                                      as ImageProvider
                                                 : NetworkImage(
                                                     profileCtrl
-                                                        .userAvatarUrl.value,
+                                                        .userAvatarUrl
+                                                        .value,
                                                   ),
                                             fit: BoxFit.cover,
                                           )
@@ -156,7 +159,7 @@ class EditProfileView extends GetView<EditProfileController> {
                 AppInputField(
                   controller: controller.usernameCtrl,
                   label: 'Username',
-                  hint: 'Enter a new username...',
+                  hint: '@username...',
                 ),
                 const SizedBox(height: 10),
 
@@ -226,18 +229,19 @@ class EditProfileView extends GetView<EditProfileController> {
                 const AppText(
                   'Change Profile Photo',
                   variant: AppTextVariant.body,
-                  fontSize: 18,
+                  fontSize: 13,
                 ),
                 const SizedBox(height: 20),
                 ListTile(
-                  leading: Icon(
-                    Icons.photo_library_rounded,
-                    color: AppColor.kAuthAccent,
+                  leading: Image.asset(
+                    "assets/images/gallery.png",
+                    height: 20,
+                    color: AppColor.kAccent,
                   ),
                   title: const AppText(
                     'Choose from Gallery',
                     variant: AppTextVariant.body,
-                    fontSize: 16,
+                    fontSize: 13,
                   ),
                   onTap: () {
                     Get.back();
@@ -245,14 +249,15 @@ class EditProfileView extends GetView<EditProfileController> {
                   },
                 ),
                 ListTile(
-                  leading: Icon(
-                    Icons.camera_alt_rounded,
-                    color: AppColor.kGoogleBlue,
+                  leading: Image.asset(
+                    "assets/images/camera.png",
+                    height: 20,
+                    color: AppColor.kAccent,
                   ),
                   title: const AppText(
                     'Take a Photo',
-                    variant: AppTextVariant.title,
-                    fontSize: 16,
+                    variant: AppTextVariant.body,
+                    fontSize: 13,
                   ),
                   onTap: () {
                     Get.back();

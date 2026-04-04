@@ -31,7 +31,7 @@ class BuildsView extends GetView<BuildsController> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: AppColor.kAccent.withOpacity(0.1),
+                        color: AppColor.kAccent.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(Icons.add_rounded, color: AppColor.kAccent),
@@ -60,7 +60,7 @@ class BuildsView extends GetView<BuildsController> {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: AppColor.kBorder.withOpacity(0.5),
+                  color: AppColor.kBorder.withValues(alpha: 0.5),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -69,7 +69,7 @@ class BuildsView extends GetView<BuildsController> {
             child: Icon(
               Icons.computer_rounded,
               size: 64,
-              color: AppColor.kAccent.withOpacity(0.8),
+              color: AppColor.kAccent.withValues(alpha: 0.8),
             ),
           ),
           const SizedBox(height: 32),

@@ -64,7 +64,7 @@ class _WelcomeHeroCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColor.kPrimary,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColor.kAuthBorder.withOpacity(0.3)),
+        border: Border.all(color: AppColor.kAuthBorder.withValues(alpha: 0.3)),
       ),
       padding: const EdgeInsets.all(12),
       child: Container(
@@ -83,8 +83,8 @@ class _WelcomeHeroCard extends StatelessWidget {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Colors.black.withOpacity(0.40),
-                Colors.black.withOpacity(0.86),
+                Colors.black.withValues(alpha: 0.40),
+                Colors.black.withValues(alpha: 0.86),
               ],
             ),
           ),
@@ -123,7 +123,7 @@ class _WelcomeHeroCard extends StatelessWidget {
       width: 220,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColor.kAuthBackground.withOpacity(0.84),
+        color: AppColor.kAuthBackground.withValues(alpha: 0.84),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(

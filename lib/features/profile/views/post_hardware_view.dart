@@ -1125,7 +1125,7 @@ class PostHardwareView extends GetView<ProfileController> {
           color: AppColor.kSurface,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: AppColor.kBorder.withOpacity(0.5),
+            color: AppColor.kBorder.withValues(alpha: 0.5),
             width: 1.5,
           ),
         ),
@@ -1142,7 +1142,7 @@ class PostHardwareView extends GetView<ProfileController> {
                 hint: Text(
                   label,
                   style: TextStyle(
-                    color: AppColor.kTextSecondary.withOpacity(0.6),
+                    color: AppColor.kTextSecondary.withValues(alpha: 0.6),
                     fontSize: 14,
                     fontFamily: 'Poppins',
                   ),

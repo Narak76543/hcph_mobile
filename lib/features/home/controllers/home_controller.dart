@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:school_assgn/core/network/api_client.dart';
 import 'package:school_assgn/core/network/api_config.dart';
 import 'package:school_assgn/features/home/models/home_models.dart';
+import 'package:school_assgn/features/profile/controllers/profile_controller.dart';
 
 class HomeController extends GetxController {
   final searchController = TextEditingController();
@@ -186,7 +187,7 @@ class HomeController extends GetxController {
         }
       }
     } catch (e) {
-      print("[HomeController] Error fetching categories: $e");
+      debugPrint("[HomeController] Error fetching categories: $e");
       _loadDummyCategories();
     }
   }
@@ -249,8 +250,10 @@ class HomeController extends GetxController {
                   ownerUserId: model.ownerUserId,
                   price: model.price,
                   imageUrl: imageUrl,
-                  categoryId: model.categoryId, // Ensure categoryId is preserved
+                  categoryId: model.categoryId,
+                  categorySlug: model.categorySlug,
                   isVerified: model.isVerified,
+                  partSpecs: model.partSpecs, // ← preserve specs for compatibility check
                 );
               })
               .cast<PostModel>()
@@ -258,7 +261,7 @@ class HomeController extends GetxController {
         }
       }
     } catch (e) {
-      print("[HomeController] Error fetching posts: $e");
+      debugPrint("[HomeController] Error fetching posts: $e");
     }
   }
 
@@ -288,7 +291,7 @@ class HomeController extends GetxController {
         }).toList();
       }
     } catch (e) {
-      print("[HomeController] Error fetching brands: $e");
+      debugPrint("[HomeController] Error fetching brands: $e");
     }
   }
 
@@ -334,6 +337,230 @@ class HomeController extends GetxController {
     if (slug.contains('keyboard')) return Icons.keyboard_rounded;
     if (slug.contains('mouse')) return Icons.mouse_rounded;
     return Icons.widgets_rounded;
+  }
+
+  // ─────────────────── Compatibility Check (Model Logic) ───────────────────
+
+  /// Returns true if [post] is compatible with any of the user's saved laptops.
+  /// Business logic kept in the controller per MVC — views call this directly.
+  bool isCompatibleWithDevice(PostModel post) {
+    try {
+      if (!Get.isRegistered<ProfileController>()) return false;
+      final pc = Get.find<ProfileController>();
+      if (pc.myLaptops.isEmpty) return false;
+
+      for (final userLap in pc.myLaptops) {
+        final model = userLap['laptop_model'];
+        if (model is! Map) continue;
+
+        final spec = model['spec'];
+        if (spec is! Map) continue;
+
+        // Resolve category slug — post field first, then look up by categoryId
+        String? categorySlug = post.categorySlug?.toLowerCase().trim();
+        if ((categorySlug == null || categorySlug.isEmpty) &&
+            post.categoryId != null) {
+          final match = categories.firstWhereOrNull(
+            (c) => c.id == post.categoryId,
+          );
+          categorySlug = match?.slug.toLowerCase().trim();
+        }
+        final category = categorySlug;
+
+        switch (category) {
+          // ── RAM ───────────────────────────────────────────────────────────
+          case 'ram':
+            final laptopRamType =
+                spec['ram_type']?.toString().toUpperCase() ?? '';
+            final laptopMaxRam =
+                int.tryParse(spec['max_ram_gg']?.toString() ?? '0') ?? 0;
+            final laptopRamSlots =
+                int.tryParse(spec['ram_slots']?.toString() ?? '0') ?? 0;
+
+            final partRamType =
+                post.partSpecs['ram_type']?.toString().toUpperCase() ?? '';
+            final partCapacity =
+                int.tryParse(
+                  post.partSpecs['capacity_gb']?.toString() ?? '0',
+                ) ??
+                0;
+            final partFormFactor =
+                post.partSpecs['form_factor']?.toString().toUpperCase() ?? '';
+
+            if (laptopRamSlots == 0) return false; // soldered
+
+            if (laptopRamType.isNotEmpty) {
+              if (partRamType.isEmpty) continue;         // can't confirm → skip
+              if (partRamType != laptopRamType) continue; // DDR4 ≠ DDR5
+            }
+
+            if (partFormFactor.isNotEmpty &&
+                !partFormFactor.contains('DIMM'))
+              continue;
+
+            if (laptopMaxRam > 0 && partCapacity > 0 &&
+                partCapacity > laptopMaxRam)
+              continue;
+
+            return true;
+
+          // ── SSD ───────────────────────────────────────────────────────────
+          case 'ssd':
+            final laptopSsdSlots =
+                int.tryParse(spec['ssd_slots']?.toString() ?? '0') ?? 0;
+            final laptopSsdInterface =
+                spec['ssd_interface']?.toString().toUpperCase() ?? '';
+            final laptopSsdFormFactor =
+                spec['ssd_from_factor']?.toString().toUpperCase() ?? '';
+            final laptopHasHddBay = spec['has_hdd_bay'] == true;
+
+            final partInterface =
+                post.partSpecs['interface']?.toString().toUpperCase() ?? '';
+            final partFormFactor =
+                post.partSpecs['form_factor']?.toString().toUpperCase() ?? '';
+
+            if (laptopSsdSlots == 0) continue;
+
+            if (partFormFactor.contains('2.5') && !laptopHasHddBay) continue;
+
+            final laptopIsNvme = laptopSsdInterface.contains('NVME') ||
+                laptopSsdInterface.contains('PCIE');
+            final laptopIsSata = laptopSsdInterface.contains('SATA');
+
+            if (partInterface == 'NVME' && !laptopIsNvme) continue;
+
+            if (partInterface == 'SATA' &&
+                laptopIsNvme &&
+                !laptopIsSata &&
+                !laptopHasHddBay)
+              continue;
+
+            if (partFormFactor.isNotEmpty &&
+                laptopSsdFormFactor.isNotEmpty &&
+                !laptopSsdFormFactor.contains(partFormFactor) &&
+                !partFormFactor.contains(laptopSsdFormFactor))
+              continue;
+
+            return true;
+
+          // ── HDD ───────────────────────────────────────────────────────────
+          case 'hdd':
+          case 'hdd1':
+            if (spec['has_hdd_bay'] != true) continue;
+            return true;
+
+          // ── BATTERY ───────────────────────────────────────────────────────
+          case 'battery':
+            final laptopConnector =
+                spec['battery_connector']?.toString().toLowerCase() ?? '';
+            final laptopVoltage =
+                double.tryParse(
+                  spec['battery_voltage']?.toString() ?? '0',
+                ) ??
+                0;
+            final partConnector =
+                post.partSpecs['connector_type']?.toString().toLowerCase() ??
+                '';
+            final partVoltage =
+                double.tryParse(
+                  post.partSpecs['voltage']?.toString() ?? '0',
+                ) ??
+                0;
+
+            if (laptopConnector.isEmpty || partConnector.isEmpty) {
+              final brandName =
+                  model['brand']?['name']?.toString().toLowerCase() ?? '';
+              if (post.brand.toLowerCase().contains(brandName) ||
+                  post.compatibleModel.toLowerCase().contains(
+                    model['name']?.toString().toLowerCase() ?? '',
+                  ))
+                return true;
+              continue;
+            }
+
+            if (laptopConnector != partConnector) continue;
+            if (laptopVoltage > 0 && partVoltage > 0 &&
+                laptopVoltage != partVoltage)
+              continue;
+            return true;
+
+          // ── DISPLAY ───────────────────────────────────────────────────────
+          case 'display':
+            final laptopDisplaySize = spec['display_size']?.toString() ?? '';
+            final laptopDisplayConnector =
+                spec['display_connector']?.toString().toLowerCase() ?? '';
+            final partSize = post.partSpecs['size_inch']?.toString() ?? '';
+            final partConnector =
+                post.partSpecs['connector_pin']?.toString().toLowerCase() ?? '';
+
+            if (laptopDisplaySize.isNotEmpty && partSize.isNotEmpty) {
+              final lSize =
+                  double.tryParse(laptopDisplaySize.replaceAll('"', '')) ?? 0;
+              final pSize = double.tryParse(partSize) ?? 0;
+              if (lSize > 0 && pSize > 0 && lSize != pSize) continue;
+            }
+
+            if (laptopDisplayConnector.isNotEmpty &&
+                partConnector.isNotEmpty &&
+                laptopDisplayConnector != partConnector)
+              continue;
+
+            return true;
+
+          // ── CHARGER ───────────────────────────────────────────────────────
+          case 'charger':
+          case 'adapter':
+            final laptopChargerWattage =
+                int.tryParse(
+                  spec['charger_wattage']?.toString() ?? '0',
+                ) ??
+                0;
+            final laptopChargerConnector =
+                spec['charger_connector']?.toString().toLowerCase() ?? '';
+            final partWattage =
+                int.tryParse(
+                  post.partSpecs['wattage']?.toString() ?? '0',
+                ) ??
+                0;
+            final partConnector =
+                post.partSpecs['connector_type']?.toString().toLowerCase() ??
+                '';
+
+            if (laptopChargerWattage > 0 && partWattage > 0 &&
+                partWattage < laptopChargerWattage)
+              continue;
+
+            if (laptopChargerConnector.isNotEmpty &&
+                partConnector.isNotEmpty &&
+                laptopChargerConnector != partConnector)
+              continue;
+
+            return true;
+
+          // ── THERMAL / COOLING FAN — universal ─────────────────────────────
+          case 'thermal':
+          case 'thermal paste':
+          case 'cooling':
+          case 'fan':
+            return true;
+
+          // ── FALLBACK: brand / model name match ────────────────────────────
+          default:
+            final brandName =
+                model['brand']?['name']?.toString().toLowerCase() ?? '';
+            final modelName = model['name']?.toString().toLowerCase() ?? '';
+            final postCompat = post.compatibleModel.toLowerCase();
+            if (brandName.isNotEmpty && postCompat.contains(brandName))
+              return true;
+            if (modelName.isNotEmpty && postCompat.contains(modelName))
+              return true;
+            continue;
+        }
+      }
+    } catch (e) {
+      debugPrint('[HomeController] Compatibility check error: $e');
+    }
+    return false;
   }
 
   void _loadDummyCategories() {

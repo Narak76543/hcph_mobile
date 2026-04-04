@@ -34,7 +34,7 @@ class AlertsView extends GetView<AlertsController> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColor.kError.withOpacity(0.1),
+                        color: AppColor.kError.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: AppText(
@@ -97,7 +97,7 @@ class AlertsView extends GetView<AlertsController> {
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: AppColor.kBorder.withOpacity(0.3),
+                color: AppColor.kBorder.withValues(alpha: 0.3),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -110,7 +110,7 @@ class AlertsView extends GetView<AlertsController> {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: (alert['color'] as Color).withOpacity(0.1),
+                  color: (alert['color'] as Color).withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(

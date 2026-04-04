@@ -44,7 +44,7 @@ class MainNavView extends GetView<MainNavController> {
             ),
             Positioned.fill(
               child: ColoredBox(
-                color: AppColor.kOverlay.withOpacity(isDark ? 0.85 : 0.9),
+                color: AppColor.kOverlay.withValues(alpha: isDark ? 0.85 : 0.9),
               ),
             ),
             SafeArea(
@@ -87,22 +87,24 @@ class MainNavView extends GetView<MainNavController> {
                       );
                     }),
                   ),
-                  Builder(builder: (context) {
-                    final bool isKeyboardVisible =
-                        MediaQuery.of(context).viewInsets.bottom > 0;
-                    return AnimatedPositioned(
-                      duration: const Duration(milliseconds: 250),
-                      curve: Curves.easeOutCubic,
-                      left: 0,
-                      right: 0,
-                      bottom: isKeyboardVisible ? -100 : 0,
-                      child: AnimatedOpacity(
-                        duration: const Duration(milliseconds: 200),
-                        opacity: isKeyboardVisible ? 0 : 1,
-                        child: _buildNavBar(),
-                      ),
-                    );
-                  }),
+                  Builder(
+                    builder: (context) {
+                      final bool isKeyboardVisible =
+                          MediaQuery.of(context).viewInsets.bottom > 0;
+                      return AnimatedPositioned(
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.easeOutCubic,
+                        left: 0,
+                        right: 0,
+                        bottom: isKeyboardVisible ? -100 : 0,
+                        child: AnimatedOpacity(
+                          duration: const Duration(milliseconds: 200),
+                          opacity: isKeyboardVisible ? 0 : 1,
+                          child: _buildNavBar(),
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -130,15 +132,19 @@ class MainNavView extends GetView<MainNavController> {
                   vertical: 10,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColor.kSurface.withOpacity(isDark ? 0.4 : 0.6),
+                  color: AppColor.kSurface.withValues(
+                    alpha: isDark ? 0.4 : 0.6,
+                  ),
                   borderRadius: BorderRadius.circular(50),
                   border: Border.all(
-                    color: AppColor.kGlassBorder.withOpacity(0.1),
+                    color: AppColor.kGlassBorder.withValues(alpha: 0.1),
                     width: 1,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+                      color: Colors.black.withValues(
+                        alpha: isDark ? 0.2 : 0.05,
+                      ),
                       blurRadius: 20,
                       offset: const Offset(0, 8),
                     ),
@@ -175,8 +181,8 @@ class MainNavView extends GetView<MainNavController> {
                                 // ✅ FIX 2: spreadRadius always 0 — removes overshoot crash
                                 BoxShadow(
                                   color: selected
-                                      ? AppColor.kNavSelectedEnd.withOpacity(
-                                          0.4,
+                                      ? AppColor.kNavSelectedEnd.withValues(
+                                          alpha: 0.4,
                                         )
                                       : Colors.transparent,
                                   blurRadius: selected ? 12.0 : 0.0,

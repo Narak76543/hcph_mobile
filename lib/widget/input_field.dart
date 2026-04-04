@@ -81,12 +81,14 @@ class _AppInputFieldState extends State<AppInputField> {
             color: AppColor.kSurface,
             borderRadius: BorderRadius.circular(10), // Modern rounded
             border: Border.all(
-              color: _isFocused ? AppColor.kGoogleBlue.withOpacity(0.5) : AppColor.kBorder.withOpacity(0.5),
+              color: _isFocused
+                  ? AppColor.kGoogleBlue.withValues(alpha: 0.5)
+                  : AppColor.kBorder.withValues(alpha: 0.5),
               width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.02),
+                color: Colors.black.withValues(alpha: 0.02),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -106,11 +108,15 @@ class _AppInputFieldState extends State<AppInputField> {
             decoration: InputDecoration(
               hintText: shouldHideHint ? '' : activeHint,
               hintStyle: TextStyle(
-                color: AppColor.kTextSecondary.withOpacity(0.6),
+                color: AppColor.kTextSecondary.withValues(alpha: 0.6),
                 fontSize: 14,
               ),
               prefixIcon: widget.prefixIcon != null
-                  ? Icon(widget.prefixIcon, color: AppColor.kTextSecondary, size: 20)
+                  ? Icon(
+                      widget.prefixIcon,
+                      color: AppColor.kTextSecondary,
+                      size: 20,
+                    )
                   : null,
               suffixIcon: widget.suffixIcon,
               border: InputBorder.none,

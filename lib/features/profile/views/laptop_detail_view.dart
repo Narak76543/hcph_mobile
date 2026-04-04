@@ -96,10 +96,10 @@ class LaptopDetailView extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColor.kAuthSurface,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColor.kAuthBorder.withOpacity(0.5)),
+        border: Border.all(color: AppColor.kAuthBorder.withValues(alpha: 0.5)),
         boxShadow: [
           BoxShadow(
-            color: AppColor.kShadow.withOpacity(0.1),
+            color: AppColor.kShadow.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -132,7 +132,7 @@ class LaptopDetailView extends StatelessWidget {
   Widget _buildDivider() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Divider(height: 1, color: AppColor.kAuthBorder.withOpacity(0.4)),
+      child: Divider(height: 1, color: AppColor.kAuthBorder.withValues(alpha: 0.4)),
     );
   }
 }

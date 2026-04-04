@@ -34,7 +34,7 @@ class OnboardingView extends GetView<OnboardingController> {
               final isDark = Get.find<ThemeService>().isDarkMode.value;
               final Color overlayStart = isDark
                   ? Colors.transparent
-                  : Colors.white.withOpacity(0.1);
+                  : Colors.white.withValues(alpha: 0.1);
               final Color overlayEnd = isDark ? Colors.black : Colors.white;
 
               return Container(
@@ -44,7 +44,7 @@ class OnboardingView extends GetView<OnboardingController> {
                     end: Alignment.bottomCenter,
                     colors: [
                       overlayStart,
-                      overlayEnd.withOpacity(0.6),
+                      overlayEnd.withValues(alpha: 0.6),
                       overlayEnd,
                     ],
                     stops: const [0.0, 0.45, 1.0],
@@ -80,10 +80,10 @@ class OnboardingView extends GetView<OnboardingController> {
                           vertical: 8,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColor.kSurface.withOpacity(0.1),
+                          color: AppColor.kSurface.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: AppColor.kTextPrimary.withOpacity(0.15),
+                            color: AppColor.kTextPrimary.withValues(alpha: 0.15),
                           ),
                         ),
                         child: Row(
@@ -125,10 +125,10 @@ class OnboardingView extends GetView<OnboardingController> {
                               vertical: 8,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColor.kSurface.withOpacity(0.1),
+                              color: AppColor.kSurface.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(5),
                               border: Border.all(
-                                color: AppColor.kTextPrimary.withOpacity(0.15),
+                                color: AppColor.kTextPrimary.withValues(alpha: 0.15),
                               ),
                             ),
                             child: AppText(
@@ -177,7 +177,7 @@ class OnboardingView extends GetView<OnboardingController> {
                             decoration: BoxDecoration(
                               color: selected
                                   ? accentColor
-                                  : AppColor.kTextPrimary.withOpacity(0.3),
+                                  : AppColor.kTextPrimary.withValues(alpha: 0.3),
                               borderRadius: BorderRadius.circular(4),
                             ),
                           );
@@ -274,9 +274,9 @@ class OnboardingView extends GetView<OnboardingController> {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: accentColor.withOpacity(0.2),
+                    color: accentColor.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: accentColor.withOpacity(0.4)),
+                    border: Border.all(color: accentColor.withValues(alpha: 0.4)),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -360,9 +360,9 @@ class OnboardingView extends GetView<OnboardingController> {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.07),
+          color: Colors.white.withValues(alpha: 0.07),
           borderRadius: BorderRadius.circular(5),
-          border: Border.all(color: Colors.white.withOpacity(0.12)),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
         ),
         child: Text(
           label,

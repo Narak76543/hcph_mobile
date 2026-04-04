@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
+import 'package:http/http.dart';
 import 'package:school_assgn/core/network/api_config.dart';
 import 'package:school_assgn/core/network/api_exception.dart';
 
