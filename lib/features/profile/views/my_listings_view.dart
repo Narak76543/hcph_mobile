@@ -112,7 +112,7 @@ class MyListingsView extends GetView<ProfileController> {
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withOpacity(0.08),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -474,7 +474,7 @@ class MyListingsView extends GetView<ProfileController> {
       padding: const EdgeInsets.all(30),
       decoration: BoxDecoration(
         color: AppColor.kAuthSurface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(color: AppColor.kAuthBorder.withOpacity(0.5)),
       ),
       child: Column(
@@ -556,7 +556,7 @@ class MyListingsView extends GetView<ProfileController> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: AppColor.kAuthSurface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(color: AppColor.kAuthBorder.withOpacity(0.35)),
       ),
       child: Column(
@@ -591,115 +591,204 @@ class MyListingsView extends GetView<ProfileController> {
         : AppColor.kGoogleYellow;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 5),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: AppColor.kAuthSurface,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.black.withOpacity(0.03)),
+        borderRadius: BorderRadius.circular(5),
+        border: Border.all(color: AppColor.kAuthBorder.withOpacity(0.4)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 15,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      child: Row(
-        children: [
-          _buildListingImage(listing.imageUrl),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // ── Image area ──
+            Container(
+              width: 100,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColor.kBackground.withOpacity(0.3),
+                borderRadius: const BorderRadius.horizontal(
+                  left: Radius.circular(16),
+                ),
+              ),
+              child: _buildListingImage(listing.imageUrl),
+            ),
+
+            // ── Content area ──
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: AppText(
-                        listing.partName,
-                        variant: AppTextVariant.title,
-                        fontSize: 15,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    AppText(
-                      _formatPrice(listing.price),
-                      variant: AppTextVariant.title,
-                      color: AppColor.kGoogleBlue,
-                      fontSize: 15,
-                    ),
-                    const SizedBox(width: 8),
-                    // ── Edit/Delete Menu ──
-                    PopupMenuButton<String>(
-                      onSelected: (value) {
-                        if (value == 'edit') {
-                          _handleEditListing(listing);
-                        } else if (value == 'delete') {
-                          _handleDeleteListing(listing);
-                        }
-                      },
-                      itemBuilder: (BuildContext context) => [
-                        const PopupMenuItem<String>(
-                          value: 'edit',
-                          child: Row(
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(Icons.edit, size: 18),
-                              SizedBox(width: 12),
-                              Text('Edit'),
-                            ],
-                          ),
-                        ),
-                        const PopupMenuItem<String>(
-                          value: 'delete',
-                          child: Row(
-                            children: [
-                              Icon(Icons.delete, size: 18, color: Colors.red),
-                              SizedBox(width: 12),
-                              Text(
-                                'Delete',
-                                style: TextStyle(color: Colors.red),
+                              AppText(
+                                listing.partName,
+                                variant: AppTextVariant.title,
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: AppColor.kAuthTextPrimary,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 2),
+                              AppText(
+                                listing.brand.isNotEmpty
+                                    ? listing.brand
+                                    : 'Other',
+                                variant: AppTextVariant.caption,
+                                color: AppColor.kGoogleBlue,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
                               ),
                             ],
                           ),
                         ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            AppText(
+                              _formatPrice(listing.price),
+                              variant: AppTextVariant.title,
+                              color: AppColor.kGoogleBlue,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ],
+                        ),
                       ],
-                      icon: Icon(
-                        Icons.more_vert,
-                        size: 20,
+                    ),
+                    const SizedBox(height: 10),
+                    Expanded(
+                      child: AppText(
+                        listing.compatibleModel.isNotEmpty
+                            ? listing.compatibleModel
+                            : 'No specific compatibility provided',
+                        variant: AppTextVariant.caption,
                         color: AppColor.kAuthTextSecondary,
+                        fontSize: 11,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Status badge
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: statusColor.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 6,
+                                height: 6,
+                                decoration: BoxDecoration(
+                                  color: statusColor,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              AppText(
+                                status,
+                                variant: AppTextVariant.body,
+                                color: statusColor,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Actions Menu
+                        PopupMenuButton<String>(
+                          onSelected: (value) {
+                            if (value == 'edit') {
+                              _handleEditListing(listing);
+                            } else if (value == 'delete') {
+                              _handleDeleteListing(listing);
+                            }
+                          },
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          itemBuilder: (BuildContext context) => [
+                            PopupMenuItem<String>(
+                              value: 'edit',
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.edit_outlined,
+                                    size: 18,
+                                    color: AppColor.kGoogleBlue,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  const Text('Edit Details'),
+                                ],
+                              ),
+                            ),
+                            PopupMenuItem<String>(
+                              value: 'delete',
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.delete_outline_rounded,
+                                    size: 18,
+                                    color: AppColor.kGoogleRed,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  const Text(
+                                    'Remove Post',
+                                    style: TextStyle(
+                                      color: AppColor.kGoogleRed,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: AppColor.kBackground,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.more_horiz_rounded,
+                              size: 18,
+                              color: AppColor.kAuthTextSecondary,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                AppText(
-                  listing.compatibleModel.isNotEmpty
-                      ? listing.compatibleModel
-                      : 'No specification provided',
-                  variant: AppTextVariant.caption,
-                  color: AppColor.kAuthTextSecondary,
-                  fontSize: 12,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: AppText(
-                    status,
-                    variant: AppTextVariant.body,
-                    color: statusColor,
-                    fontSize: 11,
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -707,33 +796,35 @@ class MyListingsView extends GetView<ProfileController> {
   Widget _buildListingImage(String imageUrl) {
     final trimmed = imageUrl.trim();
 
-    return Container(
-      width: 76,
-      height: 76,
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: AppColor.kGoogleBlue.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(14),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10),
+          ],
+        ),
+        child: trimmed.isEmpty
+            ? _buildFallbackListingImage()
+            : trimmed.startsWith('http')
+            ? Image.network(
+                trimmed,
+                fit: BoxFit.contain,
+                errorBuilder: (_, _, _) => _buildFallbackListingImage(),
+              )
+            : trimmed.startsWith('/')
+            ? Image.file(
+                File(trimmed),
+                fit: BoxFit.contain,
+                errorBuilder: (_, _, _) => _buildFallbackListingImage(),
+              )
+            : Image.asset(
+                trimmed,
+                fit: BoxFit.contain,
+                errorBuilder: (_, _, _) => _buildFallbackListingImage(),
+              ),
       ),
-      child: trimmed.isEmpty
-          ? _buildFallbackListingImage()
-          : trimmed.startsWith('http')
-          ? Image.network(
-              trimmed,
-              fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => _buildFallbackListingImage(),
-            )
-          : trimmed.startsWith('/')
-          ? Image.file(
-              File(trimmed),
-              fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => _buildFallbackListingImage(),
-            )
-          : Image.asset(
-              trimmed,
-              fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => _buildFallbackListingImage(),
-            ),
     );
   }
 
@@ -763,12 +854,12 @@ class MyListingsView extends GetView<ProfileController> {
   void _handleDeleteListing(PostModel listing) {
     Get.dialog(
       AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         backgroundColor: AppColor.kAuthSurface,
         title: AppText(
           'Delete Listing',
           variant: AppTextVariant.title,
-          color: AppColor.kAuthTextPrimary,
+          color: AppColor.kGoogleRed,
         ),
         content: AppText(
           'Are you sure you want to delete "${listing.partName}"? This action cannot be undone.',

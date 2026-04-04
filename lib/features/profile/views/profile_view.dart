@@ -470,7 +470,7 @@ class ProfileView extends GetView<ProfileController> {
                         controller.userRoleIcon.value,
                         width: 17,
                         height: 17,
-                        color: AppColor.kGoogleRed,
+                        color: controller.userRoleColor.value,
                       ),
                       const SizedBox(width: 4),
                       AppText(

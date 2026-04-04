@@ -5,7 +5,6 @@ import 'package:school_assgn/features/home/models/home_models.dart';
 import 'package:school_assgn/features/profile/controllers/profile_controller.dart';
 import 'package:school_assgn/themes/app_color.dart';
 import 'package:school_assgn/widget/text_widget.dart';
-import 'package:school_assgn/widget/input_field.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
@@ -70,8 +69,8 @@ class HomeView extends GetView<HomeController> {
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
                   sliver: SliverGrid(
                     delegate: SliverChildBuilderDelegate(
-                      (ctx, i) => _buildProductCard(controller.recentPosts[i]),
-                      childCount: controller.recentPosts.length,
+                      (ctx, i) => _buildProductCard(controller.displayPosts[i]),
+                      childCount: controller.displayPosts.length,
                     ),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
@@ -179,33 +178,164 @@ class HomeView extends GetView<HomeController> {
 
   // ─────────────────── Search bar ───────────────────
   Widget _buildSearchBar() {
-    return Row(
-      children: [
-        Expanded(
-          child: AppInputField(
-            controller: controller.searchController,
-            hint: 'Search parts, shops...',
-            prefixIcon: Icons.search_rounded,
-          ),
-        ),
-        const SizedBox(width: 10),
-        Container(
-          height: 48,
-          width: 48,
-          decoration: BoxDecoration(
-            color: AppColor.kAuthAccent,
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: [
-              BoxShadow(
-                color: AppColor.kAuthAccent.withValues(alpha: 0.35),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+    return Obx(() {
+      final hasText = controller.searchQuery.value.isNotEmpty;
+      final suggestions = controller.displayPosts.take(6).toList();
+
+      return Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColor.kAuthSurface,
+                    borderRadius: BorderRadius.only(
+                      topLeft: const Radius.circular(10),
+                      topRight: const Radius.circular(10),
+                      bottomLeft: Radius.circular(hasText ? 0 : 10),
+                      bottomRight: Radius.circular(hasText ? 0 : 10),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 15,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    controller: controller.searchController,
+                    style: const TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 14,
+                      color: Colors.black87,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'Search products...',
+                      hintStyle: TextStyle(
+                        color: AppColor.kAuthTextSecondary.withValues(
+                          alpha: 0.5,
+                        ),
+                        fontFamily: 'Poppins',
+                        fontSize: 14,
+                      ),
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Icon(
+                          Icons.search_rounded,
+                          color: AppColor.kAuthTextSecondary.withValues(
+                            alpha: 0.7,
+                          ),
+                          size: 22,
+                        ),
+                      ),
+                      // suffixIcon: Padding(
+                      //   padding: const EdgeInsets.symmetric(horizontal: 12),
+                      //   child: Icon(
+                      //     Icons.mic_rounded,
+                      //     color: AppColor.kAuthTextSecondary.withValues(
+                      //       alpha: 0.7,
+                      //     ),
+                      //     size: 22,
+                      //   ),
+                      // ),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                  ),
+                ),
               ),
+              if (!hasText) const SizedBox(width: 10),
+              if (!hasText)
+                Container(
+                  height: 52,
+                  width: 52,
+                  decoration: BoxDecoration(
+                    color: AppColor.kAuthAccent,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColor.kAuthAccent.withValues(alpha: 0.35),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.tune_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
             ],
           ),
-          child: const Icon(Icons.tune_rounded, color: Colors.white, size: 20),
+          if (hasText)
+            Container(
+              margin: const EdgeInsets.only(right: 0), // Match expanded bar
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: AppColor.kAuthSurface,
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(10),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.08),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  const Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: Color(0xFFF5F5F5),
+                  ),
+                  ...suggestions.map((p) => _buildSuggestionItem(p)),
+                  const SizedBox(height: 10),
+                ],
+              ),
+            ),
+        ],
+      );
+    });
+  }
+
+  Widget _buildSuggestionItem(PostModel p) {
+    return InkWell(
+      onTap: () {
+        controller.searchQuery.value = p.partName;
+        controller.searchController.text = p.partName;
+        // Optionally focus/unfocus here
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            Icon(
+              Icons.search_rounded,
+              size: 16,
+              color: AppColor.kAuthTextSecondary.withValues(alpha: 0.4),
+            ),
+            const SizedBox(width: 15),
+            Expanded(
+              child: Text(
+                p.partName,
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 13,
+                  color: AppColor.kAuthTextSecondary.withValues(alpha: 0.8),
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -302,7 +432,6 @@ class HomeView extends GetView<HomeController> {
       ),
       child: Stack(
         children: [
-          // Background decoration circle
           Positioned(
             right: -20,
             top: -20,
@@ -315,7 +444,6 @@ class HomeView extends GetView<HomeController> {
               ),
             ),
           ),
-          // Product image from network (icon-style)
           Positioned(
             right: 12,
             bottom: 0,
@@ -342,7 +470,6 @@ class HomeView extends GetView<HomeController> {
                     ),
                   ),
           ),
-          // Content
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 110, 12),
             child: Column(
@@ -433,80 +560,67 @@ class HomeView extends GetView<HomeController> {
     return Container(
       decoration: BoxDecoration(
         color: AppColor.kAuthSurface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: AppColor.kShadow,
-            blurRadius: 10,
-            offset: const Offset(0, 6),
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image area
+          // ── Image area ──
           Expanded(
+            flex: 3,
             child: Stack(
               children: [
                 Container(
                   width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: AppColor.kAuthBackground,
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(16),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(10),
                     ),
                   ),
                   padding: const EdgeInsets.all(10),
                   child: ClipRRect(
                     borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(16),
+                      top: Radius.circular(10),
                     ),
                     child: post.imageUrl.startsWith('http')
                         ? Image.network(
                             post.imageUrl,
                             width: double.infinity,
-                            height: double.infinity,
                             fit: BoxFit.contain,
                             loadingBuilder: (_, child, progress) =>
                                 progress == null
                                 ? child
                                 : Center(
-                                    child: Padding(
-                                      padding: EdgeInsets.all(20),
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: AppColor.kAuthAccent,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: AppColor.kAuthAccent.withValues(
+                                        alpha: 0.5,
                                       ),
                                     ),
                                   ),
-                            errorBuilder: (_, _, _) => Center(
-                              child: Icon(
-                                Icons.memory_rounded,
-                                color: AppColor.kAuthBorder,
-                                size: 48,
-                              ),
-                            ),
+                            errorBuilder: (_, _, _) =>
+                                _buildProductPlaceHolder(),
                           )
                         : Image.asset(
                             post.imageUrl,
                             width: double.infinity,
-                            height: double.infinity,
                             fit: BoxFit.contain,
-                            errorBuilder: (_, _, _) => Center(
-                              child: Icon(
-                                Icons.memory_rounded,
-                                color: AppColor.kAuthBorder,
-                                size: 48,
-                              ),
-                            ),
+                            errorBuilder: (_, _, _) =>
+                                _buildProductPlaceHolder(),
                           ),
                   ),
                 ),
-                // Price badge
                 Positioned(
-                  left: 8,
-                  bottom: 8,
+                  left: 10,
+                  bottom: 10,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
@@ -515,26 +629,44 @@ class HomeView extends GetView<HomeController> {
                     decoration: BoxDecoration(
                       color: AppColor.kAuthAccent,
                       borderRadius: BorderRadius.circular(5),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColor.kAuthAccent.withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
                     child: Text(
                       '\$${post.price.toStringAsFixed(0)}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontFamily: 'Poppins',
+                        fontWeight: FontWeight.bold,
                         fontSize: 12,
                       ),
                     ),
                   ),
                 ),
-                // Favourite button
                 Positioned(
-                  right: 8,
-                  top: 8,
+                  left: 10,
+                  top: 10,
+                  child: _buildFitBadge(post),
+                ),
+                Positioned(
+                  right: 10,
+                  top: 10,
                   child: Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: AppColor.kSurface,
+                      color: Colors.white.withValues(alpha: 0.9),
                       shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 5,
+                        ),
+                      ],
                     ),
                     child: const Icon(
                       Icons.favorite_border_rounded,
@@ -546,78 +678,208 @@ class HomeView extends GetView<HomeController> {
               ],
             ),
           ),
-          // Info area
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Shop + verified
-                Row(
-                  children: [
-                    if (post.isVerified)
-                      Icon(
-                        Icons.verified_rounded,
-                        size: 12,
-                        color: AppColor.kGoogleBlue,
-                      ),
-                    if (post.isVerified) const SizedBox(width: 3),
-                    Expanded(
-                      child: Text(
-                        post.ownerFullName,
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 11,
+
+          // ── Info area ──
+          Expanded(
+            flex: 2,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      if (post.isVerified)
+                        Icon(
+                          Icons.verified_rounded,
+                          size: 14,
                           color: AppColor.kGoogleBlue,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      if (post.isVerified) const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          post.brand.isNotEmpty ? post.brand : 'Premium Part',
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: AppColor.kGoogleBlue,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${post.brand} ${post.model}'.trim().isNotEmpty
-                      ? '${post.brand} ${post.model}'.trim()
-                      : post.partName,
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 12,
-                    color: AppColor.kAuthTextPrimary,
-                    height: 1.3,
+                    ],
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 6),
-                // Posted by row
-                Row(
-                  children: [
-                    Icon(
-                      Icons.person_rounded,
-                      size: 13,
-                      color: AppColor.kAuthTextSecondary,
+                  const SizedBox(height: 5),
+                  Text(
+                    post.partName,
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: AppColor.kAuthTextPrimary,
+                      height: 1.2,
                     ),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        'By: ${post.shopName}',
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 10,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.storefront_rounded,
+                        size: 11,
+                        color: AppColor.kGoogleRed.withValues(alpha: 0.7),
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          post.shopName,
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 10,
+                            color: AppColor.kAuthTextSecondary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColor.kBackground,
+                        ),
+                        child: Icon(
+                          Icons.person_outline_rounded,
+                          size: 10,
                           color: AppColor.kAuthTextSecondary,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                      const SizedBox(width: 5),
+                      Expanded(
+                        child: Text(
+                          post.ownerFullName,
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 9,
+                            color: AppColor.kAccentLight,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFitBadge(PostModel post) {
+    if (!_isCompatibleWithUserDevice(post)) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      decoration: BoxDecoration(
+        color: AppColor.kGoogleGreen,
+        borderRadius: BorderRadius.circular(5),
+        boxShadow: [
+          BoxShadow(
+            color: AppColor.kGoogleGreen.withValues(alpha: 0.3),
+            blurRadius: 4,
+          ),
+        ],
+      ),
+      child: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.check_circle_rounded, color: Colors.white, size: 10),
+          SizedBox(width: 4),
+          AppText(
+            "Fit with your device",
+            color: Colors.white,
+            fontSize: 8,
+            fontWeight: FontWeight.bold,
+          ),
+        ],
+      ),
+    );
+  }
+
+  bool _isCompatibleWithUserDevice(PostModel post) {
+    try {
+      if (!Get.isRegistered<ProfileController>()) return false;
+      final pc = Get.find<ProfileController>();
+      if (pc.myLaptops.isEmpty) return false;
+
+      final postBrand = post.brand.toLowerCase().trim();
+      final postCompat = post.compatibleModel.toLowerCase();
+      final postName = post.partName.toLowerCase();
+
+      for (final userLap in pc.myLaptops) {
+        final model = userLap['laptop_model'];
+        if (model is Map) {
+          // Check Brand Match
+          final brandName =
+              model['brand']?['name']?.toString().toLowerCase().trim() ?? '';
+          if (brandName.isNotEmpty &&
+              (postBrand == brandName ||
+                  postCompat.contains(brandName) ||
+                  postBrand.contains(brandName))) {
+            return true;
+          }
+
+          // Check Model Name Match
+          final modelName =
+              model['name']?.toString().toLowerCase().trim() ?? '';
+          if (modelName.isNotEmpty &&
+              (postCompat.contains(modelName) || postName.contains(modelName))) {
+            return true;
+          }
+
+          // --- 🔧 Technical Spec Matching (Smart Match) ---
+          final spec = model['spec'];
+          if (spec is Map) {
+            // 1. RAM Type Check (e.g., "DDR5")
+            final ramType = spec['ram_type']?.toString().toLowerCase().trim() ?? '';
+            if (ramType.isNotEmpty &&
+                (postName.contains(ramType) || postCompat.contains(ramType))) {
+              return true;
+            }
+
+            // 2. SSD Interface Check (e.g., "nvme" or "pcie")
+            final ssdIf = spec['ssd_interface']?.toString().toLowerCase().trim() ?? '';
+            if (ssdIf.isNotEmpty) {
+              // Standardize common terms
+              final cleanSsdIf = ssdIf.contains('nvme') ? 'nvme' : ssdIf;
+              if (postName.contains(cleanSsdIf) || postCompat.contains(cleanSsdIf)) {
+                return true;
+              }
+            }
+          }
+        }
+      }
+    } catch (_) {}
+    return false;
+  }
+
+  Widget _buildProductPlaceHolder() {
+    return Center(
+      child: Icon(
+        Icons.memory_rounded,
+        color: AppColor.kAuthBorder.withValues(alpha: 0.5),
+        size: 40,
       ),
     );
   }

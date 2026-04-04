@@ -42,6 +42,7 @@ class PostModel {
   final String? ownerUserId; // For checking if current user is owner
   final double price;
   final String imageUrl;
+  final String? categoryId; // Added for filtering
   final bool isVerified;
 
   PostModel({
@@ -56,6 +57,7 @@ class PostModel {
     this.ownerUserId,
     required this.price,
     required this.imageUrl,
+    this.categoryId, // Added
     this.isVerified = true,
   }) : ownerFullName = ownerFullName ?? postedBy;
 
@@ -64,9 +66,9 @@ class PostModel {
     // ── Robust Shop Name Resolution ──
     String shop = 'Unknown Shop';
     final shopJson = json['shop'];
-    if (json['shop_name'] != null && json['shop_name'].toString().isNotEmpty) {
-      shop = json['shop_name'].toString();
-    } else if (shopJson is Map &&
+
+    // 1. Try nested objects first (higher quality shop name)
+    if (shopJson is Map &&
         (shopJson['name'] != null || shopJson['shop_name'] != null)) {
       shop = (shopJson['name'] ?? shopJson['shop_name']).toString();
     } else if (json['owner'] is Map && json['owner']['shop_name'] != null) {
@@ -76,6 +78,10 @@ class PostModel {
     } else if (json['shop_details'] is Map &&
         json['shop_details']['name'] != null) {
       shop = json['shop_details']['name'].toString();
+    }
+    // 2. Fallback to top-level listing field (which might be a username)
+    else if (json['shop_name'] != null && json['shop_name'].toString().isNotEmpty) {
+      shop = json['shop_name'].toString();
     }
 
     // ── Robust Price Resolution ──
@@ -163,6 +169,13 @@ class PostModel {
     final ownerFullName = json['owner_full_name']?.toString() ?? shop;
     final ownerUserId = json['owner_id']?.toString();
 
+    // ── Category ID ──
+    final categoryId = (json['category_id'] ??
+            json['part_category_id'] ??
+            partMap?['category_id'] ??
+            partMap?['part_category_id'])
+        ?.toString();
+
     return PostModel(
       id: json['id']?.toString() ?? '',
       partName: partName,
@@ -175,6 +188,7 @@ class PostModel {
       ownerUserId: ownerUserId,
       price: priceVal,
       imageUrl: image,
+      categoryId: categoryId,
       isVerified: isVerified,
     );
   }

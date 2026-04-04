@@ -25,6 +25,29 @@ class HomeController extends GetxController {
   final categories = <CategoryModel>[].obs;
   final brands = <BrandModel>[].obs;
   final selectedCategoryId = '0'.obs; // '0' represents "All Parts"
+  final searchQuery = ''.obs;
+
+  List<PostModel> get displayPosts {
+    List<PostModel> filtered = recentPosts;
+
+    if (selectedCategoryId.value != '0') {
+      filtered = filtered
+          .where((p) => p.categoryId == selectedCategoryId.value)
+          .toList();
+    }
+
+    if (searchQuery.value.isNotEmpty) {
+      final q = searchQuery.value.toLowerCase();
+      filtered = filtered
+          .where((p) =>
+              p.partName.toLowerCase().contains(q) ||
+              p.brand.toLowerCase().contains(q) ||
+              p.model.toLowerCase().contains(q))
+          .toList();
+    }
+
+    return filtered;
+  }
 
   final recentPosts = <PostModel>[
     PostModel(
@@ -78,6 +101,9 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    searchController.addListener(() {
+      searchQuery.value = searchController.text;
+    });
     _fetchCategoriesFromBackend();
     _fetchBrandsFromBackend();
     _fetchPostsFromBackend();
@@ -205,6 +231,12 @@ class HomeController extends GetxController {
                   }
                 }
 
+                // If image is still empty, use fallback
+                if (imageUrl.isEmpty) {
+                  imageUrl = 'assets/images/l-m.webp';
+                }
+
+                // Return model with normalized image
                 return PostModel(
                   id: model.id,
                   partName: model.partName,
@@ -216,9 +248,8 @@ class HomeController extends GetxController {
                   ownerFullName: model.ownerFullName,
                   ownerUserId: model.ownerUserId,
                   price: model.price,
-                  imageUrl: imageUrl.isEmpty
-                      ? 'assets/images/l-m.webp'
-                      : imageUrl, // Default image fallback
+                  imageUrl: imageUrl,
+                  categoryId: model.categoryId, // Ensure categoryId is preserved
                   isVerified: model.isVerified,
                 );
               })

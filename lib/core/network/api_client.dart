@@ -116,11 +116,11 @@ class ApiClient {
     print('🔍 Multipart Fields:');
     request.fields.forEach((key, value) {
       print(
-        '  - $key: ${value.length > 50 ? value.substring(0, 50) + '...' : value}',
+        '  - $key: ${value.length > 50 ? '${value.substring(0, 50)}...' : value}',
       );
     });
 
-    Future<void> _addFile(String field, String path) async {
+    Future<void> addFile(String field, String path) async {
       if (path.trim().isEmpty) return;
       request.files.add(
         await http.MultipartFile.fromPath(
@@ -133,12 +133,12 @@ class ApiClient {
     }
 
     if (fileFieldName != null && filePath != null) {
-      await _addFile(fileFieldName, filePath);
+      await addFile(fileFieldName, filePath);
     }
 
     if (extraFiles != null) {
       for (final entry in extraFiles.entries) {
-        await _addFile(entry.key, entry.value);
+        await addFile(entry.key, entry.value);
       }
     }
 
@@ -167,7 +167,7 @@ class ApiClient {
 
     request.fields.addAll(fields);
 
-    Future<void> _addFile(String field, String path) async {
+    Future<void> addFile(String field, String path) async {
       if (path.trim().isEmpty) return;
       request.files.add(
         await http.MultipartFile.fromPath(
@@ -179,12 +179,12 @@ class ApiClient {
     }
 
     if (fileFieldName != null && filePath != null) {
-      await _addFile(fileFieldName, filePath);
+      await addFile(fileFieldName, filePath);
     }
 
     if (extraFiles != null) {
       for (final entry in extraFiles.entries) {
-        await _addFile(entry.key, entry.value);
+        await addFile(entry.key, entry.value);
       }
     }
 
@@ -203,7 +203,7 @@ class ApiClient {
 
     print('📬 Response status: ${response.statusCode}');
     print(
-      '📬 Response body: ${response.body.length > 200 ? response.body.substring(0, 200) + '...' : response.body}',
+      '📬 Response body: ${response.body.length > 200 ? '${response.body.substring(0, 200)}...' : response.body}',
     );
 
     if (response.statusCode < 200 || response.statusCode >= 300) {

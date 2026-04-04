@@ -14,6 +14,7 @@ import 'package:school_assgn/widget/under_construction_view.dart';
 import 'package:school_assgn/features/profile/views/laptop_detail_view.dart';
 import 'package:school_assgn/themes/app_color.dart';
 import 'package:school_assgn/widget/text_widget.dart';
+import 'package:school_assgn/features/profile/views/manual_laptop_entry_view.dart';
 import 'package:school_assgn/core/theme/theme_service.dart';
 import 'package:image_picker/image_picker.dart' as image_picker;
 import 'package:geolocator/geolocator.dart';
@@ -27,7 +28,8 @@ class ProfileController extends GetxController {
   final RxString userAvatarUrl = 'assets/images/norton_university.png'.obs;
   final Rx<String?> selectedShopImage = Rx<String?>(null);
 
-  final RxString userRoleIcon = 'assets/images/userr.png'.obs;
+  final RxString userRoleIcon = 'assets/images/user.png'.obs;
+  final Rx<Color> userRoleColor = AppColor.kGoogleBlue.obs;
   final RxBool isTechnicalRole = false.obs;
   final RxInt shopViews = 0.obs;
   final RxBool hasRequestedRole = false.obs;
@@ -140,6 +142,38 @@ class ProfileController extends GetxController {
   final RxBool isPostingHardware = false.obs;
   final Rx<String?> selectedHardwareImage = Rx<String?>(null);
 
+  // --- Manual Laptop Entry Controllers ---
+  final manualBrandCtrl = TextEditingController();
+  final manualModelCtrl = TextEditingController();
+  final manualCpuCtrl = TextEditingController();
+  final manualRamSlotsCtrl = TextEditingController();
+  final manualRamTypeCtrl = TextEditingController();
+  final manualMaxRamCtrl = TextEditingController();
+  final manualRamBaseCtrl = TextEditingController();
+  final manualSsdSlotsCtrl = TextEditingController();
+  final manualSsdInterfaceCtrl = TextEditingController();
+  final manualSsdFormFactorCtrl = TextEditingController();
+  final manualHasHddBay = false.obs;
+  final manualDisplaySizeCtrl = TextEditingController();
+  final manualDisplayResCtrl = TextEditingController();
+  final RxBool isSavingManualLaptop = false.obs;
+  final RxString manualBrandId = ''.obs;
+  final RxString manualCpuBrand =
+      'Intel'.obs; // Default: Intel, AMD, Xeon, Other
+
+  // --- Discrete Selectors for Manual Specs ---
+  final RxString manualRamType = 'DDR4'.obs;
+  final RxString manualRamSlots = '2'.obs;
+  final RxString manualRamBase = '8'.obs;
+  final RxString manualMaxRam = '16'.obs;
+  final RxString manualSsdSlots = '1'.obs;
+  final RxString manualSsdInterface = 'Pcie/NVMe'.obs;
+  final RxString manualAddHdd = 'No'.obs;
+  final RxString manualDisplaySizeRange = '15" - 15.9"'.obs;
+
+  final RxList<Map<String, dynamic>> filteredManualModels =
+      <Map<String, dynamic>>[].obs;
+
   Future<void> pickHardwareImage() async {
     final picker = image_picker.ImagePicker();
     final image = await picker.pickImage(
@@ -193,7 +227,7 @@ class ProfileController extends GetxController {
         'Location Captured',
         'Your current coordinates have been mapped successfully.',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColor.kGoogleBlue.withOpacity(0.9),
+        backgroundColor: AppColor.kGoogleBlue.withValues(alpha: 0.9),
         colorText: Colors.white,
         margin: const EdgeInsets.all(20),
         borderRadius: 16,
@@ -204,7 +238,7 @@ class ProfileController extends GetxController {
         'Location Error',
         e.toString().replaceFirst('Exception: ', ''),
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.withOpacity(0.9),
+        backgroundColor: Colors.red.withValues(alpha: 0.9),
         colorText: Colors.white,
       );
     } finally {
@@ -231,6 +265,30 @@ class ProfileController extends GetxController {
     isDarkMode.value = Get.find<ThemeService>().isDarkMode.value;
     _fetchUserProfile();
     _fetchMyLaptops();
+
+    // Model suggestions listener
+    manualModelCtrl.addListener(() {
+      final query = manualModelCtrl.text.toLowerCase().trim();
+      if (query.isEmpty) {
+        filteredManualModels.clear();
+      } else {
+        filteredManualModels.value = laptopModels
+            .where(
+              (m) => (m['name'] ?? '').toString().toLowerCase().contains(query),
+            )
+            .take(5)
+            .toList();
+      }
+    });
+
+    // When brand pick changes, fetch models for suggestions
+    ever(manualBrandId, (String id) {
+      if (id.isNotEmpty) {
+        fetchModelsForBrand(id);
+      } else {
+        laptopModels.clear();
+      }
+    });
   }
 
   Future<void> refreshProfile() async {
@@ -281,6 +339,7 @@ class ProfileController extends GetxController {
         isTechnicalRole.value = role == 'TECHNICAL' || role == 'ADMIN';
         userBadge.value = _roleToLabel(role);
         userRoleIcon.value = _roleToIcon(role);
+        userRoleColor.value = _roleToColor(role);
       }
 
       // ── Pending request ──
@@ -357,9 +416,20 @@ class ProfileController extends GetxController {
       case 'technical':
         return 'assets/images/screw-driver.png';
       case 'user':
-        return 'assets/images/userr.png';
       default:
-        return 'assets/images/userr.png';
+        return 'assets/images/user.png';
+    }
+  }
+
+  Color _roleToColor(String role) {
+    switch (role.toLowerCase()) {
+      case 'admin':
+        return AppColor.kGoogleBlue;
+      case 'technical':
+        return AppColor.kGoogleGreen;
+      case 'user':
+      default:
+        return AppColor.kGoogleBlue; // Professional blue for standard members
     }
   }
 
@@ -465,12 +535,14 @@ class ProfileController extends GetxController {
     }
   }
 
-  Future<void> _fetchLaptopBrands() async {
+  Future<void> fetchLaptopBrands() async {
     try {
       isLaptopLoading.value = true;
+      final session = Get.find<SessionService>();
       final response = await _apiClient.getRequest(
         '/laptop-brands/',
         queryParameters: {'limit': '100'},
+        bearerToken: session.accessToken,
       );
       List<dynamic> list = [];
       if (response is List) {
@@ -488,13 +560,15 @@ class ProfileController extends GetxController {
     }
   }
 
-  Future<void> _fetchModelsForBrand(String brandId) async {
+  Future<void> fetchModelsForBrand(String brandId) async {
     try {
       isModelsLoading.value = true;
       laptopModels.clear();
+      final session = Get.find<SessionService>();
       final response = await _apiClient.getRequest(
         '/laptop-models/',
         queryParameters: {'brand_id': brandId, 'limit': '100'},
+        bearerToken: session.accessToken,
       );
       List<dynamic> list = [];
       if (response is List) {
@@ -509,6 +583,98 @@ class ProfileController extends GetxController {
       debugPrint('[ProfileController] Could not fetch models: $e');
     } finally {
       isModelsLoading.value = false;
+    }
+  }
+
+  Future<void> saveManualLaptop() async {
+    try {
+      isSavingManualLaptop.value = true;
+      final session = Get.find<SessionService>();
+      final token = session.accessToken;
+
+      if (manualBrandId.value.isEmpty || manualModelCtrl.text.trim().isEmpty) {
+        throw Exception('Brand and Model name are required.');
+      }
+
+      // Step 1: Create a Laptop Model
+      final String modelName = manualModelCtrl.text.trim();
+      final String slug = modelName.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-');
+      
+      final Map<String, dynamic> modelPayload = {
+        'brand_id': manualBrandId.value,
+        'name': modelName,
+        'slug': slug,
+        'cpu': '${manualCpuBrand.value} ${manualCpuCtrl.text.trim()}',
+        'form_factor': 'Laptop', // Default field for schema
+      };
+
+      debugPrint('[ProfileController] Step 1: POST /laptop-models/');
+      final modelResponse = await _apiClient.postJson(
+        '/laptop-models/',
+        body: modelPayload,
+        bearerToken: token,
+      );
+
+      final String modelId = modelResponse['id']?.toString() ?? '';
+      if (modelId.isEmpty) {
+        throw Exception('Failed to create laptop model entry.');
+      }
+
+      // Step 2: Create Specifications for that model
+      final Map<String, dynamic> specPayload = {
+        'model_id': modelId,
+        'ram_slots': int.tryParse(manualRamSlots.value) ?? 1,
+        'ram_type': manualRamType.value,
+        'max_ram_gg': int.tryParse(manualMaxRam.value) ?? 16, // Field name from backend schema
+        'ram_base_gb': int.tryParse(manualRamBase.value) ?? 8,
+        'ssd_slots': int.tryParse(manualSsdSlots.value) ?? 1,
+        'ssd_interface': manualSsdInterface.value,
+        'has_hdd_bay': manualAddHdd.value == 'Yes',
+        'display_size': manualDisplaySizeRange.value,
+        'display_resolution': manualDisplayResCtrl.text.trim(),
+      };
+
+      debugPrint('[ProfileController] Step 2: POST /laptop-specs/');
+      await _apiClient.postJson(
+        '/laptop-specs/',
+        body: specPayload,
+        bearerToken: token,
+      );
+
+      // Step 3: Link the model to the User (My Laptops)
+      debugPrint('[ProfileController] Step 3: POST /my-laptops/');
+      await _apiClient.postJson(
+        '/my-laptops/',
+        body: {'laptop_model_id': modelId},
+        bearerToken: token,
+      );
+
+      // Final Step: Refresh the profile to reflect changes
+      await _fetchMyLaptops();
+      
+      Get.back(); // close view
+      Get.snackbar(
+        'Laptop Profile Created',
+        'Your custom hardware configuration has been successfully saved to the database.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColor.kGoogleBlue,
+        colorText: Colors.white,
+        margin: const EdgeInsets.all(20),
+        borderRadius: 16,
+        icon: const Icon(Icons.cloud_done_rounded, color: Colors.white),
+        duration: const Duration(seconds: 4),
+      );
+    } catch (e) {
+      debugPrint('[ProfileController] Manual save error: $e');
+      Get.snackbar(
+        'Database Sync Failed',
+        e.toString().replaceFirst('Exception: ', ''),
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+    } finally {
+      isSavingManualLaptop.value = false;
     }
   }
 
@@ -530,7 +696,7 @@ class ProfileController extends GetxController {
         'Laptop Saved!',
         'Your laptop model has been added to your profile.',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColor.kGoogleGreen.withOpacity(0.95),
+        backgroundColor: AppColor.kGoogleGreen.withValues(alpha: 0.95),
         colorText: Colors.white,
         margin: const EdgeInsets.all(20),
         borderRadius: 16,
@@ -542,7 +708,7 @@ class ProfileController extends GetxController {
         'Failed to Save',
         e.toString().replaceFirst('Exception: ', ''),
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.withOpacity(0.9),
+        backgroundColor: Colors.red.withValues(alpha: 0.9),
         colorText: Colors.white,
         margin: const EdgeInsets.all(20),
         borderRadius: 16,
@@ -561,7 +727,7 @@ class ProfileController extends GetxController {
         'Laptop Removed',
         'Removed from your profile.',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColor.kAuthAccent.withOpacity(0.95),
+        backgroundColor: AppColor.kAuthAccent.withValues(alpha: 0.95),
         colorText: Colors.white,
         margin: const EdgeInsets.all(20),
         borderRadius: 16,
@@ -590,7 +756,7 @@ class ProfileController extends GetxController {
   void showSetLaptopSheet(BuildContext context) {
     selectedBrand.value = null;
     laptopModels.clear();
-    _fetchLaptopBrands();
+    fetchLaptopBrands();
 
     showModalBottomSheet(
       context: context,
@@ -659,7 +825,7 @@ class ProfileController extends GetxController {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColor.kGoogleBlue.withOpacity(0.1),
+                          color: AppColor.kGoogleBlue.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: AppText(
@@ -705,307 +871,341 @@ class ProfileController extends GetxController {
                         ),
                       );
                     }
-                    return GridView.builder(
-                      controller: scrollCtrl,
-                      padding: const EdgeInsets.only(top: 10, bottom: 20),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            mainAxisSpacing: 16,
-                            crossAxisSpacing: 16,
-                            childAspectRatio: 0.85,
-                          ),
-                      itemCount: laptopBrands.length,
-                      itemBuilder: (_, i) {
-                        final brand = laptopBrands[i];
-
-                        // Parse out the image URL. The backend might return 'localhost:8000' which won't load on real devices/emulators.
-                        String? imageUrlStr = brand['brand_img_url']
-                            ?.toString();
-                        if (imageUrlStr != null && imageUrlStr.isNotEmpty) {
-                          if (imageUrlStr.startsWith('http://localhost:8000')) {
-                            imageUrlStr = imageUrlStr.replaceFirst(
-                              'http://localhost:8000',
-                              ApiConfig.baseUrl,
-                            );
-                          } else if (imageUrlStr.startsWith(
-                            'http://127.0.0.1:8000',
-                          )) {
-                            imageUrlStr = imageUrlStr.replaceFirst(
-                              'http://127.0.0.1:8000',
-                              ApiConfig.baseUrl,
-                            );
-                          } else if (!imageUrlStr.startsWith('http')) {
-                            // If it's totally relative like '/media/...'
-                            imageUrlStr =
-                                '${ApiConfig.baseUrl}${imageUrlStr.startsWith('/') ? imageUrlStr : '/$imageUrlStr'}';
-                          }
-                        }
-
-                        return InkWell(
-                          onTap: () {
-                            selectedBrand.value = brand;
-                            _fetchModelsForBrand(brand['id']);
-                          },
-                          borderRadius: BorderRadius.circular(16),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: AppColor.kAuthSurface,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: AppColor.kAuthBorder.withOpacity(0.5),
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColor.kAuthBorder.withOpacity(0.3),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4),
+                    return Column(
+                      children: [
+                        Expanded(
+                          child: GridView.builder(
+                            controller: scrollCtrl,
+                            padding: const EdgeInsets.only(top: 10, bottom: 20),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 3,
+                                  mainAxisSpacing: 16,
+                                  crossAxisSpacing: 16,
+                                  childAspectRatio: 0.85,
                                 ),
-                              ],
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  width: 48,
-                                  height: 48,
+                            itemCount: laptopBrands.length,
+                            itemBuilder: (_, i) {
+                              final brand = laptopBrands[i];
+                              // ... (keep existing Brand item code)
+                              String? imageUrlStr = brand['brand_img_url']
+                                  ?.toString();
+                              if (imageUrlStr != null &&
+                                  imageUrlStr.isNotEmpty) {
+                                if (imageUrlStr.startsWith(
+                                  'http://localhost:8000',
+                                )) {
+                                  imageUrlStr = imageUrlStr.replaceFirst(
+                                    'http://localhost:8000',
+                                    ApiConfig.baseUrl,
+                                  );
+                                } else if (imageUrlStr.startsWith(
+                                  'http://127.0.0.1:8000',
+                                )) {
+                                  imageUrlStr = imageUrlStr.replaceFirst(
+                                    'http://127.0.0.1:8000',
+                                    ApiConfig.baseUrl,
+                                  );
+                                } else if (!imageUrlStr.startsWith('http')) {
+                                  imageUrlStr =
+                                      '${ApiConfig.baseUrl}${imageUrlStr.startsWith('/') ? imageUrlStr : '/$imageUrlStr'}';
+                                }
+                              }
+
+                              return InkWell(
+                                onTap: () {
+                                  selectedBrand.value = brand;
+                                  fetchModelsForBrand(brand['id']?.toString() ?? '');
+                                },
+                                borderRadius: BorderRadius.circular(16),
+                                child: Container(
                                   decoration: BoxDecoration(
-                                    color: AppColor.kGoogleBlue.withOpacity(
-                                      0.08,
+                                    color: AppColor.kAuthSurface,
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: AppColor.kAuthBorder.withValues(
+                                        alpha: 0.5,
+                                      ),
                                     ),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  padding:
-                                      imageUrlStr != null &&
-                                          imageUrlStr.isNotEmpty
-                                      ? const EdgeInsets.all(8)
-                                      : EdgeInsets.zero,
-                                  child:
-                                      imageUrlStr != null &&
-                                          imageUrlStr.isNotEmpty
-                                      ? Image.network(
-                                          imageUrlStr,
-                                          fit: BoxFit.contain,
-                                          errorBuilder: (_, _, _) => Icon(
-                                            Icons.business_rounded,
-                                            color: AppColor.kGoogleBlue,
-                                            size: 24,
-                                          ),
-                                        )
-                                      : Icon(
-                                          Icons.business_rounded,
-                                          color: AppColor.kGoogleBlue,
-                                          size: 24,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: AppColor.kAuthBorder.withValues(
+                                          alpha: 0.3,
                                         ),
-                                ),
-                                const SizedBox(height: 12),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
                                   ),
-                                  child: AppText(
-                                    brand['name'] ?? 'Unknown',
-                                    variant: AppTextVariant.label,
-                                    fontSize: 13,
-                                    textAlign: TextAlign.center,
-                                    maxLines: 1,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        width: 48,
+                                        height: 48,
+                                        decoration: BoxDecoration(
+                                          color: AppColor.kGoogleBlue
+                                              .withOpacity(0.08),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        padding:
+                                            imageUrlStr != null &&
+                                                imageUrlStr.isNotEmpty
+                                            ? const EdgeInsets.all(8)
+                                            : EdgeInsets.zero,
+                                        child:
+                                            imageUrlStr != null &&
+                                                imageUrlStr.isNotEmpty
+                                            ? Image.network(
+                                                imageUrlStr,
+                                                fit: BoxFit.contain,
+                                                errorBuilder: (_, _, _) => Icon(
+                                                  Icons.business_rounded,
+                                                  color: AppColor.kGoogleBlue,
+                                                  size: 24,
+                                                ),
+                                              )
+                                            : Icon(
+                                                Icons.business_rounded,
+                                                color: AppColor.kGoogleBlue,
+                                                size: 24,
+                                              ),
+                                      ),
+                                      const SizedBox(height: 12),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                        ),
+                                        child: AppText(
+                                          brand['name'] ?? 'Unknown',
+                                          variant: AppTextVariant.label,
+                                          fontSize: 13,
+                                          textAlign: TextAlign.center,
+                                          maxLines: 1,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ],
-                            ),
+                              );
+                            },
                           ),
-                        );
-                      },
+                        ),
+                        const SizedBox(height: 12),
+                        _buildManualEntryOption(ctx),
+                      ],
                     );
                   }
 
                   // Models list
                   if (laptopModels.isEmpty) {
-                    return Center(
-                      child: AppText(
-                        'No models found for this brand',
-                        variant: AppTextVariant.caption,
-                        color: AppColor.kAuthTextSecondary,
-                      ),
+                    return Column(
+                      children: [
+                        const SizedBox(height: 40),
+                        Icon(
+                          Icons.search_off_rounded,
+                          color: AppColor.kAuthTextSecondary.withValues(
+                            alpha: 0.3,
+                          ),
+                          size: 48,
+                        ),
+                        const SizedBox(height: 16),
+                        AppText(
+                          'No models found for this brand',
+                          variant: AppTextVariant.caption,
+                          color: AppColor.kAuthTextSecondary,
+                        ),
+                        const Spacer(),
+                        _buildManualEntryOption(ctx),
+                      ],
                     );
                   }
-                  return ListView.builder(
-                    controller: scrollCtrl,
-                    padding: const EdgeInsets.only(top: 8, bottom: 20),
-                    itemCount: laptopModels.length,
-                    itemBuilder: (_, i) {
-                      final model = laptopModels[i];
-                      final subtitle = [
-                        if (model['cpu'] != null) model['cpu'],
-                        if (model['gpu'] != null) model['gpu'],
-                        if (model['release_year'] != null)
-                          model['release_year'].toString(),
-                      ].join(' • ');
+                  return Column(
+                    children: [
+                      Expanded(
+                        child: ListView.builder(
+                          controller: scrollCtrl,
+                          padding: const EdgeInsets.only(top: 8, bottom: 20),
+                          itemCount: laptopModels.length,
+                          itemBuilder: (_, i) {
+                            final model = laptopModels[i];
+                            final subtitle = [
+                              if (model['cpu'] != null) model['cpu'],
+                              if (model['gpu'] != null) model['gpu'],
+                              if (model['release_year'] != null)
+                                model['release_year'].toString(),
+                            ].join(' • ');
 
-                      // Check if already saved
-                      final alreadySaved = myLaptops.any(
-                        (l) => l['laptop_model_id'] == model['id'],
-                      );
+                            final alreadySaved = myLaptops.any(
+                              (l) => l['laptop_model_id'] == model['id'],
+                            );
 
-                      return Obx(() {
-                        final saving = isSavingLaptop.value;
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          decoration: BoxDecoration(
-                            color: alreadySaved
-                                ? AppColor.kGoogleGreen.withOpacity(0.05)
-                                : AppColor.kAuthSurface,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: alreadySaved
-                                  ? AppColor.kGoogleGreen.withOpacity(0.3)
-                                  : AppColor.kAuthBorder.withOpacity(0.6),
-                            ),
-                            boxShadow: alreadySaved
-                                ? []
-                                : [
-                                    BoxShadow(
-                                      color: AppColor.kAuthBorder.withOpacity(
-                                        0.2,
-                                      ),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 3),
-                                    ),
-                                  ],
-                          ),
-                          child: InkWell(
-                            onTap: () async {
-                              // 1. Fetch specifications for any card click
-                              await fetchSpecsForModel(model['id']);
-
-                              if (selectedModelSpec.value != null) {
-                                Get.to(
-                                  () => LaptopDetailView(
-                                    modelName: model['name'] ?? 'Detail',
-                                    spec: selectedModelSpec.value!,
+                            return Obx(() {
+                              final saving = isSavingLaptop.value;
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 12),
+                                decoration: BoxDecoration(
+                                  color: alreadySaved
+                                      ? AppColor.kGoogleGreen.withValues(
+                                          alpha: 0.05,
+                                        )
+                                      : AppColor.kAuthSurface,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: alreadySaved
+                                        ? AppColor.kGoogleGreen.withValues(
+                                            alpha: 0.3,
+                                          )
+                                        : AppColor.kAuthBorder.withValues(
+                                            alpha: 0.6,
+                                          ),
                                   ),
-                                );
-                              } else if (!isSpecsLoading.value) {
-                                Get.snackbar(
-                                  "Spec not found",
-                                  "Currently we don't have specifications for this model.",
-                                  snackPosition: SnackPosition.BOTTOM,
-                                );
-                              }
-                            },
-                            borderRadius: BorderRadius.circular(16),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Row(
-                                children: [
-                                  // Icon area
-                                  Container(
-                                    width: 48,
-                                    height: 48,
-                                    decoration: BoxDecoration(
-                                      color: alreadySaved
-                                          ? AppColor.kGoogleGreen.withOpacity(
-                                              0.15,
-                                            )
-                                          : AppColor.kAuthAccent.withOpacity(
-                                              0.1,
-                                            ),
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
-                                    child: Icon(
-                                      alreadySaved
-                                          ? Icons.check_circle_rounded
-                                          : Icons.laptop_chromebook_rounded,
-                                      color: alreadySaved
-                                          ? AppColor.kGoogleGreen
-                                          : AppColor.kAuthAccent,
-                                      size: 24,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-
-                                  // Text area
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        AppText(
-                                          model['name'] ?? 'Unknown Model',
-                                          variant: AppTextVariant.title,
-                                          fontSize: 15,
-                                        ),
-                                        if (subtitle.isNotEmpty) ...[
-                                          const SizedBox(height: 4),
-                                          AppText(
-                                            subtitle,
-                                            variant: AppTextVariant.caption,
-                                            fontSize: 12,
+                                  boxShadow: alreadySaved
+                                      ? []
+                                      : [
+                                          BoxShadow(
+                                            color: AppColor.kAuthBorder
+                                                .withValues(alpha: 0.2),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 3),
                                           ),
                                         ],
-                                        // ── NEW: Link to Hardware Details ──
-                                        GestureDetector(
-                                          onTap: () async {
-                                            await fetchSpecsForModel(
-                                              model['id'],
-                                            );
-                                            if (selectedModelSpec.value !=
-                                                null) {
-                                              Get.to(
-                                                () => LaptopDetailView(
-                                                  modelName:
-                                                      model['name'] ?? 'Detail',
-                                                  spec:
-                                                      selectedModelSpec.value!,
-                                                ),
-                                              );
-                                            }
-                                          },
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(
-                                              top: 8,
-                                            ),
-                                            child: AppText(
-                                              'View Hardware Detail ›',
-                                              variant: AppTextVariant.label,
-                                              color: AppColor.kGoogleBlue,
-                                              fontSize: 11,
+                                ),
+                                child: InkWell(
+                                  onTap: () async {
+                                    await fetchSpecsForModel(model['id']);
+                                    if (selectedModelSpec.value != null) {
+                                      Get.to(
+                                        () => LaptopDetailView(
+                                          modelName: model['name'] ?? 'Detail',
+                                          spec: selectedModelSpec.value!,
+                                        ),
+                                      );
+                                    } else if (!isSpecsLoading.value) {
+                                      Get.snackbar(
+                                        'Spec not found',
+                                        "Currently we don't have specifications for this model.",
+                                        snackPosition: SnackPosition.BOTTOM,
+                                      );
+                                    }
+                                  },
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          width: 48,
+                                          height: 48,
+                                          decoration: BoxDecoration(
+                                            color: alreadySaved
+                                                ? AppColor.kGoogleGreen
+                                                      .withValues(alpha: 0.15)
+                                                : AppColor.kAuthAccent
+                                                      .withValues(alpha: 0.1),
+                                            borderRadius: BorderRadius.circular(
+                                              14,
                                             ),
                                           ),
+                                          child: Icon(
+                                            alreadySaved
+                                                ? Icons.check_circle_rounded
+                                                : Icons
+                                                      .laptop_chromebook_rounded,
+                                            color: alreadySaved
+                                                ? AppColor.kGoogleGreen
+                                                : AppColor.kAuthAccent,
+                                            size: 24,
+                                          ),
                                         ),
+                                        const SizedBox(width: 16),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              AppText(
+                                                model['name'] ??
+                                                    'Unknown Model',
+                                                variant: AppTextVariant.title,
+                                                fontSize: 15,
+                                              ),
+                                              if (subtitle.isNotEmpty) ...[
+                                                const SizedBox(height: 4),
+                                                AppText(
+                                                  subtitle,
+                                                  variant:
+                                                      AppTextVariant.caption,
+                                                  fontSize: 12,
+                                                ),
+                                              ],
+                                              GestureDetector(
+                                                onTap: () async {
+                                                  await fetchSpecsForModel(
+                                                    model['id'],
+                                                  );
+                                                  if (selectedModelSpec.value !=
+                                                      null) {
+                                                    Get.to(
+                                                      () => LaptopDetailView(
+                                                        modelName:
+                                                            model['name'] ??
+                                                            'Detail',
+                                                        spec: selectedModelSpec
+                                                            .value!,
+                                                      ),
+                                                    );
+                                                  }
+                                                },
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                        top: 8,
+                                                      ),
+                                                  child: AppText(
+                                                    'View Hardware Detail ›',
+                                                    variant:
+                                                        AppTextVariant.label,
+                                                    color: AppColor.kGoogleBlue,
+                                                    fontSize: 11,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        if (saving)
+                                          const SizedBox(
+                                            width: 20,
+                                            height: 20,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                            ),
+                                          )
+                                        else if (alreadySaved)
+                                          _buildSavedBadge()
+                                        else
+                                          IconButton(
+                                            onPressed: () =>
+                                                saveLaptopModel(model['id']),
+                                            icon: Icon(
+                                              Icons.add_circle_rounded,
+                                              color: AppColor.kAuthAccent,
+                                              size: 28,
+                                            ),
+                                          ),
                                       ],
                                     ),
                                   ),
-
-                                  // ───────────────── SAVE BUTTON ONLY ──────────────────
-                                  if (saving)
-                                    const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                      ),
-                                    )
-                                  else if (alreadySaved)
-                                    _buildSavedBadge()
-                                  else
-                                    // Make only this icon clickable for saving
-                                    IconButton(
-                                      onPressed: () =>
-                                          saveLaptopModel(model['id']),
-                                      icon: Icon(
-                                        Icons.add_circle_rounded,
-                                        color: AppColor.kAuthAccent,
-                                        size: 28,
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
-                      });
-                    },
+                                ),
+                              );
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      _buildManualEntryOption(ctx),
+                    ],
                   );
                 }),
               ),
@@ -1014,6 +1214,72 @@ class ProfileController extends GetxController {
         ),
       ),
     );
+  }
+
+  Widget _buildManualEntryOption(BuildContext context) {
+    return Obx(() {
+      if (!isTechnicalRole.value) return const SizedBox.shrink();
+
+      return Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: AppColor.kGoogleBlue.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColor.kGoogleBlue.withValues(alpha: 0.2)),
+        ),
+        child: InkWell(
+          onTap: () {
+            Get.back(); // close current sheet
+            showManualLaptopEntry(context);
+          },
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColor.kGoogleBlue.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.edit_note_rounded,
+                    color: AppColor.kGoogleBlue,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const AppText(
+                        "Can't find your model?",
+                        variant: AppTextVariant.title,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      AppText(
+                        "Input details manually",
+                        variant: AppTextVariant.caption,
+                        color: AppColor.kGoogleBlue,
+                        fontSize: 12,
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: AppColor.kGoogleBlue,
+                  size: 16,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    });
   }
 
   void showRequestRoleSheet(BuildContext context) {
@@ -1054,7 +1320,7 @@ class ProfileController extends GetxController {
                   ),
                 ),
               ),
-              const Row(
+              Row(
                 children: [
                   Icon(
                     Icons.storefront_rounded,
@@ -1164,7 +1430,9 @@ class ProfileController extends GetxController {
           decoration: BoxDecoration(
             color: AppColor.kAuthSurface,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColor.kAuthBorder.withOpacity(0.6)),
+            border: Border.all(
+              color: AppColor.kAuthBorder.withValues(alpha: 0.6),
+            ),
           ),
           child: TextField(
             controller: ctrl,
@@ -1201,7 +1469,7 @@ class ProfileController extends GetxController {
       Get.snackbar(
         'Missing Fields',
         'Please fill in all fields.',
-        backgroundColor: Colors.orange.withOpacity(0.9),
+        backgroundColor: Colors.orange.withValues(alpha: 0.9),
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
         margin: const EdgeInsets.all(20),
@@ -1229,7 +1497,7 @@ class ProfileController extends GetxController {
         'Request Submitted!',
         'Our team will review your shop application within 24 hours.',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColor.kGoogleBlue.withOpacity(0.95),
+        backgroundColor: AppColor.kGoogleBlue.withValues(alpha: 0.95),
         colorText: Colors.white,
         margin: const EdgeInsets.all(20),
         borderRadius: 16,
@@ -1241,7 +1509,7 @@ class ProfileController extends GetxController {
         'Submission Failed',
         e.toString().replaceFirst('Exception: ', ''),
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.withOpacity(0.9),
+        backgroundColor: Colors.red.withValues(alpha: 0.9),
         colorText: Colors.white,
         margin: const EdgeInsets.all(20),
         borderRadius: 16,
@@ -1397,6 +1665,32 @@ class ProfileController extends GetxController {
     }
   }
 
+  void clearManualEntryFields() {
+    manualBrandCtrl.clear();
+    manualModelCtrl.clear();
+    manualCpuCtrl.clear();
+    manualDisplayResCtrl.clear();
+    manualBrandId.value = '';
+    manualCpuBrand.value = 'Intel';
+    manualRamType.value = 'DDR4';
+    manualRamSlots.value = '2';
+    manualRamBase.value = '8';
+    manualMaxRam.value = '16';
+    manualSsdSlots.value = '1';
+    manualSsdInterface.value = 'Pcie/NVMe';
+    manualAddHdd.value = 'No';
+    manualDisplaySizeRange.value = '15" - 15.9"';
+    filteredManualModels.clear();
+  }
+
+  void showManualLaptopEntry(BuildContext context) {
+    clearManualEntryFields();
+    if (laptopBrands.isEmpty) {
+      fetchLaptopBrands();
+    }
+    Get.to(() => const ManualLaptopEntryView());
+  }
+
   @override
   void onClose() {
     shopNameCtrl.dispose();
@@ -1454,6 +1748,18 @@ class ProfileController extends GetxController {
     hardwareFanConnectorCtrl.dispose();
     hardwareFanMaxRpmCtrl.dispose();
     hardwareFanTypeCtrl.dispose();
+    manualBrandCtrl.dispose();
+    manualModelCtrl.dispose();
+    manualCpuCtrl.dispose();
+    manualRamSlotsCtrl.dispose();
+    manualRamTypeCtrl.dispose();
+    manualMaxRamCtrl.dispose();
+    manualRamBaseCtrl.dispose();
+    manualSsdSlotsCtrl.dispose();
+    manualSsdInterfaceCtrl.dispose();
+    manualSsdFormFactorCtrl.dispose();
+    manualDisplaySizeCtrl.dispose();
+    manualDisplayResCtrl.dispose();
     super.onClose();
   }
 
@@ -1762,11 +2068,10 @@ class ProfileController extends GetxController {
       if (selectedHardwareImage.value != null) {
         print('📤 Image selected: ${selectedHardwareImage.value}');
 
-        // Debug: verify file exists and get size
         final imageFile = File(selectedHardwareImage.value!);
         if (await imageFile.exists()) {
           final fileSize = await imageFile.length();
-          print('✅ File exists - Size: ${fileSize} bytes');
+          print('✅ File exists - Size: $fileSize bytes');
         } else {
           print(
             '❌ ERROR: File does not exist at path: ${selectedHardwareImage.value!}',
@@ -1877,28 +2182,20 @@ class ProfileController extends GetxController {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColor.kGoogleGreen.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.check_circle_rounded,
-                  color: AppColor.kGoogleGreen,
-                  size: 64,
-                ),
+              const Icon(
+                Icons.check_circle_rounded,
+                color: AppColor.kGoogleGreen,
+                size: 64,
               ),
               const SizedBox(height: 24),
               const AppText(
                 'Shop Created Successfully!',
                 variant: AppTextVariant.title,
-                fontSize: 20,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
               AppText(
-                'Your shop is now ready. Start adding your hardware listings to grow your business.',
+                'Your shop is now ready. Start adding your hardware listings.',
                 variant: AppTextVariant.body,
                 color: AppColor.kAuthTextSecondary,
                 textAlign: TextAlign.center,
@@ -1911,16 +2208,11 @@ class ProfileController extends GetxController {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColor.kGoogleGreen,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  child: AppText(
-                    'Get Started',
-                    variant: AppTextVariant.label,
-                    color: Colors.white,
-                  ),
+                  child: const Text('Get Started'),
                 ),
               ),
             ],
@@ -1937,7 +2229,7 @@ class ProfileController extends GetxController {
         color: AppColor.kGoogleGreen,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: const Row(
+      child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(Icons.check_circle_rounded, color: Colors.white, size: 14),

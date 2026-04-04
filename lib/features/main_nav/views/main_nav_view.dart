@@ -87,12 +87,22 @@ class MainNavView extends GetView<MainNavController> {
                       );
                     }),
                   ),
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    child: _buildNavBar(),
-                  ),
+                  Builder(builder: (context) {
+                    final bool isKeyboardVisible =
+                        MediaQuery.of(context).viewInsets.bottom > 0;
+                    return AnimatedPositioned(
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.easeOutCubic,
+                      left: 0,
+                      right: 0,
+                      bottom: isKeyboardVisible ? -100 : 0,
+                      child: AnimatedOpacity(
+                        duration: const Duration(milliseconds: 200),
+                        opacity: isKeyboardVisible ? 0 : 1,
+                        child: _buildNavBar(),
+                      ),
+                    );
+                  }),
                 ],
               ),
             ),
