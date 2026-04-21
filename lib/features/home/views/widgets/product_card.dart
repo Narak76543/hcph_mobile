@@ -198,7 +198,7 @@ class _WishlistButton extends StatelessWidget {
   }
 }
 
-// ── Info section (brand, name, shop, seller) ──────────────────────────────────
+// Info section (brand, name, shop, seller)
 
 class _CardInfoSection extends StatelessWidget {
   final PostModel post;

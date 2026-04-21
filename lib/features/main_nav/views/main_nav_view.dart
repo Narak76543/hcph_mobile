@@ -30,6 +30,7 @@ class MainNavView extends GetView<MainNavController> {
 
       return Scaffold(
         backgroundColor: AppColor.kBackground,
+        resizeToAvoidBottomInset: false,
         body: Stack(
           children: [
             Positioned.fill(child: ColoredBox(color: AppColor.kBackground)),
@@ -96,7 +97,7 @@ class MainNavView extends GetView<MainNavController> {
                         curve: Curves.easeOutCubic,
                         left: 0,
                         right: 0,
-                        bottom: isKeyboardVisible ? -100 : 0,
+                        bottom: 0,
                         child: AnimatedOpacity(
                           duration: const Duration(milliseconds: 200),
                           opacity: isKeyboardVisible ? 0 : 1,

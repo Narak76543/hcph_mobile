@@ -67,7 +67,9 @@ class PostModel {
        partSpecs = partSpecs ?? {}; // ← NEW
 
   factory PostModel.fromJson(Map<String, dynamic> json) {
-    // ── Shop Name ──────────────────────────────────────────────────────────
+    // ====================================
+    // ── Shop Name
+    // ====================================
     String shop = 'Unknown Shop';
     final shopJson = json['shop'];
     if (shopJson is Map &&
@@ -84,8 +86,9 @@ class PostModel {
         json['shop_name'].toString().isNotEmpty) {
       shop = json['shop_name'].toString();
     }
-
-    // ── Price ──────────────────────────────────────────────────────────────
+    //======================================= 
+    //  Price
+    //=======================================
     final dynamic priceRaw =
         json['price'] ??
         json['listing_price'] ??
@@ -99,8 +102,9 @@ class PostModel {
       priceVal =
           double.tryParse(priceRaw.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 0.0;
     }
-
-    // ── Part Info ──────────────────────────────────────────────────────────
+    // =================================================
+    // Part Info
+    // =================================================
     final partMap = json['part'] as Map<String, dynamic>?;
     final brand =
         json['part_brand'] ?? partMap?['brand'] ?? json['brand'] ?? '';
@@ -127,8 +131,9 @@ class PostModel {
               partMap?['brand'] ??
               json['name'] ??
               'Unknown Part');
-
-    // ── Image ──────────────────────────────────────────────────────────────
+    // =======================================================
+    // Image
+    // =======================================================
     String image = '';
     if (json['part_image'] != null &&
         json['part_image'].toString().isNotEmpty) {
@@ -148,26 +153,32 @@ class PostModel {
       image = partMap['img_url'].toString();
     }
 
-    // ── Compatible Model / Spec Text ───────────────────────────────────────
+    // ==========================================
+    // Compatible Model / Spec Text
+    // ==========================================
+
     final compatibleModel =
         partMap?['specification'] ??
         json['specification'] ??
         json['description'] ??
         '';
-
-    // ── Verified ──────────────────────────────────────────────────────────
+    // ==================================================
+    // Verified 
+    // ==================================================
     final isVerified =
         json['is_verified'] ??
         (shopJson is Map &&
             (shopJson['status'] == 'ACTIVE' ||
                 shopJson['is_verified'] == true)) ??
         true;
-
-    // ── Owner ──────────────────────────────────────────────────────────────
+    // =============================================================
+    // Owner
+    // =============================================================
     final ownerFullName = json['owner_full_name']?.toString() ?? shop;
     final ownerUserId = json['owner_id']?.toString();
-
-    // ── Category ──────────────────────────────────────────────────────────
+    // ==================================================================
+    //  Category
+    // =================================================================
     final categoryContainer = json['category'] ?? partMap?['category'];
     final categoryId =
         (json['category_id'] ??
@@ -181,9 +192,10 @@ class PostModel {
                 partMap?['category_slug'] ??
                 (categoryContainer is Map ? categoryContainer['slug'] : null))
             ?.toString();
-
+    // =========================================================================
     // ── Part Specs
     // Try to find specs from multiple possible locations in the JSON
+    // =========================================================================
     Map<String, dynamic> partSpecs = {};
 
     // 1. Direct spec object from API
