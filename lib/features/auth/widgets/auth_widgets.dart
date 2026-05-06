@@ -8,44 +8,31 @@ class AuthPageScaffold extends StatelessWidget {
     super.key,
     required this.child,
     this.padding = const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
-    this.backgroundImageAsset,
-    this.backgroundOverlayColor = Colors.transparent,
   });
 
   final Widget child;
   final EdgeInsets padding;
-  final String? backgroundImageAsset;
-  final Color backgroundOverlayColor;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.kAuthBackground,
-      body: Stack(
-        children: [
-          if (backgroundImageAsset != null)
-            Positioned.fill(
-              child: Image.asset(backgroundImageAsset!, fit: BoxFit.cover),
-            ),
-          Positioned.fill(child: ColoredBox(color: backgroundOverlayColor)),
-          SafeArea(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return SingleChildScrollView(
-                  child: Padding(
-                    padding: padding,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minHeight: constraints.maxHeight - padding.vertical,
-                      ),
-                      child: IntrinsicHeight(child: child),
-                    ),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: Padding(
+                padding: padding,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight - padding.vertical,
                   ),
-                );
-              },
-            ),
-          ),
-        ],
+                  child: IntrinsicHeight(child: child),
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -107,9 +94,12 @@ class _AuthInputFieldState extends State<AuthInputField> {
       height: 50,
       decoration: BoxDecoration(
         color: AppColor.kAuthSurface,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(AppColor.kCardRadius),
         border: Border.all(
-          color: _hasFocus ? AppColor.kAuthAccent : AppColor.kAuthBorder,
+          color: _hasFocus
+              ? AppColor.kAuthAccent.withValues(alpha: 0.3)
+              : AppColor.kAuthBorder,
+          width: AppColor.kBorderWidth,
         ),
       ),
       alignment: Alignment.center,
@@ -167,10 +157,14 @@ class AuthPrimaryButton extends StatelessWidget {
         onPressed: (isLoading || !enabled) ? null : onPressed,
         style: ElevatedButton.styleFrom(
           elevation: 0,
-          backgroundColor: AppColor.kAuthAccent,
-          foregroundColor: AppColor.kTextColor,
+          backgroundColor: AppColor.kAuthSurface,
+          foregroundColor: AppColor.kAuthTextPrimary,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(AppColor.kCardRadius),
+            side: BorderSide(
+              color: AppColor.kAuthBorder,
+              width: AppColor.kBorderWidth,
+            ),
           ),
         ),
         child: isLoading
@@ -187,7 +181,7 @@ class AuthPrimaryButton extends StatelessWidget {
             : AppText(
                 title,
                 variant: AppTextVariant.label,
-                color: AppColor.kTextColor,
+                color: AppColor.kAuthTextPrimary,
                 fontWeight: FontWeight.w700,
               ),
       ),
@@ -238,17 +232,17 @@ class AuthSocialButton extends StatelessWidget {
           isLoading ? 'Please wait...' : label,
           variant: AppTextVariant.label,
           color: foregroundColor,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w400,
         ),
         style: ElevatedButton.styleFrom(
           elevation: 0,
           backgroundColor: backgroundColor,
           foregroundColor: foregroundColor,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(AppColor.kCardRadius),
             side: BorderSide(
-              color: borderColor ?? Colors.transparent,
-              width: borderColor == null ? 0 : 1.2,
+              color: borderColor ?? AppColor.kAuthBorder,
+              width: AppColor.kBorderWidth,
             ),
           ),
         ),

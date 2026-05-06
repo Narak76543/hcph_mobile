@@ -12,8 +12,6 @@ class RegisterView extends GetView<RegisterController> {
   @override
   Widget build(BuildContext context) {
     return AuthPageScaffold(
-      backgroundImageAsset: 'assets/images/app-bg.jpg',
-      backgroundOverlayColor: AppColor.kAuthBackgroundOverlay,
       child: Obx(() {
         final isSubmitting = controller.isSubmitting.value;
         return Column(
@@ -130,8 +128,8 @@ class RegisterView extends GetView<RegisterController> {
                 fit: BoxFit.contain,
               ),
               onPressed: isSubmitting ? null : controller.registerWithGoogle,
-              backgroundColor: AppColor.kAuthAccent,
-              foregroundColor: AppColor.kTextColor,
+              backgroundColor: AppColor.kAuthSurface,
+              foregroundColor: AppColor.kAuthTextPrimary,
             ),
             const SizedBox(height: 12),
             AuthBottomLink(

@@ -69,22 +69,36 @@ class HomeView extends GetView<HomeController> {
                 ),
 
                 // Product grid
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
-                  sliver: SliverGrid(
-                    delegate: SliverChildBuilderDelegate(
-                      (ctx, i) => ProductCard(post: controller.displayPosts[i]),
-                      childCount: controller.displayPosts.length,
-                    ),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          mainAxisSpacing: 12,
-                          crossAxisSpacing: 12,
-                          childAspectRatio: 0.65,
+                controller.displayPosts.isEmpty
+                    ? SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 60),
+                          child: Center(
+                            child: AppText(
+                              'No products available',
+                              variant: AppTextVariant.body,
+                              color: AppColor.kTextSecondary,
+                            ),
+                          ),
                         ),
-                  ),
-                ),
+                      )
+                    : SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
+                        sliver: SliverGrid(
+                          delegate: SliverChildBuilderDelegate(
+                            (ctx, i) =>
+                                ProductCard(post: controller.displayPosts[i]),
+                            childCount: controller.displayPosts.length,
+                          ),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                mainAxisSpacing: 12,
+                                crossAxisSpacing: 12,
+                                childAspectRatio: 0.65,
+                              ),
+                        ),
+                      ),
               ],
             ),
           ),

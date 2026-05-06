@@ -197,7 +197,7 @@ class PostHardwareView extends GetView<ProfileController> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         gradient: LinearGradient(
-          colors: [AppColor.kGoogleBlue, AppColor.kAccentDark],
+          colors: [AppColor.kGoogleBlue, AppColor.kAccentLight],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),

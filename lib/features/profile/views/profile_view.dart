@@ -13,389 +13,369 @@ class ProfileView extends GetView<ProfileController> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () => Scaffold(
-        backgroundColor: Colors.transparent,
-        body: Stack(
-          children: [
-            Positioned.fill(
-              child: Opacity(
-                opacity: 0.05,
-                child: Image.asset(
-                  'assets/images/norton_university.png',
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            SafeArea(
-              child: Column(
-                children: [
-                  // ── Top bar ──
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
-                    ),
-                    child: Row(
-                      children: [
-                        AppText(
-                          'Setting',
-                          variant: AppTextVariant.title,
-                          color: AppColor.kAuthAccent,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        const Spacer(),
-                        Image.asset(
-                          'assets/images/search.png',
-                          width: 24,
-                          height: 24,
-                          color: AppColor.kAuthAccent,
-                        ),
-                      ],
-                    ),
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Stack(
+        children: [
+          const SizedBox.shrink(),
+          SafeArea(
+            child: Column(
+              children: [
+                // ── Top bar ──
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
                   ),
+                  child: Row(
+                    children: [
+                      AppText(
+                        'Setting',
+                        variant: AppTextVariant.title,
+                        color: AppColor.kAuthAccent,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      const Spacer(),
+                      Image.asset(
+                        'assets/images/search.png',
+                        width: 24,
+                        height: 24,
+                        color: AppColor.kAuthAccent,
+                      ),
+                    ],
+                  ),
+                ),
 
-                  Expanded(
-                    child: RefreshIndicator(
-                      onRefresh: controller.refreshProfile,
-                      color: AppColor.kGoogleBlue,
-                      backgroundColor: AppColor.kSurface,
-                      child: SingleChildScrollView(
-                        physics: const AlwaysScrollableScrollPhysics(
-                          parent: BouncingScrollPhysics(),
-                        ),
-                        padding: const EdgeInsets.only(bottom: 120),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // ── Profile header card
-                            _buildHeaderCard(),
-                            const SizedBox(height: 24),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: controller.refreshProfile,
+                    color: AppColor.kGoogleBlue,
+                    backgroundColor: AppColor.kSurface,
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(
+                        parent: BouncingScrollPhysics(),
+                      ),
+                      padding: const EdgeInsets.only(bottom: 120),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // ── Profile header card
+                          _buildHeaderCard(),
+                          const SizedBox(height: 24),
 
-                            // ── Account Setting
-                            _buildSectionLabel('Account Setting'),
-                            const SizedBox(height: 8),
-                            _buildSection([
-                              _buildRowItem(
-                                iconPath: 'assets/images/user.png',
-                                label: 'Profile',
-                                onTap: () => Get.toNamed('/edit-profile'),
-                              ),
-                              _buildDivider(),
-                              _buildRowItem(
-                                iconPath: 'assets/images/padlock.png',
-                                label: 'Password & Security',
-                                onTap: controller.showUnderConstruction,
-                              ),
-                              _buildDivider(),
-                              _buildRowItem(
-                                iconPath: 'assets/images/devices.png',
-                                label: 'Device Identification',
-                                onTap: controller.showUnderConstruction,
-                              ),
-                            ]),
-                            const SizedBox(height: 24),
+                          // ── Account Setting
+                          _buildSectionLabel('Account Setting'),
+                          const SizedBox(height: 8),
+                          _buildSection([
+                            _buildRowItem(
+                              iconPath: 'assets/images/user.png',
+                              label: 'Profile',
+                              onTap: () => Get.toNamed('/edit-profile'),
+                            ),
+                            _buildDivider(),
+                            _buildRowItem(
+                              iconPath: 'assets/images/padlock.png',
+                              label: 'Password & Security',
+                              onTap: controller.showUnderConstruction,
+                            ),
+                            _buildDivider(),
+                            _buildRowItem(
+                              iconPath: 'assets/images/devices.png',
+                              label: 'Device Identification',
+                              onTap: controller.showUnderConstruction,
+                            ),
+                          ]),
+                          const SizedBox(height: 24),
 
-                            // ── Set Your Laptop Model
-                            _buildSectionLabel('Set Your Laptop Model'),
-                            const SizedBox(height: 8),
-                            Obx(() {
-                              final laptops = controller.myLaptops;
-                              return _buildSection([
-                                // Saved laptops list
-                                if (laptops.isNotEmpty) ...[
-                                  ...laptops.map((laptop) {
-                                    final Map<String, dynamic>? model =
-                                        laptop['laptop_model'] != null
-                                        ? Map<String, dynamic>.from(
-                                            laptop['laptop_model'],
-                                          )
-                                        : null;
-                                    final modelName = model?['name'] as String?;
-                                    final nickname =
-                                        laptop['nickname'] as String?;
-                                    final id = laptop['id'] as String? ?? '';
+                          // ── Set Your Laptop Model
+                          _buildSectionLabel('Set Your Laptop Model'),
+                          const SizedBox(height: 8),
+                          Obx(() {
+                            final laptops = controller.myLaptops;
+                            return _buildSection([
+                              // Saved laptops list
+                              if (laptops.isNotEmpty) ...[
+                                ...laptops.map((laptop) {
+                                  final Map<String, dynamic>? model =
+                                      laptop['laptop_model'] != null
+                                      ? Map<String, dynamic>.from(
+                                          laptop['laptop_model'],
+                                        )
+                                      : null;
+                                  final modelName = model?['name'] as String?;
+                                  final nickname =
+                                      laptop['nickname'] as String?;
+                                  final id = laptop['id'] as String? ?? '';
 
-                                    final specs = [
-                                      if (model?['cpu'] != null) model!['cpu'],
-                                      if (model?['release_year'] != null)
-                                        model!['release_year'].toString(),
-                                    ].join(' • ');
+                                  final specs = [
+                                    if (model?['cpu'] != null) model!['cpu'],
+                                    if (model?['release_year'] != null)
+                                      model!['release_year'].toString(),
+                                  ].join(' • ');
 
-                                    return Dismissible(
-                                      key: Key(id),
-                                      direction: DismissDirection.endToStart,
-                                      onDismissed: (_) =>
-                                          controller.removeLaptop(id),
-                                      background: Container(
-                                        alignment: Alignment.centerRight,
-                                        padding: const EdgeInsets.only(
-                                          right: 20,
+                                  return Dismissible(
+                                    key: Key(id),
+                                    direction: DismissDirection.endToStart,
+                                    onDismissed: (_) =>
+                                        controller.removeLaptop(id),
+                                    background: Container(
+                                      alignment: Alignment.centerRight,
+                                      padding: const EdgeInsets.only(
+                                        right: 20,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppColor.kGoogleRed.withValues(
+                                          alpha: 0.1,
                                         ),
-                                        decoration: BoxDecoration(
-                                          color: AppColor.kGoogleRed.withValues(
-                                            alpha: 0.1,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            16,
-                                          ),
-                                        ),
-                                        child: const Icon(
-                                          Icons.delete_outline_rounded,
-                                          color: AppColor.kGoogleRed,
-                                          size: 22,
+                                        borderRadius: BorderRadius.circular(
+                                          16,
                                         ),
                                       ),
-                                      child: InkWell(
-                                        onTap: () async {
-                                          // Fetch specifications and navigate
-                                          await controller.fetchSpecsForModel(
-                                            model?['id']?.toString() ?? '',
-                                          );
-                                          if (controller
+                                      child: const Icon(
+                                        Icons.delete_outline_rounded,
+                                        color: AppColor.kGoogleRed,
+                                        size: 22,
+                                      ),
+                                    ),
+                                    child: InkWell(
+                                      onTap: () async {
+                                        // Fetch specifications and navigate
+                                        await controller.fetchSpecsForModel(
+                                          model?['id']?.toString() ?? '',
+                                        );
+                                        if (controller
+                                                .selectedModelSpec
+                                                .value !=
+                                            null) {
+                                          Get.to(
+                                            () => LaptopDetailView(
+                                              modelName:
+                                                  modelName ?? 'Laptop',
+                                              spec: controller
                                                   .selectedModelSpec
-                                                  .value !=
-                                              null) {
-                                            Get.to(
-                                              () => LaptopDetailView(
-                                                modelName:
-                                                    modelName ?? 'Laptop',
-                                                spec: controller
-                                                    .selectedModelSpec
-                                                    .value!,
-                                              ),
-                                            );
-                                          }
-                                        },
-                                        borderRadius: BorderRadius.circular(16),
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 16,
-                                            vertical: 14,
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              Image.asset(
-                                                "assets/images/laptop.png",
-                                                height: 25,
-                                                color: AppColor.kAccent,
-                                              ),
-                                              const SizedBox(width: 15),
-                                              Expanded(
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    AppText(
-                                                      nickname ??
-                                                          modelName ??
-                                                          'Unknown Laptop',
-                                                      variant:
-                                                          AppTextVariant.body,
-                                                      color: AppColor
-                                                          .kAuthTextPrimary,
-                                                      fontSize: 14,
-                                                    ),
-                                                    if (specs.isNotEmpty) ...[
-                                                      const SizedBox(height: 3),
-                                                      AppText(
-                                                        specs,
-                                                        variant: AppTextVariant
-                                                            .caption,
-                                                        color: AppColor
-                                                            .kAuthTextSecondary,
-                                                        fontSize: 11,
-                                                      ),
-                                                    ] else ...[
-                                                      const SizedBox(height: 3),
-                                                      AppText(
-                                                        'ID: ${id.length > 8 ? id.substring(0, 8) : id}',
-                                                        variant: AppTextVariant
-                                                            .caption,
-                                                        color: AppColor
-                                                            .kAuthTextSecondary,
-                                                        fontSize: 11,
-                                                      ),
-                                                    ],
-                                                  ],
-                                                ),
-                                              ),
-                                              Icon(
-                                                Icons.chevron_right_rounded,
-                                                color:
-                                                    AppColor.kAuthTextSecondary,
-                                                size: 18,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  }),
-                                  _buildDivider(),
-                                ],
-                                // Add button
-                                _buildRowItem(
-                                  iconPath: 'assets/images/plus.png',
-                                  label: laptops.isEmpty
-                                      ? 'Set Your Laptop Model'
-                                      : 'Add Another Laptop',
-                                  iconColor: AppColor.kGoogleBlue,
-                                  onTap: () =>
-                                      controller.showSetLaptopSheet(context),
-                                ),
-                              ]);
-                            }),
-                            const SizedBox(height: 15),
-
-                            // ── Shop / Role section
-                            Obx(() {
-                              if (controller.isTechnicalRole.value) {
-                                return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    _buildSectionLabel('Shop Management'),
-                                    const SizedBox(height: 8),
-                                    _buildTechnicalStatus(),
-                                    const SizedBox(height: 12),
-                                    _buildSection([
-                                      _buildRowItem(
-                                        iconPath: 'assets/images/list.png',
-                                        label: 'My Listings',
-                                        onTap: () => Get.to(
-                                          () => const MyListingsView(),
-                                        ),
-                                      ),
-                                      _buildDivider(),
-                                      Obx(
-                                        () => _buildRowItem(
-                                          iconPath: 'assets/images/arrow.png',
-                                          label: 'Shop Analytics',
-                                          trailing: AppText(
-                                            '${controller.shopViews.value} views',
-                                            variant: AppTextVariant.caption,
-                                            color: AppColor.kGoogleGreen,
-                                            fontSize: 12,
-                                          ),
-                                          onTap:
-                                              controller.showUnderConstruction,
-                                          showChevron: false,
-                                        ),
-                                      ),
-                                    ]),
-                                    const SizedBox(height: 20),
-                                  ],
-                                );
-                              } else {
-                                return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    _buildSectionLabel('Become a Seller'),
-                                    const SizedBox(height: 8),
-                                    Obx(() {
-                                      if (controller.hasRequestedRole.value) {
-                                        return _buildSection([
-                                          _buildRowItem(
-                                            iconPath:
-                                                'assets/images/history.png',
-                                            label: 'Request Pending Review',
-                                            iconColor: AppColor.kGoogleYellow,
-                                            trailing: Image.asset(
-                                              'assets/images/history.png',
-                                              width: 16,
-                                              height: 16,
-                                              color: AppColor.kGoogleYellow,
+                                                  .value!,
                                             ),
-                                            onTap: () {},
-                                            showChevron: false,
-                                          ),
-                                        ]);
-                                      }
+                                          );
+                                        }
+                                      },
+                                      borderRadius: BorderRadius.circular(16),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 14,
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Image.asset(
+                                              "assets/images/laptop.png",
+                                              height: 25,
+                                              color: AppColor.kAccent,
+                                            ),
+                                            const SizedBox(width: 15),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  AppText(
+                                                    nickname ??
+                                                        modelName ??
+                                                        'Unknown Laptop',
+                                                    variant:
+                                                        AppTextVariant.body,
+                                                    color: AppColor
+                                                        .kAuthTextPrimary,
+                                                    fontSize: 14,
+                                                  ),
+                                                  if (specs.isNotEmpty) ...[
+                                                    const SizedBox(height: 3),
+                                                    AppText(
+                                                      specs,
+                                                      variant: AppTextVariant
+                                                          .caption,
+                                                      color: AppColor
+                                                          .kAuthTextSecondary,
+                                                      fontSize: 11,
+                                                    ),
+                                                  ] else ...[
+                                                    const SizedBox(height: 3),
+                                                    AppText(
+                                                      'ID: ${id.length > 8 ? id.substring(0, 8) : id}',
+                                                      variant: AppTextVariant
+                                                          .caption,
+                                                      color: AppColor
+                                                          .kAuthTextSecondary,
+                                                      fontSize: 11,
+                                                    ),
+                                                  ],
+                                                ],
+                                              ),
+                                            ),
+                                            Icon(
+                                              Icons.chevron_right_rounded,
+                                              color:
+                                                  AppColor.kAuthTextSecondary,
+                                              size: 18,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }),
+                                _buildDivider(),
+                              ],
+                              // Add button
+                              _buildRowItem(
+                                iconPath: 'assets/images/plus.png',
+                                label: laptops.isEmpty
+                                    ? 'Set Your Laptop Model'
+                                    : 'Add Another Laptop',
+                                iconColor: AppColor.kGoogleBlue,
+                                onTap: () =>
+                                    controller.showSetLaptopSheet(context),
+                              ),
+                            ]);
+                          }),
+                          const SizedBox(height: 15),
+
+                          // ── Shop / Role section
+                          Obx(() {
+                            if (controller.isTechnicalRole.value) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildSectionLabel('Shop Management'),
+                                  const SizedBox(height: 8),
+                                  _buildTechnicalStatus(),
+                                  const SizedBox(height: 12),
+                                  _buildSection([
+                                    _buildRowItem(
+                                      iconPath: 'assets/images/list.png',
+                                      label: 'My Listings',
+                                      onTap: () => Get.to(
+                                        () => const MyListingsView(),
+                                      ),
+                                    ),
+                                    _buildDivider(),
+                                    Obx(
+                                      () => _buildRowItem(
+                                        iconPath: 'assets/images/arrow.png',
+                                        label: 'Shop Analytics',
+                                        trailing: AppText(
+                                          '${controller.shopViews.value} views',
+                                          variant: AppTextVariant.caption,
+                                          color: AppColor.kGoogleGreen,
+                                          fontSize: 12,
+                                        ),
+                                        onTap:
+                                            controller.showUnderConstruction,
+                                        showChevron: false,
+                                      ),
+                                    ),
+                                  ]),
+                                  const SizedBox(height: 20),
+                                ],
+                              );
+                            } else {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildSectionLabel('Become a Seller'),
+                                  const SizedBox(height: 8),
+                                  Obx(() {
+                                    if (controller.hasRequestedRole.value) {
                                       return _buildSection([
                                         _buildRowItem(
-                                          iconPath:
-                                              'assets/images/protection.png',
-                                          label: 'Request Technical Role',
-                                          onTap: () => controller
-                                              .showRequestRoleSheet(context),
+                                          iconPath: 'assets/images/info.png',
+                                          label: 'Request Pending Review',
+                                          iconColor: AppColor.kGoogleYellow,
+                                          trailing: Image.asset(
+                                            'assets/images/info.png',
+                                            width: 16,
+                                            height: 16,
+                                            color: AppColor.kGoogleYellow,
+                                          ),
+                                          onTap: () {},
+                                          showChevron: false,
                                         ),
                                       ]);
-                                    }),
-                                    const SizedBox(height: 24),
-                                  ],
-                                );
-                              }
-                            }),
+                                    }
+                                    return _buildSection([
+                                      _buildRowItem(
+                                        iconPath:
+                                            'assets/images/protection.png',
+                                        label: 'Request Technical Role',
+                                        onTap: () => controller
+                                            .showRequestRoleSheet(context),
+                                      ),
+                                    ]);
+                                  }),
+                                  const SizedBox(height: 24),
+                                ],
+                              );
+                            }
+                          }),
 
-                            // ── Preferences
-                            _buildSectionLabel('Preferences'),
-                            const SizedBox(height: 8),
-                            _buildSection([
-                              Obx(
-                                () => _buildToggleItem(
-                                  iconPath: 'assets/images/night-mode.png',
-                                  label: 'Dark Mode',
-                                  value: controller.isDarkMode.value,
-                                  onChanged: controller.toggleTheme,
-                                ),
-                              ),
-                              _buildDivider(),
-                              Obx(
-                                () => _buildLanguageItem(
-                                  value: controller.isKhmerLanguage.value,
-                                  onChanged: controller.toggleLanguage,
-                                ),
-                              ),
-                              _buildDivider(),
-                              _buildRowItem(
-                                iconPath: 'assets/images/notification-bell.png',
-                                label: 'Notifications',
-                                onTap: controller.showUnderConstruction,
-                              ),
-                            ]),
-                            const SizedBox(height: 24),
-
-                            // ── Privacy & Terms
-                            _buildSectionLabel('Privacy & Terms'),
-                            const SizedBox(height: 8),
-                            _buildSection([
-                              _buildRowItem(
-                                iconPath: 'assets/images/protection.png',
-                                label: 'Privacy Policy',
-                                onTap: controller.showUnderConstruction,
-                              ),
-                              _buildDivider(),
-                              _buildRowItem(
-                                iconPath: 'assets/images/info.png',
-                                label: 'Term of Use',
-                                onTap: controller.showUnderConstruction,
-                              ),
-                            ]),
-                            const SizedBox(height: 20),
-
-                            // ── Logout
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                              ),
-                              child: SwipeLogoutButton(
-                                onLogout: controller.logout,
+                          // ── Preferences
+                          _buildSectionLabel('Preferences'),
+                          const SizedBox(height: 8),
+                          _buildSection([
+                            Obx(
+                              () => _buildLanguageItem(
+                                value: controller.isKhmerLanguage.value,
+                                onChanged: controller.toggleLanguage,
                               ),
                             ),
-                            const SizedBox(
-                              height: 120,
-                            ), // Extra space for navbar
-                          ],
-                        ),
+                            _buildDivider(),
+                            _buildRowItem(
+                              iconPath: 'assets/images/notification-bell.png',
+                              label: 'Notifications',
+                              onTap: controller.showUnderConstruction,
+                            ),
+                          ]),
+                          const SizedBox(height: 24),
+
+                          // ── Privacy & Terms
+                          _buildSectionLabel('Privacy & Terms'),
+                          const SizedBox(height: 8),
+                          _buildSection([
+                            _buildRowItem(
+                              iconPath: 'assets/images/protection.png',
+                              label: 'Privacy Policy',
+                              onTap: controller.showUnderConstruction,
+                            ),
+                            _buildDivider(),
+                            _buildRowItem(
+                              iconPath: 'assets/images/info.png',
+                              label: 'Term of Use',
+                              onTap: controller.showUnderConstruction,
+                            ),
+                          ]),
+                          const SizedBox(height: 20),
+
+                          // ── Logout
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                            ),
+                            child: SwipeLogoutButton(
+                              onLogout: controller.logout,
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 120,
+                          ), // Extra space for navbar
+                        ],
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -407,24 +387,12 @@ class ProfileView extends GetView<ProfileController> {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColor.kAuthSurface,
-        borderRadius: BorderRadius.circular(10),
-        image: DecorationImage(
-          image: const AssetImage('assets/images/norton_university.png'),
-          fit: BoxFit.cover,
-          opacity: 0.15,
-          colorFilter: ColorFilter.mode(
-            AppColor.kAuthSurface.withValues(alpha: 0.8),
-            BlendMode.dstATop,
-          ),
+        color: AppColor.kSurface,
+        borderRadius: BorderRadius.circular(AppColor.kCardRadius),
+        border: Border.all(
+          color: AppColor.kBorder,
+          width: AppColor.kBorderWidth,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColor.kShadow,
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Row(
         children: [
@@ -508,15 +476,12 @@ class ProfileView extends GetView<ProfileController> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
-        color: AppColor.kAuthSurface,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: AppColor.kShadow,
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: AppColor.kSurface,
+        borderRadius: BorderRadius.circular(AppColor.kCardRadius),
+        border: Border.all(
+          color: AppColor.kBorder,
+          width: AppColor.kBorderWidth,
+        ),
       ),
       child: Column(children: children),
     );
@@ -526,7 +491,7 @@ class ProfileView extends GetView<ProfileController> {
     return Divider(
       height: 1,
       thickness: 1,
-      color: AppColor.kShadow,
+      color: AppColor.kBorder,
       indent: 52,
     );
   }
@@ -562,7 +527,7 @@ class ProfileView extends GetView<ProfileController> {
                 fontSize: 14,
               ),
             ),
-            ?trailing,
+            if (trailing != null) trailing,
             if (showChevron)
               Icon(
                 Icons.chevron_right_rounded,
@@ -665,19 +630,12 @@ class ProfileView extends GetView<ProfileController> {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColor.kAuthSurface,
-        borderRadius: BorderRadius.circular(16),
+        color: AppColor.kSurface,
+        borderRadius: BorderRadius.circular(AppColor.kCardRadius),
         border: Border.all(
           color: AppColor.kGoogleGreen.withValues(alpha: 0.3),
-          width: 1.5,
+          width: AppColor.kBorderWidth,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColor.kGoogleGreen.withValues(alpha: 0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Row(
         children: [

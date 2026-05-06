@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:school_assgn/features/auth/controllers/sign_in_controller.dart';
@@ -13,12 +14,10 @@ class SignInView extends GetView<SignInController> {
   @override
   Widget build(BuildContext context) {
     return AuthPageScaffold(
-      backgroundImageAsset: 'assets/images/app-bg.jpg',
-      backgroundOverlayColor: AppColor.kAuthBackgroundOverlay,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           AppText(
             'Let\'s sign in',
             variant: AppTextVariant.title,
@@ -147,17 +146,32 @@ class SignInView extends GetView<SignInController> {
           Obx(
             () => AuthSocialButton(
               label: 'Continue with Google',
-              icon: Image.asset(
-                'assets/images/google.png',
-                width: 20,
-                height: 20,
-                fit: BoxFit.contain,
+              icon: SvgPicture.asset(
+                'assets/icons/google.svg', 
+                colorFilter: const ColorFilter.mode(AppColor.kAccentLight, BlendMode.srcIn),
               ),
               onPressed: controller.isSubmitting.value
                   ? null
                   : controller.signInWithGoogle,
-              backgroundColor: AppColor.kAuthAccent,
-              foregroundColor: AppColor.kTextColor,
+              backgroundColor: AppColor.kAuthSurface,
+              foregroundColor: AppColor.kAuthTextPrimary,
+              isLoading: controller.isGoogleSubmitting.value,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Obx(
+            () => AuthSocialButton(
+              label: 'Continue with Telegram',
+              icon: SvgPicture.asset(
+                'assets/icons/send.svg',
+                colorFilter: const ColorFilter.mode(
+                  AppColor.kAccentLight, 
+                  BlendMode.srcIn
+                  ),
+                ),
+              onPressed: (){},
+              backgroundColor: AppColor.kAuthSurface,
+              foregroundColor: AppColor.kAuthTextPrimary,
               isLoading: controller.isGoogleSubmitting.value,
             ),
           ),

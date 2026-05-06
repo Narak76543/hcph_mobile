@@ -79,20 +79,13 @@ class _AppInputFieldState extends State<AppInputField> {
         Container(
           decoration: BoxDecoration(
             color: AppColor.kSurface,
-            borderRadius: BorderRadius.circular(10), // Modern rounded
+            borderRadius: BorderRadius.circular(AppColor.kCardRadius),
             border: Border.all(
               color: _isFocused
-                  ? AppColor.kGoogleBlue.withValues(alpha: 0.5)
-                  : AppColor.kBorder.withValues(alpha: 0.5),
-              width: 1.5,
+                  ? AppColor.kTextPrimary.withValues(alpha: 0.3)
+                  : AppColor.kBorder,
+              width: AppColor.kBorderWidth,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.02),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
           ),
           child: TextField(
             controller: widget.controller,

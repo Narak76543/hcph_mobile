@@ -90,15 +90,11 @@ class UnderConstructionView extends StatelessWidget {
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: AppColor.kSurface,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColor.kBorder),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColor.kShadow,
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
+              borderRadius: BorderRadius.circular(AppColor.kCardRadius),
+              border: Border.all(
+                color: AppColor.kBorder,
+                width: AppColor.kBorderWidth,
+              ),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -149,7 +145,8 @@ class UnderConstructionView extends StatelessWidget {
                       foregroundColor: AppColor.kOnAccent,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius:
+                            BorderRadius.circular(AppColor.kCardRadius),
                       ),
                       elevation: 0,
                     ),

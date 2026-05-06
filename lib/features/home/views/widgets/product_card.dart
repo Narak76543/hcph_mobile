@@ -14,15 +14,12 @@ class ProductCard extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColor.kAuthSurface,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        color: AppColor.kSurface,
+        borderRadius: BorderRadius.circular(AppColor.kCardRadius),
+        border: Border.all(
+          color: AppColor.kBorder,
+          width: AppColor.kBorderWidth,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,13 +59,15 @@ class _ProductImage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+      decoration: BoxDecoration(
+        color: AppColor.kSurface,
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(AppColor.kCardRadius)),
       ),
       padding: const EdgeInsets.all(10),
       child: ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(AppColor.kCardRadius)),
         child: imageUrl.startsWith('http')
             ? Image.network(
                 imageUrl,

@@ -12,69 +12,48 @@ class AppColor {
   static const Color kGoogleGreen = Color(0xFF34A853);
   static const Color kError = Color(0xFFEF4444);
 
-  static const Color kAccent = Color(0xFF3B82F6); // Modern Blue
-  static const Color kAccentLight = Color(0xFF60A5FA);
-  static const Color kAccentDark = Color(0xFF2563EB);
-  static const Color kLink = Color(0xFF3B82F6);
+  static const Color kAccent = Color(0xFFFFFFFF);
+  static const Color kAccentLight = Color(0xFFB0B0B0);
+  static const Color kLink = Color(0xFFFFFFFF);
 
-  // ── Theme Re-active Getters ──────────────────────────────────
-  static bool get _isDark => Get.find<ThemeService>().isDarkMode.value;
+  // ── Permanent AMOLED Stealth Palette ────────────────────────
+  static Color get kBackground => const Color(0xFF000000);
+  static Color get kSurface => const Color(0xFF161616);
+  static Color get kBorder => const Color(0xFF2D2D2D);
+  static Color get kOverlay => const Color(0xCC000000);
+  static Color get kGlassBorder => const Color(0x1AFFFFFF);
+  static Color get kShadow => Colors.transparent;
 
-  // Backgrounds
-  // Use slightly richer colors for premium feel (Tailwind Slate/Zinc scale)
-  static Color get kBackground =>
-      _isDark ? const Color(0xFF000000) : const Color(0xFFF1F5F9);
-  static Color get kSurface =>
-      _isDark ? const Color(0xFF101010) : const Color(0xFFFFFFFF);
-  static Color get kBorder =>
-      _isDark ? const Color(0xFF1E1E1E) : const Color(0xFFE2E8F0);
+  // ── Text Colors ─────────────────────────────────────────────
+  static Color get kTextPrimary => const Color(0xFFFFFFFF);
+  static Color get kTextSecondary => const Color(0xFF737373);
 
-  // High-level Auth Colors
-  static Color get kAuthBackground => kBackground;
+  // ── Navigation ──────────────────────────────────────────────
+  static Color get kNavIcon => const Color(0xFFFFFFFF);
+  static Color get kNavBarBackground => const Color(0xFF000000).withValues(alpha: 0.8);
+  static Color get kNavSelectedStart => kAccent;
+  static Color get kNavSelectedEnd => kAccentLight;
+
+  // ── Layout Constants ────────────────────────────────────────
+  static const double kCardRadius = 32.0;
+  static const double kBorderWidth = 0.5;
+
+  // ── Functional & Legacy Aliases ────────────────────────────
+  static Color get kOnAccent => Colors.black;
+  static Color get kBgColor => kBackground;
   static Color get kAuthSurface => kSurface;
   static Color get kAuthBorder => kBorder;
   static Color get kAuthAccent => kAccent;
-
-  // Overlays (Glassmorphism)
-  // Ensure overlay is dense enough to provide contrast for text
-  static Color get kOverlay =>
-      _isDark ? const Color(0xE6000000) : const Color(0xF2FFFFFF);
-  static Color get kGlassBorder =>
-      _isDark ? const Color(0x33FFFFFF) : const Color(0x33000000);
-  static Color get kShadow =>
-      _isDark ? Colors.black.withValues(alpha: 0.5) : const Color(0x0F000000);
-
-  // Text Colors (Using Zinc/Slate scales for premium feel)
-  static Color get kTextPrimary =>
-      _isDark ? const Color(0xFFFFFFFF) : const Color(0xFF0F172A);
-  static Color get kTextSecondary =>
-      _isDark ? const Color(0xFFAAAAAA) : const Color(0xFF64748B);
-
-  // Navigation
-  static Color get kNavIcon =>
-      _isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569);
-  static Color get kNavBarBackground => _isDark
-      ? const Color(0xFF1A1A1A).withValues(alpha: 0.8)
-      : const Color(0xFFFDFDFD).withValues(alpha: 0.8);
-  static Color get kNavSelectedStart => kAccent;
-  static Color get kNavSelectedEnd => kAccentDark;
-
-  // Button Contrast Logic
-  // Most primary buttons (Blue) should ALWAYS have white text for contrast
-  static Color get kOnAccent => Colors.white;
-
-  // Legacy aliases
-  static Color get kPrimary => kAccent;
-  static Color get kSecondary => kTextSecondary;
-  static Color get kTextColor => kOnAccent; // Used for text ON primary colors
-  static Color get kBgColor => kBackground;
   static Color get kAuthTextPrimary => kTextPrimary;
   static Color get kAuthTextSecondary => kTextSecondary;
-  static Color get kAuthLink => kLink;
+
+  // Legacy compatibility aliases
+  static Color get kPrimary => kAccent;
+  static Color get kAuthBackground => kBackground;
   static Color get kAuthBackgroundOverlay => kOverlay;
+  static Color get kTextColor => kOnAccent;
+  static Color get kAuthLink => kLink;
   static Color get kNavPrimaryText => kTextPrimary;
-  static Color get kNavSelectedBackgroundStart => kNavSelectedStart;
-  static Color get kNavSelectedBackgroundEnd => kNavSelectedEnd;
 }
 
 class AppColors extends AppColor {

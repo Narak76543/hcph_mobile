@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:school_assgn/features/profile/controllers/profile_controller.dart';
 import 'package:school_assgn/themes/app_color.dart';
@@ -6,6 +7,7 @@ import 'package:school_assgn/widget/text_widget.dart';
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({super.key});
+
 
   @override
   Widget build(BuildContext context) {
@@ -53,8 +55,8 @@ class _Avatar extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-          color: AppColor.kAuthAccent.withValues(alpha: 0.3),
-          width: 2,
+          color: AppColor.kBorder,
+          width: AppColor.kBorderWidth,
         ),
         image: DecorationImage(
           image: NetworkImage(url),
@@ -105,21 +107,19 @@ class _NotificationBell extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: AppColor.kAuthSurface,
+        color: AppColor.kSurface,
         shape: BoxShape.circle,
-        boxShadow: [BoxShadow(color: AppColor.kShadow, blurRadius: 8)],
+        border: Border.all(
+          color: AppColor.kBorder,
+          width: AppColor.kBorderWidth,
+        ),
       ),
       child: ColorFiltered(
         colorFilter: ColorFilter.mode(
           AppColor.kAuthTextPrimary,
           BlendMode.srcIn,
         ),
-        child: Image.asset(
-          'assets/images/notification-bell.png',
-          width: 22,
-          height: 22,
-          fit: BoxFit.contain,
-        ),
+        child: SvgPicture.asset('assets/icons/bell-ring.svg')
       ),
     );
   }

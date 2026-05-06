@@ -262,7 +262,6 @@ class ProfileController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    isDarkMode.value = Get.find<ThemeService>().isDarkMode.value;
     _fetchUserProfile();
     _fetchMyLaptops();
 
@@ -433,10 +432,6 @@ class ProfileController extends GetxController {
     }
   }
 
-  void toggleTheme(bool value) {
-    Get.find<ThemeService>().toggleTheme();
-    isDarkMode.value = Get.find<ThemeService>().isDarkMode.value;
-  }
 
   void toggleLanguage(bool value) => isKhmerLanguage.value = value;
 
@@ -1377,7 +1372,7 @@ class ProfileController extends GetxController {
                         ? null
                         : () => _submitRoleRequest(ctx),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColor.kGoogleBlue,
+                      backgroundColor: AppColor.kSurface,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -1394,9 +1389,9 @@ class ProfileController extends GetxController {
                           )
                         : const AppText(
                             'Submit Request',
-                            variant: AppTextVariant.title,
+                            variant: AppTextVariant.body,
                             color: Colors.white,
-                            fontSize: 15,
+                            // fontSize: 13,
                           ),
                   ),
                 ),

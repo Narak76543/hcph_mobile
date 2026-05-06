@@ -29,7 +29,7 @@ class HomeSearchBar extends GetView<HomeController> {
   }
 }
 
-// ── Search Input ──────────────────────────────────────────────────────────────
+// ── Search Input
 
 class _SearchInput extends GetView<HomeController> {
   final bool hasText;
@@ -39,27 +39,24 @@ class _SearchInput extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColor.kAuthSurface,
+        color: AppColor.kSurface,
         borderRadius: BorderRadius.only(
-          topLeft: const Radius.circular(10),
-          topRight: const Radius.circular(10),
-          bottomLeft: Radius.circular(hasText ? 0 : 10),
-          bottomRight: Radius.circular(hasText ? 0 : 10),
+          topLeft: Radius.circular(AppColor.kCardRadius),
+          topRight: Radius.circular(AppColor.kCardRadius),
+          bottomLeft: Radius.circular(hasText ? 0 : AppColor.kCardRadius),
+          bottomRight: Radius.circular(hasText ? 0 : AppColor.kCardRadius),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
+        border: Border.all(
+          color: AppColor.kBorder,
+          width: AppColor.kBorderWidth,
+        ),
       ),
       child: TextField(
         controller: controller.searchController,
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: 'Poppins',
           fontSize: 14,
-          color: Colors.black87,
+          color: AppColor.kTextPrimary,
         ),
         decoration: InputDecoration(
           hintText: 'Search products...',
@@ -84,8 +81,7 @@ class _SearchInput extends GetView<HomeController> {
   }
 }
 
-// ── Filter Button ─────────────────────────────────────────────────────────────
-
+// ── Filter Button
 class _FilterButton extends StatelessWidget {
   const _FilterButton();
 
@@ -95,22 +91,19 @@ class _FilterButton extends StatelessWidget {
       height: 52,
       width: 52,
       decoration: BoxDecoration(
-        color: AppColor.kAuthAccent,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: AppColor.kAuthAccent.withValues(alpha: 0.35),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: AppColor.kSurface,
+        borderRadius: BorderRadius.circular(AppColor.kCardRadius),
+        border: Border.all(
+          color: AppColor.kBorder,
+          width: AppColor.kBorderWidth,
+        ),
       ),
-      child: const Icon(Icons.tune_rounded, color: Colors.white, size: 20),
+      child: Icon(Icons.tune_rounded, color: AppColor.kTextPrimary, size: 20),
     );
   }
 }
 
-// ── Suggestion Dropdown ───────────────────────────────────────────────────────
+// ── Suggestion Dropdown 
 
 class _SuggestionDropdown extends StatelessWidget {
   final List<PostModel> suggestions;
@@ -121,15 +114,13 @@ class _SuggestionDropdown extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppColor.kAuthSurface,
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(10)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        color: AppColor.kSurface,
+        borderRadius:
+            BorderRadius.vertical(bottom: Radius.circular(AppColor.kCardRadius)),
+        border: Border.all(
+          color: AppColor.kBorder,
+          width: AppColor.kBorderWidth,
+        ),
       ),
       child: Column(
         children: [

@@ -64,20 +64,12 @@ class CategoryChip extends StatelessWidget {
         duration: const Duration(milliseconds: 100),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
-          color: selected ? AppColor.kAuthAccent : AppColor.kAuthSurface,
-          borderRadius: BorderRadius.circular(8),
+          color: selected ? AppColor.kTextPrimary : AppColor.kSurface,
+          borderRadius: BorderRadius.circular(AppColor.kCardRadius),
           border: Border.all(
-            color: selected ? AppColor.kAuthAccent : AppColor.kShadow,
+            color: AppColor.kBorder,
+            width: AppColor.kBorderWidth,
           ),
-          boxShadow: selected
-              ? [
-                  BoxShadow(
-                    color: AppColor.kAuthAccent.withValues(alpha: 0.25),
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
-                  ),
-                ]
-              : const [],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -89,7 +81,9 @@ class CategoryChip extends StatelessWidget {
               style: TextStyle(
                 fontFamily: 'Poppins',
                 fontSize: 12,
-                color: selected ? Colors.white : AppColor.kAuthTextSecondary,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                color:
+                    selected ? AppColor.kBackground : AppColor.kTextSecondary,
               ),
             ),
           ],
@@ -118,18 +112,18 @@ class _ChipLeading extends StatelessWidget {
         width: 20,
         height: 20,
         fit: BoxFit.contain,
-        color: selected ? Colors.white : null,
+        color: selected ? AppColor.kBackground : AppColor.kTextSecondary,
         errorBuilder: (_, _, _) => Icon(
           icon ?? Icons.widgets_rounded,
           size: 16,
-          color: selected ? Colors.white : AppColor.kAuthTextSecondary,
+          color: selected ? AppColor.kBackground : AppColor.kTextSecondary,
         ),
       );
     }
     return Icon(
       icon ?? Icons.widgets_rounded,
       size: 16,
-      color: selected ? Colors.white : AppColor.kAuthTextSecondary,
+      color: selected ? AppColor.kBackground : AppColor.kTextSecondary,
     );
   }
 }

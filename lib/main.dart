@@ -9,6 +9,7 @@ import 'package:school_assgn/core/session/session_service.dart';
 import 'package:school_assgn/routes/app_pages.dart';
 import 'package:school_assgn/routes/app_routes.dart';
 import 'package:school_assgn/core/theme/theme_service.dart';
+import 'package:school_assgn/features/onboarding/controllers/onboarding_controller.dart';
 
 class MyHttpOverrides extends HttpOverrides {
   @override
@@ -33,25 +34,30 @@ Future<void> main() async {
   final themeService = await ThemeService().init();
   Get.put<ThemeService>(themeService, permanent: true);
 
+  // Determine initial route here to skip splash screen
+  String initialRoute = AppRoutes.onboarding;
+  if (sessionService.isLoggedIn) {
+    initialRoute = AppRoutes.mainNav;
+  } else {
+    final seenOnboarding = await OnboardingController.hasSeenOnboarding();
+    if (seenOnboarding) {
+      initialRoute = AppRoutes.signIn;
+    }
+  }
+
   // Set initial system overlay style
   SystemChrome.setSystemUIOverlayStyle(
-    SystemUiOverlayStyle(
+    const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: themeService.isDarkMode.value
-          ? Brightness.light
-          : Brightness.dark,
-      systemNavigationBarColor: themeService.isDarkMode.value
-          ? const Color(0xFF0F172A)
-          : const Color(0xFFF8FAFC),
-      systemNavigationBarIconBrightness: themeService.isDarkMode.value
-          ? Brightness.light
-          : Brightness.dark,
+      statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: Color(0xFF000000),
+      systemNavigationBarIconBrightness: Brightness.light,
     ),
   );
 
   Get.put<SessionService>(sessionService, permanent: true);
   Get.put<GoogleAuthService>(GoogleAuthService(), permanent: true);
-  runApp(const MyApp());
+  runApp(MyApp(initialRoute: initialRoute));
 }
 
 Future<void> _safeInitFirebase() async {
@@ -75,22 +81,18 @@ Future<void> _safeInitSession(SessionService sessionService) async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final String initialRoute;
+  const MyApp({super.key, required this.initialRoute});
 
   @override
   Widget build(BuildContext context) {
-    final themeService = Get.find<ThemeService>();
-    return Obx(
-      () => GetMaterialApp(
-        debugShowCheckedModeBanner: false,
-        initialRoute: AppRoutes.splash,
-        getPages: AppPages.pages,
-        theme: ThemeService.lightTheme,
-        darkTheme: ThemeService.darkTheme,
-        themeMode: themeService.isDarkMode.value
-            ? ThemeMode.dark
-            : ThemeMode.light,
-      ),
+    return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
+      initialRoute: initialRoute,
+      getPages: AppPages.pages,
+      theme: ThemeService.darkTheme,
+      darkTheme: ThemeService.darkTheme,
+      themeMode: ThemeMode.dark,
     );
   }
 }

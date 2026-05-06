@@ -20,38 +20,27 @@ class OnboardingView extends GetView<OnboardingController> {
         children: [
           // Fixed MacBook background for all pages
           Positioned.fill(
-            child: Obx(() {
-              final isDark = Get.find<ThemeService>().isDarkMode.value;
-              return Opacity(
-                opacity: isDark ? 0.6 : 0.8,
-                child: Image.asset('assets/images/nu.png', fit: BoxFit.cover),
-              );
-            }),
+            child: Opacity(
+              opacity: 0.6,
+              child: Image.asset('assets/images/nu.png', fit: BoxFit.cover),
+            ),
           ),
           // Dynamic gradient overlay based on theme
           Positioned.fill(
-            child: Obx(() {
-              final isDark = Get.find<ThemeService>().isDarkMode.value;
-              final Color overlayStart = isDark
-                  ? Colors.transparent
-                  : Colors.white.withValues(alpha: 0.1);
-              final Color overlayEnd = isDark ? Colors.black : Colors.white;
-
-              return Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      overlayStart,
-                      overlayEnd.withValues(alpha: 0.6),
-                      overlayEnd,
-                    ],
-                    stops: const [0.0, 0.45, 1.0],
-                  ),
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.black54,
+                    Colors.black,
+                  ],
+                  stops: [0.0, 0.45, 1.0],
                 ),
-              );
-            }),
+              ),
+            ),
           ),
           // Content PageView
           PageView.builder(

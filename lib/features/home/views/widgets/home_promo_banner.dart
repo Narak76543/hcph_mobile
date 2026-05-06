@@ -56,8 +56,8 @@ class _PageDot extends StatelessWidget {
       width: active ? 20 : 6,
       height: 6,
       decoration: BoxDecoration(
-        color: active ? AppColor.kAuthAccent : AppColor.kAuthBorder,
-        borderRadius: BorderRadius.circular(5),
+        color: active ? AppColor.kTextPrimary : AppColor.kBorder,
+        borderRadius: BorderRadius.circular(AppColor.kCardRadius),
       ),
     );
   }
@@ -73,13 +73,17 @@ class _BannerCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 4),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF1E88E5), Color(0xFF1565C0)],
+          colors: [Color(0xFF171717), Color(0xFF000000)],
         ),
-        borderRadius: BorderRadius.all(Radius.circular(10)),
+        borderRadius: BorderRadius.all(Radius.circular(AppColor.kCardRadius)),
+        border: Border.all(
+          color: AppColor.kBorder,
+          width: AppColor.kBorderWidth,
+        ),
       ),
       child: Stack(
         children: [
@@ -204,20 +208,21 @@ class _FindNowButton extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
       decoration: BoxDecoration(
-        color: AppColor.kSurface,
-        borderRadius: BorderRadius.circular(5),
+        color: AppColor.kTextPrimary,
+        borderRadius: BorderRadius.circular(AppColor.kCardRadius / 2),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.search_rounded, color: AppColor.kAuthAccent, size: 13),
+          Icon(Icons.search_rounded, color: AppColor.kBackground, size: 13),
           const SizedBox(width: 5),
           Text(
             'Find Now',
             style: TextStyle(
-              color: AppColor.kAuthAccent,
+              color: AppColor.kBackground,
               fontFamily: 'Poppins',
               fontSize: 12,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],

@@ -50,52 +50,7 @@ class HomeController extends GetxController {
     return filtered;
   }
 
-  final recentPosts = <PostModel>[
-    PostModel(
-      id: '1',
-      partName: 'PRO X SUPERLIGHT 2 SE',
-      brand: 'Logitech',
-      model: 'PRO X SUPERLIGHT 2 SE',
-      compatibleModel: 'Fits MSI Cyborg',
-      shopName: 'GTC Computer',
-      postedBy: 'GTC Computer',
-      price: 55.00,
-      imageUrl: 'assets/images/l-m.webp',
-    ),
-    PostModel(
-      id: '2',
-      partName: 'ASUS ROG 240W Power Adapter',
-      brand: 'ASUS',
-      model: 'ROG 240W Power Adapter',
-      compatibleModel: 'Fits ROG Strix G15',
-      shopName: 'Gold One Computer',
-      postedBy: 'Gold One Computer',
-      price: 89.99,
-      imageUrl: 'assets/images/asus_adp.webp',
-    ),
-    PostModel(
-      id: '3',
-      partName: 'YETI GX',
-      brand: 'Logitech',
-      model: 'YETI GX',
-      compatibleModel: 'LIGHTSYNC RGB',
-      shopName: 'Dynamic Computer',
-      postedBy: 'Dynamic Computer',
-      price: 799.00,
-      imageUrl: 'assets/images/l-mice.webp',
-    ),
-    PostModel(
-      id: '4',
-      partName: 'Crucial 1TB NVMe SSD',
-      brand: 'Crucial',
-      model: '1TB NVMe SSD',
-      compatibleModel: 'M.2 PCIe Gen 4',
-      shopName: 'Speed Tech KH',
-      postedBy: 'Speed Tech KH',
-      price: 75.00,
-      imageUrl: 'assets/images/crucal.png',
-    ),
-  ].obs;
+  final recentPosts = <PostModel>[].obs;
 
   final ApiClient _apiClient = ApiClient();
 
@@ -208,57 +163,56 @@ class HomeController extends GetxController {
           list = response['data'] as List;
         }
 
-        if (list.isNotEmpty) {
-          recentPosts.value = list
-              .map((e) {
-                final model = PostModel.fromJson(Map<String, dynamic>.from(e));
+        recentPosts.value = list
+            .map((e) {
+              final model = PostModel.fromJson(Map<String, dynamic>.from(e));
 
-                // Normalize image URL
-                String imageUrl = model.imageUrl;
-                if (imageUrl.isNotEmpty) {
-                  if (imageUrl.startsWith('http://localhost:8000')) {
-                    imageUrl = imageUrl.replaceFirst(
-                      'http://localhost:8000',
-                      ApiConfig.baseUrl,
-                    );
-                  } else if (imageUrl.startsWith('http://127.0.0.1:8000')) {
-                    imageUrl = imageUrl.replaceFirst(
-                      'http://127.0.0.1:8000',
-                      ApiConfig.baseUrl,
-                    );
-                  } else if (!imageUrl.startsWith('http')) {
-                    imageUrl =
-                        '${ApiConfig.baseUrl}${imageUrl.startsWith('/') ? imageUrl : '/$imageUrl'}';
-                  }
+              // Normalize image URL
+              String imageUrl = model.imageUrl;
+              if (imageUrl.isNotEmpty) {
+                if (imageUrl.startsWith('http://localhost:8000')) {
+                  imageUrl = imageUrl.replaceFirst(
+                    'http://localhost:8000',
+                    ApiConfig.baseUrl,
+                  );
+                } else if (imageUrl.startsWith('http://127.0.0.1:8000')) {
+                  imageUrl = imageUrl.replaceFirst(
+                    'http://127.0.0.1:8000',
+                    ApiConfig.baseUrl,
+                  );
+                } else if (!imageUrl.startsWith('http')) {
+                  imageUrl =
+                      '${ApiConfig.baseUrl}${imageUrl.startsWith('/') ? imageUrl : '/$imageUrl'}';
                 }
+              }
 
-                // If image is still empty, use fallback
-                if (imageUrl.isEmpty) {
-                  imageUrl = 'assets/images/l-m.webp';
-                }
+              // If image is still empty, use fallback
+              if (imageUrl.isEmpty) {
+                imageUrl = 'assets/images/l-m.webp';
+              }
 
-                // Return model with normalized image
-                return PostModel(
-                  id: model.id,
-                  partName: model.partName,
-                  brand: model.brand,
-                  model: model.model,
-                  compatibleModel: model.compatibleModel,
-                  shopName: model.shopName,
-                  postedBy: model.postedBy,
-                  ownerFullName: model.ownerFullName,
-                  ownerUserId: model.ownerUserId,
-                  price: model.price,
-                  imageUrl: imageUrl,
-                  categoryId: model.categoryId,
-                  categorySlug: model.categorySlug,
-                  isVerified: model.isVerified,
-                  partSpecs: model.partSpecs, // ← preserve specs for compatibility check
-                );
-              })
-              .cast<PostModel>()
-              .toList();
-        }
+              // Return model with normalized image
+              return PostModel(
+                id: model.id,
+                partName: model.partName,
+                brand: model.brand,
+                model: model.model,
+                compatibleModel: model.compatibleModel,
+                shopName: model.shopName,
+                postedBy: model.postedBy,
+                ownerFullName: model.ownerFullName,
+                ownerUserId: model.ownerUserId,
+                price: model.price,
+                imageUrl: imageUrl,
+                categoryId: model.categoryId,
+                categorySlug: model.categorySlug,
+                isVerified: model.isVerified,
+                partSpecs:
+                    model.partSpecs, // ← preserve specs for compatibility check
+              );
+            })
+            .cast<PostModel>()
+            .toList();
       }
     } catch (e) {
       debugPrint("[HomeController] Error fetching posts: $e");
