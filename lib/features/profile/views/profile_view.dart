@@ -39,12 +39,11 @@ class ProfileView extends GetView<ProfileController> {
                         fontWeight: FontWeight.w600,
                       ),
                       const Spacer(),
-                      Image.asset(
-                        'assets/images/search.png',
-                        width: 24,
-                        height: 24,
-                        color: AppColor.kAuthAccent,
-                      ),
+                      SvgPicture.asset(
+                        'assets/icons/search.svg' , 
+                        colorFilter: ColorFilter.mode(
+                          AppColor.kAuthAccent, BlendMode.srcIn),
+                      )
                     ],
                   ),
                 ),
@@ -506,7 +505,7 @@ class ProfileView extends GetView<ProfileController> {
     required String label,
     required VoidCallback onTap,
     Color? iconColor,
-    Color? labelColor,
+    // Color? labelColor,
     Widget? trailing,
     bool showChevron = true,
   }) {
@@ -532,7 +531,7 @@ class ProfileView extends GetView<ProfileController> {
               child: AppText(
                 label,
                 variant: AppTextVariant.body,
-                color: labelColor ?? AppColor.kAuthTextPrimary,
+                color: AppColor.kAuthAccent,
                 fontSize: 14,
               ),
             ),

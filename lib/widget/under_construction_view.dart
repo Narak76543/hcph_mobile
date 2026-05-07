@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:school_assgn/themes/app_color.dart';
 import 'package:school_assgn/widget/text_widget.dart';
 
@@ -39,14 +40,13 @@ class UnderConstructionView extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: AppColor.kAccent.withValues(alpha: 0.1),
+                    color: AppColor.kAuthAccent.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: Image.asset(
-                    'assets/images/road-closed.png',
-                    width: 80,
-                    height: 80,
-                  ),
+                  child: SvgPicture.asset(
+                    width: 50 , 
+                    height: 50, 
+                    'assets/icons/drill.svg' , colorFilter: ColorFilter.mode(AppColor.kAuthAccent, BlendMode.srcIn),)
                 ),
 
                 const SizedBox(height: 24),
