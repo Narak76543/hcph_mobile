@@ -32,7 +32,10 @@ class EditProfileController extends GetxController {
     try {
       // Fetch fresh data from backend to pre-fill all fields
       if (_token != null && _token!.isNotEmpty) {
-        final data = await ApiClient().getRequest('/users/me', bearerToken: _token);
+        final data = await ApiClient().getRequest(
+          '/users/me',
+          bearerToken: _token,
+        );
         if (data is Map<String, dynamic>) {
           firstnameCtrl.text = data['firstname'] as String? ?? '';
           lastnameCtrl.text = data['lastname'] as String? ?? '';
@@ -88,8 +91,12 @@ class EditProfileController extends GetxController {
       final response = await _apiClient.patchMultipart(
         '/users/me',
         fields: fields,
-        fileFieldName: selectedImagePath.value.isNotEmpty ? 'profile_image' : null,
-        filePath: selectedImagePath.value.isNotEmpty ? selectedImagePath.value : null,
+        fileFieldName: selectedImagePath.value.isNotEmpty
+            ? 'profile_image'
+            : null,
+        filePath: selectedImagePath.value.isNotEmpty
+            ? selectedImagePath.value
+            : null,
         bearerToken: _token,
       );
 
@@ -100,7 +107,8 @@ class EditProfileController extends GetxController {
         final lName = response['lastname'] ?? lastnameCtrl.text;
         profileCtrl.userName.value = '$fName $lName';
         if (response['profile_image_url'] != null) {
-          profileCtrl.userAvatarUrl.value = response['profile_image_url'] as String;
+          profileCtrl.userAvatarUrl.value =
+              response['profile_image_url'] as String;
         }
       }
 

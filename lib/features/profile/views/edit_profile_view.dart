@@ -12,8 +12,9 @@ class EditProfileView extends GetView<EditProfileController> {
   const EditProfileView({super.key});
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor.kBgColor,
+    return Obx(
+      () => Scaffold(
+        backgroundColor: AppColor.kBgColor,
       appBar: AppBar(
         title: const AppText(
           'Edit Profile',
@@ -24,7 +25,7 @@ class EditProfileView extends GetView<EditProfileController> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          icon: Icon(Icons.arrow_back_ios_new_rounded , color: AppColor.kAuthAccent),
           onPressed: () => Get.back(),
         ),
       ),
@@ -61,9 +62,7 @@ class EditProfileView extends GetView<EditProfileController> {
                             image: hasNewImage
                                 ? DecorationImage(
                                     image: FileImage(
-                                      File(
-                                        controller.selectedImagePath.value,
-                                      ),
+                                      File(controller.selectedImagePath.value),
                                     ),
                                     fit: BoxFit.cover,
                                   )
@@ -105,7 +104,7 @@ class EditProfileView extends GetView<EditProfileController> {
                         child: Icon(
                           Icons.camera_alt_rounded,
                           size: 16,
-                          color: AppColor.kTextColor,
+                          color: AppColor.kOnAccent,
                         ),
                       ),
                     ],
@@ -173,42 +172,43 @@ class EditProfileView extends GetView<EditProfileController> {
               SizedBox(
                 width: double.infinity,
                 height: 56,
-                child: Obx(
-                  () => ElevatedButton(
-                    onPressed: controller.isLoading.value
-                        ? null
-                        : controller.submit,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColor.kAuthAccent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      elevation: 0,
+                child: ElevatedButton(
+                  onPressed: controller.isLoading.value
+                      ? null
+                      : controller.submit,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColor.kSurface,
+                    foregroundColor: AppColor.kAccent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppColor.kCardRadius),
                     ),
-                    child: controller.isLoading.value
-                        ? SizedBox(
-                            height: 24,
-                            width: 24,
-                            child: CircularProgressIndicator(
-                              color: AppColor.kTextColor,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : AppText(
-                            'Save Changes',
-                            variant: AppTextVariant.body,
-                            color: AppColor.kTextColor,
-                            fontSize: 16,
-                          ),
+                    elevation: 0,
                   ),
+                  child: controller.isLoading.value
+                      ? SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(
+                            color: AppColor.kOnAccent,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : AppText(
+                          'Save Changes',
+                          variant: AppTextVariant.body,
+                          color: AppColor.kAuthAccent,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                        ),
                 ),
               ),
             ],
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   void _showImagePickerOptions(BuildContext context) {
     showModalBottomSheet(

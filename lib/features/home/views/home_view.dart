@@ -14,62 +14,62 @@ class HomeView extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () => Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SafeArea(
-          child: RefreshIndicator(
-            onRefresh: controller.refreshHome,
-            color: AppColor.kGoogleBlue,
-            backgroundColor: AppColor.kSurface,
-            child: CustomScrollView(
-              physics: const AlwaysScrollableScrollPhysics(
-                parent: BouncingScrollPhysics(),
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: controller.refreshHome,
+          color: AppColor.kGoogleBlue,
+          backgroundColor: AppColor.kSurface,
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
+            slivers: [
+              // Header
+              const SliverToBoxAdapter(child: HomeHeader()),
+
+              // Search bar
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(16, 12, 16, 0),
+                  child: HomeSearchBar(),
+                ),
               ),
-              slivers: [
-                // Header
-                const SliverToBoxAdapter(child: HomeHeader()),
 
-                // Search bar
-                const SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(16, 12, 16, 0),
-                    child: HomeSearchBar(),
+              // Category tabs
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.only(top: 16),
+                  child: HomeCategoryTabs(),
+                ),
+              ),
+
+              // Promo banner
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
+                  child: HomePromoBanner(),
+                ),
+              ),
+
+              // "Featured Products" heading
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
+                  child: AppText(
+                    'Featured Products',
+                    variant: AppTextVariant.title,
+                    color: AppColor.kTextPrimary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
+              ),
 
-                // Category tabs
-                const SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 16),
-                    child: HomeCategoryTabs(),
-                  ),
-                ),
-
-                // Promo banner
-                const SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
-                    child: HomePromoBanner(),
-                  ),
-                ),
-
-                // "Featured Products" heading
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
-                    child: AppText(
-                      'Featured Products',
-                      variant: AppTextVariant.title,
-                      color: AppColor.kTextPrimary,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-
-                // Product grid
-                controller.displayPosts.isEmpty
+              // Product grid
+              Obx(
+                () => controller.displayPosts.isEmpty
                     ? SliverToBoxAdapter(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 60),
@@ -99,8 +99,8 @@ class HomeView extends GetView<HomeController> {
                               ),
                         ),
                       ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

@@ -61,13 +61,15 @@ class _ProductImage extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         color: AppColor.kSurface,
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(AppColor.kCardRadius)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppColor.kCardRadius),
+        ),
       ),
       padding: const EdgeInsets.all(10),
       child: ClipRRect(
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(AppColor.kCardRadius)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppColor.kCardRadius),
+        ),
         child: imageUrl.startsWith('http')
             ? Image.network(
                 imageUrl,
@@ -147,8 +149,9 @@ class _FitBadge extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
-    if (!controller.isCompatibleWithDevice(post))
+    if (!controller.isCompatibleWithDevice(post)) {
       return const SizedBox.shrink();
+    }
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),

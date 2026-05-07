@@ -15,7 +15,6 @@ import 'package:school_assgn/features/profile/views/laptop_detail_view.dart';
 import 'package:school_assgn/themes/app_color.dart';
 import 'package:school_assgn/widget/text_widget.dart';
 import 'package:school_assgn/features/profile/views/manual_laptop_entry_view.dart';
-import 'package:school_assgn/core/theme/theme_service.dart';
 import 'package:image_picker/image_picker.dart' as image_picker;
 import 'package:geolocator/geolocator.dart';
 
@@ -432,7 +431,6 @@ class ProfileController extends GetxController {
     }
   }
 
-
   void toggleLanguage(bool value) => isKhmerLanguage.value = value;
 
   // ─────────────────────── Laptop Model Methods ───────────────────────
@@ -593,8 +591,11 @@ class ProfileController extends GetxController {
 
       // Step 1: Create a Laptop Model
       final String modelName = manualModelCtrl.text.trim();
-      final String slug = modelName.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-');
-      
+      final String slug = modelName.toLowerCase().replaceAll(
+        RegExp(r'[^a-z0-9]+'),
+        '-',
+      );
+
       final Map<String, dynamic> modelPayload = {
         'brand_id': manualBrandId.value,
         'name': modelName,
@@ -620,7 +621,9 @@ class ProfileController extends GetxController {
         'model_id': modelId,
         'ram_slots': int.tryParse(manualRamSlots.value) ?? 1,
         'ram_type': manualRamType.value,
-        'max_ram_gg': int.tryParse(manualMaxRam.value) ?? 16, // Field name from backend schema
+        'max_ram_gg':
+            int.tryParse(manualMaxRam.value) ??
+            16, // Field name from backend schema
         'ram_base_gb': int.tryParse(manualRamBase.value) ?? 8,
         'ssd_slots': int.tryParse(manualSsdSlots.value) ?? 1,
         'ssd_interface': manualSsdInterface.value,
@@ -646,7 +649,7 @@ class ProfileController extends GetxController {
 
       // Final Step: Refresh the profile to reflect changes
       await _fetchMyLaptops();
-      
+
       Get.back(); // close view
       Get.snackbar(
         'Laptop Profile Created',
@@ -910,7 +913,9 @@ class ProfileController extends GetxController {
                               return InkWell(
                                 onTap: () {
                                   selectedBrand.value = brand;
-                                  fetchModelsForBrand(brand['id']?.toString() ?? '');
+                                  fetchModelsForBrand(
+                                    brand['id']?.toString() ?? '',
+                                  );
                                 },
                                 borderRadius: BorderRadius.circular(16),
                                 child: Container(
@@ -1220,7 +1225,9 @@ class ProfileController extends GetxController {
         decoration: BoxDecoration(
           color: AppColor.kGoogleBlue.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColor.kGoogleBlue.withValues(alpha: 0.2)),
+          border: Border.all(
+            color: AppColor.kGoogleBlue.withValues(alpha: 0.2),
+          ),
         ),
         child: InkWell(
           onTap: () {
@@ -1688,73 +1695,10 @@ class ProfileController extends GetxController {
 
   @override
   void onClose() {
-    shopNameCtrl.dispose();
-    shopAddressCtrl.dispose();
-    shopPhoneCtrl.dispose();
-    shopTelegramCtrl.dispose();
-    shopProvinceCtrl.dispose();
-    shopDistrictCtrl.dispose();
-    shopAddrDetailCtrl.dispose();
-    shopGMapUrlCtrl.dispose();
-    shopReasonCtrl.dispose();
-    hardwareBrandCtrl.dispose();
-    hardwareModelCtrl.dispose();
-    hardwarePriceCtrl.dispose();
-    hardwareCpuCtrl.dispose();
-    hardwareGpuCtrl.dispose();
-    hardwareRamTypeCtrl.dispose();
-    hardwareRamCapacityGbCtrl.dispose(); // Fixed name
-    hardwareRamBusMhzCtrl.dispose(); // Added missing
-    hardwareRamFormFactorCtrl.dispose(); // Added missing
-    hardwareRamLatencyCtrl.dispose(); // Added missing
-    hardwareRamSlotsCtrl.dispose();
-    hardwareMaxRamCtrl.dispose();
-    hardwareSsdTypeCtrl.dispose();
-    hardwareSsdCapacityGbCtrl.dispose();
-    hardwareSsdFormFactorCtrl.dispose();
-    hardwareSsdInterfaceCtrl.dispose();
-    hardwareSsdReadSpeedCtrl.dispose();
-    hardwareSsdWriteSpeedCtrl.dispose();
-    hardwareHddCapacityGbCtrl.dispose();
-    hardwareHddRpmCtrl.dispose();
-    hardwareHddFormFactorCtrl.dispose();
-    hardwareHddCacheMbCtrl.dispose();
-    hardwareHddBayCtrl.dispose();
-    hardwareDisplaySizeInchCtrl.dispose();
-    hardwareDisplayResolutionCtrl.dispose();
-    hardwareDisplayRefreshRateCtrl.dispose();
-    hardwareDisplayPanelTypeCtrl.dispose();
-    hardwareDisplayConnectorPinCtrl.dispose();
-    hardwareDisplayBrightnessNitCtrl.dispose();
-    hardwareThermalConductivityCtrl.dispose();
-    hardwareThermalTypeCtrl.dispose();
-    hardwareThermalWeightCtrl.dispose();
-    hardwareBatteryWhCtrl.dispose();
-    hardwareBatteryMahCtrl.dispose();
-    hardwareBatteryCellsCtrl.dispose();
-    hardwareBatteryVoltageCtrl.dispose();
-    hardwareBatteryTypeCtrl.dispose();
-    hardwareBatteryConnectorCtrl.dispose();
-    hardwareChargerWattageCtrl.dispose();
-    hardwareChargerVoltageCtrl.dispose();
-    hardwareChargerConnectorCtrl.dispose();
-    hardwareChargerStandardCtrl.dispose();
-    hardwareFanSizeMmCtrl.dispose();
-    hardwareFanConnectorCtrl.dispose();
-    hardwareFanMaxRpmCtrl.dispose();
-    hardwareFanTypeCtrl.dispose();
-    manualBrandCtrl.dispose();
-    manualModelCtrl.dispose();
-    manualCpuCtrl.dispose();
-    manualRamSlotsCtrl.dispose();
-    manualRamTypeCtrl.dispose();
-    manualMaxRamCtrl.dispose();
-    manualRamBaseCtrl.dispose();
-    manualSsdSlotsCtrl.dispose();
-    manualSsdInterfaceCtrl.dispose();
-    manualSsdFormFactorCtrl.dispose();
-    manualDisplaySizeCtrl.dispose();
-    manualDisplayResCtrl.dispose();
+    // We intentionally do not dispose TextEditingControllers here because
+    // GetX has a known issue where it might reuse a controller instance
+    // after calling onClose() when using Get.offAllNamed() to the same route.
+    // The Garbage Collector will clean them up when the controller is destroyed.
     super.onClose();
   }
 

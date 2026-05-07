@@ -8,7 +8,6 @@ import 'package:school_assgn/widget/text_widget.dart';
 class HomeHeader extends StatelessWidget {
   const HomeHeader({super.key});
 
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -58,10 +57,7 @@ class _Avatar extends StatelessWidget {
           color: AppColor.kBorder,
           width: AppColor.kBorderWidth,
         ),
-        image: DecorationImage(
-          image: NetworkImage(url),
-          fit: BoxFit.cover,
-        ),
+        image: DecorationImage(image: NetworkImage(url), fit: BoxFit.cover),
       ),
     );
   }
@@ -119,7 +115,7 @@ class _NotificationBell extends StatelessWidget {
           AppColor.kAuthTextPrimary,
           BlendMode.srcIn,
         ),
-        child: SvgPicture.asset('assets/icons/bell-ring.svg')
+        child: SvgPicture.asset('assets/icons/bell-ring.svg'),
       ),
     );
   }

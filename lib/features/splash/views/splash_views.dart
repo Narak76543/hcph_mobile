@@ -33,7 +33,11 @@ class SplashViews extends GetView<SplashController> {
               ),
             ),
             const SizedBox(height: 12),
-            AppText('Loading...', variant: AppTextVariant.caption, color: AppColor.kAuthTextSecondary),
+            AppText(
+              'Loading...',
+              variant: AppTextVariant.caption,
+              color: AppColor.kAuthTextSecondary,
+            ),
           ],
         ),
       ),

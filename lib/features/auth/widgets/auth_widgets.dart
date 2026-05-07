@@ -214,30 +214,14 @@ class AuthSocialButton extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       height: 50,
-      child: ElevatedButton.icon(
+      child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
-        icon: isLoading
-            ? SizedBox(
-                width: 20,
-                height: 20,
-                child: LoadingAnimationWidget.discreteCircle(
-                  color: AppColor.kGoogleRed,
-                  secondRingColor: AppColor.kGoogleYellow,
-                  thirdRingColor: AppColor.kGoogleGreen,
-                  size: 20,
-                ),
-              )
-            : icon,
-        label: AppText(
-          isLoading ? 'Please wait...' : label,
-          variant: AppTextVariant.label,
-          color: foregroundColor,
-          fontWeight: FontWeight.w400,
-        ),
         style: ElevatedButton.styleFrom(
           elevation: 0,
           backgroundColor: backgroundColor,
           foregroundColor: foregroundColor,
+          padding:
+              EdgeInsets.zero, // Remove default padding to control perfectly
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppColor.kCardRadius),
             side: BorderSide(
@@ -245,6 +229,41 @@ class AuthSocialButton extends StatelessWidget {
               width: AppColor.kBorderWidth,
             ),
           ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 24,
+              child: Align(
+                alignment: Alignment.center,
+                child: isLoading
+                    ? SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: LoadingAnimationWidget.discreteCircle(
+                          color: AppColor.kGoogleRed,
+                          secondRingColor: AppColor.kGoogleYellow,
+                          thirdRingColor: AppColor.kGoogleGreen,
+                          size: 20,
+                        ),
+                      )
+                    : icon,
+              ),
+            ),
+            const SizedBox(width: 12),
+            SizedBox(
+              width:
+                  165, // Fixed width guarantees text alignment perfectly across all buttons
+              child: AppText(
+                isLoading ? 'Please wait...' : label,
+                variant: AppTextVariant.label,
+                color: foregroundColor,
+                fontWeight: FontWeight.w400,
+                textAlign: TextAlign.left,
+              ),
+            ),
+          ],
         ),
       ),
     );

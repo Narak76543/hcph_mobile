@@ -40,10 +40,12 @@ class HomeController extends GetxController {
     if (searchQuery.value.isNotEmpty) {
       final q = searchQuery.value.toLowerCase();
       filtered = filtered
-          .where((p) =>
-              p.partName.toLowerCase().contains(q) ||
-              p.brand.toLowerCase().contains(q) ||
-              p.model.toLowerCase().contains(q))
+          .where(
+            (p) =>
+                p.partName.toLowerCase().contains(q) ||
+                p.brand.toLowerCase().contains(q) ||
+                p.model.toLowerCase().contains(q),
+          )
           .toList();
     }
 
@@ -344,17 +346,19 @@ class HomeController extends GetxController {
             if (laptopRamSlots == 0) return false; // soldered
 
             if (laptopRamType.isNotEmpty) {
-              if (partRamType.isEmpty) continue;         // can't confirm → skip
+              if (partRamType.isEmpty) continue; // can't confirm → skip
               if (partRamType != laptopRamType) continue; // DDR4 ≠ DDR5
             }
 
-            if (partFormFactor.isNotEmpty &&
-                !partFormFactor.contains('DIMM'))
+            if (partFormFactor.isNotEmpty && !partFormFactor.contains('DIMM')) {
               continue;
+            }
 
-            if (laptopMaxRam > 0 && partCapacity > 0 &&
-                partCapacity > laptopMaxRam)
+            if (laptopMaxRam > 0 &&
+                partCapacity > 0 &&
+                partCapacity > laptopMaxRam) {
               continue;
+            }
 
             return true;
 
@@ -377,7 +381,8 @@ class HomeController extends GetxController {
 
             if (partFormFactor.contains('2.5') && !laptopHasHddBay) continue;
 
-            final laptopIsNvme = laptopSsdInterface.contains('NVME') ||
+            final laptopIsNvme =
+                laptopSsdInterface.contains('NVME') ||
                 laptopSsdInterface.contains('PCIE');
             final laptopIsSata = laptopSsdInterface.contains('SATA');
 
@@ -386,14 +391,16 @@ class HomeController extends GetxController {
             if (partInterface == 'SATA' &&
                 laptopIsNvme &&
                 !laptopIsSata &&
-                !laptopHasHddBay)
+                !laptopHasHddBay) {
               continue;
+            }
 
             if (partFormFactor.isNotEmpty &&
                 laptopSsdFormFactor.isNotEmpty &&
                 !laptopSsdFormFactor.contains(partFormFactor) &&
-                !partFormFactor.contains(laptopSsdFormFactor))
+                !partFormFactor.contains(laptopSsdFormFactor)) {
               continue;
+            }
 
             return true;
 
@@ -408,17 +415,13 @@ class HomeController extends GetxController {
             final laptopConnector =
                 spec['battery_connector']?.toString().toLowerCase() ?? '';
             final laptopVoltage =
-                double.tryParse(
-                  spec['battery_voltage']?.toString() ?? '0',
-                ) ??
+                double.tryParse(spec['battery_voltage']?.toString() ?? '0') ??
                 0;
             final partConnector =
                 post.partSpecs['connector_type']?.toString().toLowerCase() ??
                 '';
             final partVoltage =
-                double.tryParse(
-                  post.partSpecs['voltage']?.toString() ?? '0',
-                ) ??
+                double.tryParse(post.partSpecs['voltage']?.toString() ?? '0') ??
                 0;
 
             if (laptopConnector.isEmpty || partConnector.isEmpty) {
@@ -427,15 +430,18 @@ class HomeController extends GetxController {
               if (post.brand.toLowerCase().contains(brandName) ||
                   post.compatibleModel.toLowerCase().contains(
                     model['name']?.toString().toLowerCase() ?? '',
-                  ))
+                  )) {
                 return true;
+              }
               continue;
             }
 
             if (laptopConnector != partConnector) continue;
-            if (laptopVoltage > 0 && partVoltage > 0 &&
-                laptopVoltage != partVoltage)
+            if (laptopVoltage > 0 &&
+                partVoltage > 0 &&
+                laptopVoltage != partVoltage) {
               continue;
+            }
             return true;
 
           // ── DISPLAY ───────────────────────────────────────────────────────
@@ -456,8 +462,9 @@ class HomeController extends GetxController {
 
             if (laptopDisplayConnector.isNotEmpty &&
                 partConnector.isNotEmpty &&
-                laptopDisplayConnector != partConnector)
+                laptopDisplayConnector != partConnector) {
               continue;
+            }
 
             return true;
 
@@ -465,29 +472,26 @@ class HomeController extends GetxController {
           case 'charger':
           case 'adapter':
             final laptopChargerWattage =
-                int.tryParse(
-                  spec['charger_wattage']?.toString() ?? '0',
-                ) ??
-                0;
+                int.tryParse(spec['charger_wattage']?.toString() ?? '0') ?? 0;
             final laptopChargerConnector =
                 spec['charger_connector']?.toString().toLowerCase() ?? '';
             final partWattage =
-                int.tryParse(
-                  post.partSpecs['wattage']?.toString() ?? '0',
-                ) ??
-                0;
+                int.tryParse(post.partSpecs['wattage']?.toString() ?? '0') ?? 0;
             final partConnector =
                 post.partSpecs['connector_type']?.toString().toLowerCase() ??
                 '';
 
-            if (laptopChargerWattage > 0 && partWattage > 0 &&
-                partWattage < laptopChargerWattage)
+            if (laptopChargerWattage > 0 &&
+                partWattage > 0 &&
+                partWattage < laptopChargerWattage) {
               continue;
+            }
 
             if (laptopChargerConnector.isNotEmpty &&
                 partConnector.isNotEmpty &&
-                laptopChargerConnector != partConnector)
+                laptopChargerConnector != partConnector) {
               continue;
+            }
 
             return true;
 
@@ -504,10 +508,12 @@ class HomeController extends GetxController {
                 model['brand']?['name']?.toString().toLowerCase() ?? '';
             final modelName = model['name']?.toString().toLowerCase() ?? '';
             final postCompat = post.compatibleModel.toLowerCase();
-            if (brandName.isNotEmpty && postCompat.contains(brandName))
+            if (brandName.isNotEmpty && postCompat.contains(brandName)) {
               return true;
-            if (modelName.isNotEmpty && postCompat.contains(modelName))
+            }
+            if (modelName.isNotEmpty && postCompat.contains(modelName)) {
               return true;
+            }
             continue;
         }
       }

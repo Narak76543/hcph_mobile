@@ -132,7 +132,10 @@ class LaptopDetailView extends StatelessWidget {
   Widget _buildDivider() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Divider(height: 1, color: AppColor.kAuthBorder.withValues(alpha: 0.4)),
+      child: Divider(
+        height: 1,
+        color: AppColor.kAuthBorder.withValues(alpha: 0.4),
+      ),
     );
   }
 }

@@ -10,6 +10,8 @@ import 'package:school_assgn/routes/app_pages.dart';
 import 'package:school_assgn/routes/app_routes.dart';
 import 'package:school_assgn/core/theme/theme_service.dart';
 import 'package:school_assgn/features/onboarding/controllers/onboarding_controller.dart';
+import 'package:app_links/app_links.dart';
+import 'package:school_assgn/services/telegram_auth_service.dart';
 
 class MyHttpOverrides extends HttpOverrides {
   @override
@@ -80,15 +82,52 @@ Future<void> _safeInitSession(SessionService sessionService) async {
   }
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   final String initialRoute;
   const MyApp({super.key, required this.initialRoute});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late AppLinks _appLinks;
+  StreamSubscription<Uri>? _linkSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _initDeepLinks();
+  }
+
+  void _initDeepLinks() {
+    _appLinks = AppLinks();
+
+    // Listen for incoming deep links
+    _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
+      debugPrint('Incoming deep link: $uri');
+
+      // Check if this is our telegram-auth callback
+      if (uri.scheme == 'myapp' && uri.host == 'telegram-auth') {
+        final params = Map<String, String>.from(uri.queryParameters);
+        if (params.isNotEmpty) {
+          TelegramAuthService.handleCallback(params, Get.context!);
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _linkSubscription?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: initialRoute,
+      initialRoute: widget.initialRoute,
       getPages: AppPages.pages,
       theme: ThemeService.darkTheme,
       darkTheme: ThemeService.darkTheme,

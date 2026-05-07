@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:school_assgn/features/profile/views/laptop_detail_view.dart';
 import 'package:school_assgn/features/profile/controllers/profile_controller.dart';
@@ -7,6 +8,7 @@ import 'package:school_assgn/features/profile/views/my_listings_view.dart';
 import 'package:school_assgn/themes/app_color.dart';
 import 'package:school_assgn/widget/text_widget.dart';
 import 'package:school_assgn/widget/swipe_logout_button.dart';
+import 'package:school_assgn/core/theme/theme_service.dart';
 
 class ProfileView extends GetView<ProfileController> {
   const ProfileView({super.key});
@@ -69,19 +71,19 @@ class ProfileView extends GetView<ProfileController> {
                           const SizedBox(height: 8),
                           _buildSection([
                             _buildRowItem(
-                              iconPath: 'assets/images/user.png',
+                              iconPath: 'assets/icons/user-round.svg',
                               label: 'Profile',
                               onTap: () => Get.toNamed('/edit-profile'),
                             ),
                             _buildDivider(),
                             _buildRowItem(
-                              iconPath: 'assets/images/padlock.png',
+                              iconPath: 'assets/icons/lock-keyhole.svg',
                               label: 'Password & Security',
                               onTap: controller.showUnderConstruction,
                             ),
                             _buildDivider(),
                             _buildRowItem(
-                              iconPath: 'assets/images/devices.png',
+                              iconPath: 'assets/icons/monitor-smartphone.svg',
                               label: 'Device Identification',
                               onTap: controller.showUnderConstruction,
                             ),
@@ -121,16 +123,12 @@ class ProfileView extends GetView<ProfileController> {
                                         controller.removeLaptop(id),
                                     background: Container(
                                       alignment: Alignment.centerRight,
-                                      padding: const EdgeInsets.only(
-                                        right: 20,
-                                      ),
+                                      padding: const EdgeInsets.only(right: 20),
                                       decoration: BoxDecoration(
                                         color: AppColor.kGoogleRed.withValues(
                                           alpha: 0.1,
                                         ),
-                                        borderRadius: BorderRadius.circular(
-                                          16,
-                                        ),
+                                        borderRadius: BorderRadius.circular(16),
                                       ),
                                       child: const Icon(
                                         Icons.delete_outline_rounded,
@@ -150,8 +148,7 @@ class ProfileView extends GetView<ProfileController> {
                                             null) {
                                           Get.to(
                                             () => LaptopDetailView(
-                                              modelName:
-                                                  modelName ?? 'Laptop',
+                                              modelName: modelName ?? 'Laptop',
                                               spec: controller
                                                   .selectedModelSpec
                                                   .value!,
@@ -228,7 +225,7 @@ class ProfileView extends GetView<ProfileController> {
                               ],
                               // Add button
                               _buildRowItem(
-                                iconPath: 'assets/images/plus.png',
+                                iconPath: 'assets/icons/circle-plus.svg',
                                 label: laptops.isEmpty
                                     ? 'Set Your Laptop Model'
                                     : 'Add Another Laptop',
@@ -252,11 +249,10 @@ class ProfileView extends GetView<ProfileController> {
                                   const SizedBox(height: 12),
                                   _buildSection([
                                     _buildRowItem(
-                                      iconPath: 'assets/images/list.png',
+                                      iconPath: 'assets/icons/brackets.svg',
                                       label: 'My Listings',
-                                      onTap: () => Get.to(
-                                        () => const MyListingsView(),
-                                      ),
+                                      onTap: () =>
+                                          Get.to(() => const MyListingsView()),
                                     ),
                                     _buildDivider(),
                                     Obx(
@@ -269,8 +265,7 @@ class ProfileView extends GetView<ProfileController> {
                                           color: AppColor.kGoogleGreen,
                                           fontSize: 12,
                                         ),
-                                        onTap:
-                                            controller.showUnderConstruction,
+                                        onTap: controller.showUnderConstruction,
                                         showChevron: false,
                                       ),
                                     ),
@@ -305,7 +300,7 @@ class ProfileView extends GetView<ProfileController> {
                                     return _buildSection([
                                       _buildRowItem(
                                         iconPath:
-                                            'assets/images/protection.png',
+                                            'assets/icons/shield-check.svg',
                                         label: 'Request Technical Role',
                                         onTap: () => controller
                                             .showRequestRoleSheet(context),
@@ -322,6 +317,20 @@ class ProfileView extends GetView<ProfileController> {
                           _buildSectionLabel('Preferences'),
                           const SizedBox(height: 8),
                           _buildSection([
+                            Obx(() {
+                              final themeService = Get.find<ThemeService>();
+                              return _buildToggleItem(
+                                leading: SvgPicture.asset(
+                                  'assets/icons/moon-star.svg',
+                                  colorFilter: ColorFilter.mode(
+                                      AppColor.kAuthAccent, BlendMode.srcIn),
+                                ),
+                                label: 'Dark Mode',
+                                value: themeService.isDarkMode.value,
+                                onChanged: (val) => themeService.toggleTheme(),
+                              );
+                            }),
+                            _buildDivider(),
                             Obx(
                               () => _buildLanguageItem(
                                 value: controller.isKhmerLanguage.value,
@@ -330,7 +339,7 @@ class ProfileView extends GetView<ProfileController> {
                             ),
                             _buildDivider(),
                             _buildRowItem(
-                              iconPath: 'assets/images/notification-bell.png',
+                              iconPath: 'assets/icons/bell.svg',
                               label: 'Notifications',
                               onTap: controller.showUnderConstruction,
                             ),
@@ -342,13 +351,13 @@ class ProfileView extends GetView<ProfileController> {
                           const SizedBox(height: 8),
                           _buildSection([
                             _buildRowItem(
-                              iconPath: 'assets/images/protection.png',
+                              iconPath: 'assets/icons/shield-ellipsis.svg',
                               label: 'Privacy Policy',
                               onTap: controller.showUnderConstruction,
                             ),
                             _buildDivider(),
                             _buildRowItem(
-                              iconPath: 'assets/images/info.png',
+                              iconPath: 'assets/icons/info.svg',
                               label: 'Term of Use',
                               onTap: controller.showUnderConstruction,
                             ),
@@ -357,16 +366,12 @@ class ProfileView extends GetView<ProfileController> {
 
                           // ── Logout
                           Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
                             child: SwipeLogoutButton(
                               onLogout: controller.logout,
                             ),
                           ),
-                          const SizedBox(
-                            height: 120,
-                          ), // Extra space for navbar
+                          const SizedBox(height: 120), // Extra space for navbar
                         ],
                       ),
                     ),
@@ -512,11 +517,15 @@ class ProfileView extends GetView<ProfileController> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
           children: [
-            Image.asset(
-              iconPath,
-              color: iconColor ?? AppColor.kAuthAccent,
-              width: 25,
-              height: 25,
+            // Image.asset(
+            //   iconPath,
+            //   color: iconColor ?? AppColor.kAuthAccent,
+            //   width: 25,
+            //   height: 25,
+            // ),
+            SvgPicture.asset(
+              iconPath, 
+              colorFilter:  ColorFilter.mode( iconColor ?? AppColor.kAuthAccent, BlendMode.srcIn),
             ),
             const SizedBox(width: 17),
             Expanded(
@@ -541,7 +550,9 @@ class ProfileView extends GetView<ProfileController> {
   }
 
   Widget _buildToggleItem({
-    required String iconPath,
+    Color? iconColor,
+    String? iconPath,
+    Widget? leading,
     required String label,
     required bool value,
     required Function(bool) onChanged,
@@ -550,12 +561,17 @@ class ProfileView extends GetView<ProfileController> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Row(
         children: [
-          Image.asset(
-            iconPath,
-            color: AppColor.kAuthAccent,
-            width: 24,
-            height: 24,
-          ),
+          leading ??
+              // Image.asset(
+              //   iconPath!,
+              //   color: AppColor.kAuthAccent,
+              //   width: 24,
+              //   height: 24,
+              // ),
+              SvgPicture.asset(
+                iconPath!, 
+                colorFilter: ColorFilter.mode(iconColor ?? AppColor.kAccent, BlendMode.srcIn),
+              ),
           const SizedBox(width: 14),
           Expanded(
             child: AppText(
@@ -568,7 +584,9 @@ class ProfileView extends GetView<ProfileController> {
           CupertinoSwitch(
             value: value,
             onChanged: onChanged,
-            activeTrackColor: AppColor.kAuthAccent,
+            activeTrackColor: AppColor.kGoogleBlue,
+            inactiveTrackColor: AppColor.kBorder,
+            thumbColor: Colors.white,
           ),
         ],
       ),
@@ -583,11 +601,15 @@ class ProfileView extends GetView<ProfileController> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Row(
         children: [
-          Image.asset(
-            'assets/images/translate.png', // Placeholder, using an asset for consistency
-            color: AppColor.kAuthAccent,
-            width: 24,
-            height: 24,
+          // Image.asset(
+          //   'assets/images/translate.png', // Placeholder, using an asset for consistency
+          //   color: AppColor.kAuthAccent,
+          //   width: 24,
+          //   height: 24,
+          // ),
+          SvgPicture.asset(
+            'assets/icons/globe.svg',
+            colorFilter: ColorFilter.mode(AppColor.kAuthAccent, BlendMode.srcIn),
           ),
           const SizedBox(width: 14),
           Expanded(

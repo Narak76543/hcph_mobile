@@ -7,6 +7,7 @@ import 'package:school_assgn/features/auth/widgets/auth_widgets.dart';
 import 'package:school_assgn/routes/app_routes.dart';
 import 'package:school_assgn/themes/app_color.dart';
 import 'package:school_assgn/widget/text_widget.dart';
+import 'package:school_assgn/services/telegram_auth_service.dart';
 
 class SignInView extends GetView<SignInController> {
   const SignInView({super.key});
@@ -147,8 +148,11 @@ class SignInView extends GetView<SignInController> {
             () => AuthSocialButton(
               label: 'Continue with Google',
               icon: SvgPicture.asset(
-                'assets/icons/google.svg', 
-                colorFilter: const ColorFilter.mode(AppColor.kAccentLight, BlendMode.srcIn),
+                'assets/icons/google.svg',
+                colorFilter: const ColorFilter.mode(
+                  AppColor.kAccentLight,
+                  BlendMode.srcIn,
+                ),
               ),
               onPressed: controller.isSubmitting.value
                   ? null
@@ -158,21 +162,24 @@ class SignInView extends GetView<SignInController> {
               isLoading: controller.isGoogleSubmitting.value,
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Obx(
             () => AuthSocialButton(
               label: 'Continue with Telegram',
-              icon: SvgPicture.asset(
-                'assets/icons/send.svg',
-                colorFilter: const ColorFilter.mode(
-                  AppColor.kAccentLight, 
-                  BlendMode.srcIn
-                  ),
+              icon: Transform.rotate(
+                angle: -0.5,
+                child: Icon(
+                  Icons.send_outlined,
+                  color: AppColor.kAuthTextPrimary,
+                  size: 20,
                 ),
-              onPressed: (){},
+              ),
+              onPressed: TelegramAuthService.isLoading.value
+                  ? null
+                  : () => TelegramAuthService.signIn(context),
               backgroundColor: AppColor.kAuthSurface,
               foregroundColor: AppColor.kAuthTextPrimary,
-              isLoading: controller.isGoogleSubmitting.value,
+              isLoading: TelegramAuthService.isLoading.value,
             ),
           ),
           const SizedBox(height: 16),

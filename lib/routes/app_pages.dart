@@ -39,10 +39,7 @@ class AppPages {
       page: () => const RegisterView(),
       binding: RegisterBinding(),
     ),
-    GetPage(
-      name: AppRoutes.authWelcome,
-      page: () => const AuthWelcomeView(),
-    ),
+    GetPage(name: AppRoutes.authWelcome, page: () => const AuthWelcomeView()),
     GetPage(
       name: AppRoutes.mainNav,
       page: () => const MainNavView(),

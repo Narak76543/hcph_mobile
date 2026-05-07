@@ -12,7 +12,8 @@ class OnboardingController extends GetxController {
     OnboardingPage(
       tag: 'discover',
       headline: 'Find the Right Part',
-      subheadline: 'Check hardware compatibility for your laptop in seconds. Stop buying the wrong RAM.',
+      subheadline:
+          'Check hardware compatibility for your laptop in seconds. Stop buying the wrong RAM.',
       badge: 'COMPATIBILITY',
       badgeIcon: 'check',
       accent: 0xFF6C63FF,
@@ -20,7 +21,8 @@ class OnboardingController extends GetxController {
     OnboardingPage(
       tag: 'compare',
       headline: 'Compare Prices Instantly',
-      subheadline: 'See real prices from verified local shops across Phnom Penh, side by side.',
+      subheadline:
+          'See real prices from verified local shops across Phnom Penh, side by side.',
       badge: 'PRICING',
       badgeIcon: 'chart',
       accent: 0xFF00C9A7,
@@ -28,7 +30,8 @@ class OnboardingController extends GetxController {
     OnboardingPage(
       tag: 'trust',
       headline: 'Trust the Experts',
-      subheadline: 'Verified technical posts from certified shop owners. No more guessing.',
+      subheadline:
+          'Verified technical posts from certified shop owners. No more guessing.',
       badge: 'VERIFIED',
       badgeIcon: 'shield',
       accent: 0xFF3D8BFF,

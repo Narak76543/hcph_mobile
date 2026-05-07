@@ -103,7 +103,7 @@ class ManualLaptopEntryView extends GetView<ProfileController> {
                     '14" - 14.9"',
                     '15" - 15.9"',
                     '16" - 16.9"',
-                    '17" & Larger'
+                    '17" & Larger',
                   ],
                   selectedRx: controller.manualDisplaySizeRange,
                 ),
@@ -354,8 +354,9 @@ class ManualLaptopEntryView extends GetView<ProfileController> {
           controller: controller.manualModelCtrl,
         ),
         Obx(() {
-          if (controller.filteredManualModels.isEmpty)
+          if (controller.filteredManualModels.isEmpty) {
             return const SizedBox.shrink();
+          }
           return Container(
             margin: const EdgeInsets.only(top: 4, bottom: 16),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -447,7 +448,9 @@ class ManualLaptopEntryView extends GetView<ProfileController> {
                     child: AppText(
                       opt,
                       variant: AppTextVariant.caption,
-                      color: isSelected ? Colors.white : AppColor.kAuthTextPrimary,
+                      color: isSelected
+                          ? Colors.white
+                          : AppColor.kAuthTextPrimary,
                       fontSize: 12,
                       fontWeight: isSelected ? FontWeight.w600 : null,
                     ),

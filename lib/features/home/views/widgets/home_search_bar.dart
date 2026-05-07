@@ -103,7 +103,7 @@ class _FilterButton extends StatelessWidget {
   }
 }
 
-// ── Suggestion Dropdown 
+// ── Suggestion Dropdown
 
 class _SuggestionDropdown extends StatelessWidget {
   final List<PostModel> suggestions;
@@ -115,8 +115,9 @@ class _SuggestionDropdown extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         color: AppColor.kSurface,
-        borderRadius:
-            BorderRadius.vertical(bottom: Radius.circular(AppColor.kCardRadius)),
+        borderRadius: BorderRadius.vertical(
+          bottom: Radius.circular(AppColor.kCardRadius),
+        ),
         border: Border.all(
           color: AppColor.kBorder,
           width: AppColor.kBorderWidth,

@@ -86,7 +86,7 @@ class PostModel {
         json['shop_name'].toString().isNotEmpty) {
       shop = json['shop_name'].toString();
     }
-    //======================================= 
+    //=======================================
     //  Price
     //=======================================
     final dynamic priceRaw =
@@ -163,7 +163,7 @@ class PostModel {
         json['description'] ??
         '';
     // ==================================================
-    // Verified 
+    // Verified
     // ==================================================
     final isVerified =
         json['is_verified'] ??

@@ -14,44 +14,62 @@ class AppColor {
 
   static const Color kAccent = Color(0xFFFFFFFF);
   static const Color kAccentLight = Color(0xFFB0B0B0);
-  static const Color kLink = Color(0xFFFFFFFF);
+  static const Color kLink = Color(0xFF4285F4);
 
-  // ── Permanent AMOLED Stealth Palette ────────────────────────
-  static Color get kBackground => const Color(0xFF000000);
-  static Color get kSurface => const Color(0xFF161616);
-  static Color get kBorder => const Color(0xFF2D2D2D);
-  static Color get kOverlay => const Color(0xCC000000);
-  static Color get kGlassBorder => const Color(0x1AFFFFFF);
-  static Color get kShadow => Colors.transparent;
+  // ── Theme Getter ─────────────────────────────────────────────
+  static bool get _isDark => Get.find<ThemeService>().isDarkMode.value;
+
+  // ── Permanent AMOLED Stealth Palette / Light Palette ────────
+  static Color get kBackground =>
+      _isDark ? const Color(0xFF000000) : const Color(0xFFF2F2F7);
+  static Color get kSurface =>
+      _isDark ? const Color(0xFF161616) : const Color(0xFFFFFFFF);
+  static Color get kBorder =>
+      _isDark ? const Color(0xFF2D2D2D) : const Color(0xFFE5E5EA);
+  static Color get kOverlay =>
+      _isDark ? const Color(0xCC000000) : const Color(0x99FFFFFF);
+  static Color get kGlassBorder =>
+      _isDark ? const Color(0x1AFFFFFF) : const Color(0x1A000000);
+  static Color get kShadow =>
+      _isDark ? Colors.transparent : const Color(0x1A000000);
 
   // ── Text Colors ─────────────────────────────────────────────
-  static Color get kTextPrimary => const Color(0xFFFFFFFF);
-  static Color get kTextSecondary => const Color(0xFF737373);
+  static Color get kTextPrimary =>
+      _isDark ? const Color(0xFFFFFFFF) : const Color(0xFF000000);
+  static Color get kTextSecondary =>
+      _isDark ? const Color(0xFF737373) : const Color(0xFF8E8E93);
 
   // ── Navigation ──────────────────────────────────────────────
-  static Color get kNavIcon => const Color(0xFFFFFFFF);
-  static Color get kNavBarBackground => const Color(0xFF000000).withValues(alpha: 0.8);
-  static Color get kNavSelectedStart => kAccent;
-  static Color get kNavSelectedEnd => kAccentLight;
+  static Color get kNavIcon =>
+      _isDark ? const Color(0xFFFFFFFF) : const Color(0xFF000000);
+  static Color get kNavBarBackground => _isDark
+      ? const Color(0xFF000000).withValues(alpha: 0.8)
+      : const Color(0xFFFFFFFF).withValues(alpha: 0.8);
+  static Color get kNavSelectedStart =>
+      _isDark ? kAccent : const Color(0xFF000000);
+  static Color get kNavSelectedEnd =>
+      _isDark ? kAccentLight : const Color(0xFF8E8E93);
 
   // ── Layout Constants ────────────────────────────────────────
   static const double kCardRadius = 32.0;
   static const double kBorderWidth = 0.5;
 
   // ── Functional & Legacy Aliases ────────────────────────────
-  static Color get kOnAccent => Colors.black;
+  static Color get kOnAccent => _isDark ? Colors.black : Colors.white;
   static Color get kBgColor => kBackground;
   static Color get kAuthSurface => kSurface;
   static Color get kAuthBorder => kBorder;
-  static Color get kAuthAccent => kAccent;
+  static Color get kAuthAccent =>
+      _isDark ? const Color(0xFFFFFFFF) : const Color(0xFF000000);
   static Color get kAuthTextPrimary => kTextPrimary;
   static Color get kAuthTextSecondary => kTextSecondary;
 
   // Legacy compatibility aliases
-  static Color get kPrimary => kAccent;
+  static Color get kPrimary =>
+      _isDark ? const Color(0xFFFFFFFF) : const Color(0xFF000000);
   static Color get kAuthBackground => kBackground;
   static Color get kAuthBackgroundOverlay => kOverlay;
-  static Color get kTextColor => kOnAccent;
+  static Color get kTextColor => kTextPrimary;
   static Color get kAuthLink => kLink;
   static Color get kNavPrimaryText => kTextPrimary;
 }
@@ -348,12 +366,10 @@ class AppColors extends AppColor {
 //   static Color get textSecondary => AppColor.kTextSecondary;
 // }
 
-
-
 // ======================================
-// end Option 3 
+// end Option 3
 // =====================================
 
-// Option 4 
+// Option 4
 
-// end Option 4 
+// end Option 4

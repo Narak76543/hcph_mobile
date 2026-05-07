@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:school_assgn/features/onboarding/controllers/onboarding_controller.dart';
 import 'package:school_assgn/routes/app_routes.dart';
-import 'package:school_assgn/core/theme/theme_service.dart';
 import 'package:school_assgn/themes/app_color.dart';
 import 'package:school_assgn/widget/text_widget.dart';
 
@@ -32,11 +31,7 @@ class OnboardingView extends GetView<OnboardingController> {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    Colors.black54,
-                    Colors.black,
-                  ],
+                  colors: [Colors.transparent, Colors.black54, Colors.black],
                   stops: [0.0, 0.45, 1.0],
                 ),
               ),
@@ -72,7 +67,9 @@ class OnboardingView extends GetView<OnboardingController> {
                           color: AppColor.kSurface.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: AppColor.kTextPrimary.withValues(alpha: 0.15),
+                            color: AppColor.kTextPrimary.withValues(
+                              alpha: 0.15,
+                            ),
                           ),
                         ),
                         child: Row(
@@ -117,7 +114,9 @@ class OnboardingView extends GetView<OnboardingController> {
                               color: AppColor.kSurface.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(5),
                               border: Border.all(
-                                color: AppColor.kTextPrimary.withValues(alpha: 0.15),
+                                color: AppColor.kTextPrimary.withValues(
+                                  alpha: 0.15,
+                                ),
                               ),
                             ),
                             child: AppText(
@@ -166,7 +165,9 @@ class OnboardingView extends GetView<OnboardingController> {
                             decoration: BoxDecoration(
                               color: selected
                                   ? accentColor
-                                  : AppColor.kTextPrimary.withValues(alpha: 0.3),
+                                  : AppColor.kTextPrimary.withValues(
+                                      alpha: 0.3,
+                                    ),
                               borderRadius: BorderRadius.circular(4),
                             ),
                           );
@@ -265,7 +266,9 @@ class OnboardingView extends GetView<OnboardingController> {
                   decoration: BoxDecoration(
                     color: accentColor.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: accentColor.withValues(alpha: 0.4)),
+                    border: Border.all(
+                      color: accentColor.withValues(alpha: 0.4),
+                    ),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
