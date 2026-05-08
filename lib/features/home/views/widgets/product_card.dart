@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:school_assgn/features/home/controllers/home_controller.dart';
 import 'package:school_assgn/features/home/models/home_models.dart';
 import 'package:school_assgn/themes/app_color.dart';
 import 'package:school_assgn/widget/text_widget.dart';
 
-/// Grid card displaying a product listing with price, fit badge, and metadata.
+/// ==========================Grid card displaying a product listing with price, fit badge, and metadata.=========================
 class ProductCard extends GetView<HomeController> {
   final PostModel post;
   const ProductCard({super.key, required this.post});
@@ -13,13 +14,21 @@ class ProductCard extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: AppColor.kSurface,
-        borderRadius: BorderRadius.circular(AppColor.kCardRadius),
+        borderRadius: BorderRadius.circular(28),
         border: Border.all(
           color: AppColor.kBorder,
           width: AppColor.kBorderWidth,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColor.kShadow,
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -32,7 +41,7 @@ class ProductCard extends GetView<HomeController> {
   }
 }
 
-// Image section (with overlaid badges)
+// ===================================Image section (with overlaid badges)================================================
 
 class _CardImageSection extends GetView<HomeController> {
   final PostModel post;
@@ -43,9 +52,9 @@ class _CardImageSection extends GetView<HomeController> {
     return Stack(
       children: [
         _ProductImage(imageUrl: post.imageUrl),
-        Positioned(left: 10, bottom: 10, child: _PriceBadge(price: post.price)),
-        Positioned(left: 10, top: 10, child: _FitBadge(post: post)),
-        const Positioned(right: 10, top: 10, child: _WishlistButton()),
+        Positioned(left: 12, bottom: 8, child: _PriceBadge(price: post.price)),
+        Positioned(left: 12, top: 12, child: _FitBadge(post: post)),
+        const Positioned(right: 12, top: 12, child: _WishlistButton()),
       ],
     );
   }
@@ -60,16 +69,11 @@ class _ProductImage extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppColor.kSurface,
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(AppColor.kCardRadius),
-        ),
+        color: AppColor.kBackground.withValues(alpha: 0.55),
       ),
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.fromLTRB(14, 16, 14, 28),
       child: ClipRRect(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(AppColor.kCardRadius),
-        ),
+        borderRadius: BorderRadius.circular(18),
         child: imageUrl.startsWith('http')
             ? Image.network(
                 imageUrl,
@@ -118,62 +122,65 @@ class _PriceBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColor.kAccent,
-        borderRadius: BorderRadius.circular(5),
+        color: AppColor.kSurface.withValues(alpha: 0.92),
+        borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: AppColor.kAuthAccent.withValues(alpha: 0.3),
-            blurRadius: 8,
+            color: AppColor.kShadow,
+            blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Text(
         '\$${price.toStringAsFixed(2)}',
-        style: const TextStyle(
-          color: Colors.white,
+        style: TextStyle(
+          color: AppColor.kGoogleRed,
           fontFamily: 'Poppins',
-          fontSize: 12,
+          fontSize: 12.5,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
   }
 }
 
-/// Shows "Fit with your device" badge only when compatible.
+/// =========================================Shows "Fit with your device" badge only when compatible.===============================================================
 class _FitBadge extends GetView<HomeController> {
   final PostModel post;
   const _FitBadge({required this.post});
 
   @override
   Widget build(BuildContext context) {
-    if (!controller.isCompatibleWithDevice(post)) {
-      return const SizedBox.shrink();
-    }
+    return Obx(() {
+      if (!controller.isCompatibleWithDevice(post)) {
+        return const SizedBox.shrink();
+      }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-      decoration: BoxDecoration(
-        color: AppColor.kGoogleGreen.withValues(alpha: 0.9),
-        borderRadius: BorderRadius.circular(5),
-        boxShadow: [
-          BoxShadow(
-            color: AppColor.kGoogleGreen.withValues(alpha: 0.4),
-            blurRadius: 4,
-          ),
-        ],
-      ),
-      child: const Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.check_circle_rounded, color: Colors.white, size: 10),
-          SizedBox(width: 4),
-          AppText('Fit with your device', color: Colors.white, fontSize: 8),
-        ],
-      ),
-    );
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+        decoration: BoxDecoration(
+          color: AppColor.kGoogleGreen.withValues(alpha: 0.9),
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: AppColor.kGoogleGreen.withValues(alpha: 0.4),
+              blurRadius: 4,
+            ),
+          ],
+        ),
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.check_circle_rounded, color: Colors.white, size: 10),
+            SizedBox(width: 4),
+            AppText('Fit with your device', color: Colors.white, fontSize: 8),
+          ],
+        ),
+      );
+    });
   }
 }
 
@@ -183,12 +190,12 @@ class _WishlistButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(6),
+      padding: const EdgeInsets.all(7),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.9),
+        color: AppColor.kSurface.withValues(alpha: 0.94),
         shape: BoxShape.circle,
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 5),
+          BoxShadow(color: AppColor.kShadow, blurRadius: 10),
         ],
       ),
       child: const Icon(
@@ -200,7 +207,7 @@ class _WishlistButton extends StatelessWidget {
   }
 }
 
-// Info section (brand, name, shop, seller)
+// ====================================Info section (brand, name, shop, seller)=================================================================
 
 class _CardInfoSection extends StatelessWidget {
   final PostModel post;
@@ -209,14 +216,14 @@ class _CardInfoSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _BrandRow(brand: post.brand, isVerified: post.isVerified),
           const SizedBox(height: 5),
           _PartNameText(name: post.partName),
-          const SizedBox(height: 4),
+          const SizedBox(height: 5),
           _ShopRow(shopName: post.shopName),
           const Spacer(),
           _OwnerRow(ownerName: post.ownerFullName),
@@ -244,8 +251,8 @@ class _BrandRow extends StatelessWidget {
             brand.isNotEmpty ? brand : 'Premium Part',
             style: TextStyle(
               fontFamily: 'Poppins',
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
+              fontSize: 9,
+              fontWeight: FontWeight.w700,
               color: AppColor.kGoogleBlue,
             ),
             maxLines: 1,
@@ -268,9 +275,9 @@ class _PartNameText extends StatelessWidget {
       style: TextStyle(
         fontFamily: 'Poppins',
         fontSize: 13,
-        fontWeight: FontWeight.bold,
+        fontWeight: FontWeight.w700,
         color: AppColor.kAuthTextPrimary,
-        height: 1.2,
+        height: 1.25,
       ),
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
@@ -286,10 +293,14 @@ class _ShopRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(
-          Icons.storefront_rounded,
-          size: 12,
-          color: AppColor.kAccent.withValues(alpha: 0.7),
+        SvgPicture.asset(
+          'assets/icons/shopping-bag.svg',
+          width: 12,
+          height: 12,
+          colorFilter: ColorFilter.mode(
+            AppColor.kTextSecondary,
+            BlendMode.srcIn,
+          ),
         ),
         const SizedBox(width: 4),
         Expanded(
@@ -323,10 +334,14 @@ class _OwnerRow extends StatelessWidget {
             shape: BoxShape.circle,
             color: AppColor.kBackground,
           ),
-          child: Icon(
-            Icons.person_outline_rounded,
-            size: 10,
-            color: AppColor.kAuthTextSecondary,
+          child: SvgPicture.asset(
+            'assets/icons/user-round.svg',
+            width: 12,
+            height: 12,
+            colorFilter: ColorFilter.mode(
+              AppColor.kGoogleGreen,
+              BlendMode.srcIn,
+            ),
           ),
         ),
         const SizedBox(width: 5),

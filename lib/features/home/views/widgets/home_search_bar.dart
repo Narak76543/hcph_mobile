@@ -29,7 +29,7 @@ class HomeSearchBar extends GetView<HomeController> {
   }
 }
 
-// ── Search Input
+// =====================================Search Input========================================================
 
 class _SearchInput extends GetView<HomeController> {
   final bool hasText;
@@ -81,7 +81,7 @@ class _SearchInput extends GetView<HomeController> {
   }
 }
 
-// ── Filter Button
+// ====================================Filter Button===============================================
 class _FilterButton extends StatelessWidget {
   const _FilterButton();
 
@@ -103,7 +103,7 @@ class _FilterButton extends StatelessWidget {
   }
 }
 
-// ── Suggestion Dropdown
+// =============================================Suggestion Dropdown======================================
 
 class _SuggestionDropdown extends StatelessWidget {
   final List<PostModel> suggestions;

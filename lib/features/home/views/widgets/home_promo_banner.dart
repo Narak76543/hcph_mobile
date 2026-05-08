@@ -208,7 +208,7 @@ class _FindNowButton extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
       decoration: BoxDecoration(
-        color: AppColor.kTextPrimary,
+        color: AppColor.kAuthAccent,
         borderRadius: BorderRadius.circular(AppColor.kCardRadius / 2),
       ),
       child: Row(

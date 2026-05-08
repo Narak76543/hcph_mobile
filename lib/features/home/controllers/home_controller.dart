@@ -28,6 +28,78 @@ class HomeController extends GetxController {
   final selectedCategoryId = '0'.obs; // '0' represents "All Parts"
   final searchQuery = ''.obs;
 
+  final verifiedShops = <Map<String, dynamic>>[].obs;
+  final recentlyAdded    = <PostModel>[].obs;
+  final isLoadingRecent  = false.obs; 
+  // ==============get verified shop ======================
+Future<void> _fetchVerifiedShops() async {
+  try {
+    final response = await _apiClient.getRequest(
+      '/shops/verified/',          // ← updated endpoint
+      queryParameters: {'limit': '10'},
+    );
+    if (response != null) {
+      List<dynamic> list = [];
+      if (response is List) {
+        list = response;
+      } else if (response is Map<String, dynamic> && response['data'] is List) {
+        list = response['data'] as List;
+      }
+ 
+      verifiedShops.value = list.map((e) {
+        // normalize image URL
+        String? imgUrl = e['shop_pro_img_url']?.toString();
+        if (imgUrl != null && imgUrl.isNotEmpty) {
+          if (imgUrl.startsWith('http://localhost:8000')) {
+            imgUrl = imgUrl.replaceFirst('http://localhost:8000', ApiConfig.baseUrl);
+          } else if (imgUrl.startsWith('http://127.0.0.1:8000')) {
+            imgUrl = imgUrl.replaceFirst('http://127.0.0.1:8000', ApiConfig.baseUrl);
+          } else if (!imgUrl.startsWith('http')) {
+            imgUrl = '${ApiConfig.baseUrl}${imgUrl.startsWith('/') ? imgUrl : '/$imgUrl'}';
+          }
+        }
+ 
+        return <String, dynamic>{
+          'id'              : e['id']?.toString()               ?? '',
+          'name'            : e['name']?.toString()             ?? 'Unknown Shop',
+          'address'         : e['address']?.toString()          ?? '',
+          'province'        : e['province']?.toString()         ?? '',
+          'district'        : e['district']?.toString()         ?? '',
+          'shop_pro_img_url': imgUrl,
+          'listing_count'   : int.tryParse(e['listing_count']?.toString() ?? '0') ?? 0,
+          'status'          : e['status']?.toString()           ?? '',
+        };
+      }).toList();
+ 
+      debugPrint('[HomeController] Verified shops loaded: ${verifiedShops.length}');
+    }
+  } catch (e) {
+    debugPrint('[HomeController] Error fetching verified shops: $e');
+  }
+}
+
+// Get Recently added Item 
+
+Future<void> _fetchRecentlyAdded() async {
+  isLoadingRecent.value = true;
+  try {
+    final response = await _apiClient.getRequest(
+      '/listings/recently-added/',
+      queryParameters: {'limit': '10'},
+    );
+    if (response is List) {
+      recentlyAdded.value = response
+          .map((e) => PostModel.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+    }
+  } catch (e) {
+    debugPrint('[HomeController] Error fetching recently added: $e');
+  } finally {
+    isLoadingRecent.value = false;       // ← always reset
+  }
+}
+// end  Get Recently added Item 
+
   List<PostModel> get displayPosts {
     List<PostModel> filtered = recentPosts;
 
@@ -52,6 +124,7 @@ class HomeController extends GetxController {
     return filtered;
   }
 
+
   final recentPosts = <PostModel>[].obs;
 
   final ApiClient _apiClient = ApiClient();
@@ -65,6 +138,8 @@ class HomeController extends GetxController {
     _fetchCategoriesFromBackend();
     _fetchBrandsFromBackend();
     _fetchPostsFromBackend();
+    _fetchVerifiedShops();
+    _fetchRecentlyAdded();
   }
 
   Future<void> refreshHome() async {
@@ -72,6 +147,8 @@ class HomeController extends GetxController {
       _fetchCategoriesFromBackend(),
       _fetchBrandsFromBackend(),
       _fetchPostsFromBackend(),
+      _fetchVerifiedShops(),
+      _fetchRecentlyAdded()
     ]);
   }
 
@@ -522,6 +599,7 @@ class HomeController extends GetxController {
     }
     return false;
   }
+
 
   void _loadDummyCategories() {
     categories.value = [

@@ -234,7 +234,7 @@ class EditProfileView extends GetView<EditProfileController> {
                   leading: Image.asset(
                     "assets/images/gallery.png",
                     height: 20,
-                    color: AppColor.kAccent,
+                    color: AppColor.kAuthAccent,
                   ),
                   title: const AppText(
                     'Choose from Gallery',
@@ -250,7 +250,7 @@ class EditProfileView extends GetView<EditProfileController> {
                   leading: Image.asset(
                     "assets/images/camera.png",
                     height: 20,
-                    color: AppColor.kAccent,
+                    color: AppColor.kAuthAccent,
                   ),
                   title: const AppText(
                     'Take a Photo',

@@ -5,6 +5,9 @@ import 'package:school_assgn/core/theme/theme_service.dart';
 class AppColor {
   AppColor._();
 
+  static Color get kCard    => _isDark ? const Color(0xFF251414) : const Color(0xFFFDF0F0);
+static Color get kSuccess => _isDark ? const Color(0xFF5EC97A) : const Color(0xFF2E9E50);
+
   // ── Branding Colors ──────────────────────────────────────────
   static const Color kGoogleBlue = Color(0xFF4285F4);
   static const Color kGoogleRed = Color(0xFFEA4335);

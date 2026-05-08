@@ -27,11 +27,14 @@ class ManualLaptopEntryView extends GetView<ProfileController> {
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+        padding: const EdgeInsets.fromLTRB(0, 16, 0, 32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeroSection(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: _buildHeroSection(),
+            ),
             const SizedBox(height: 24),
             _buildSection(
               title: 'Basic Identity',
@@ -46,6 +49,7 @@ class ManualLaptopEntryView extends GetView<ProfileController> {
                   controller: controller.manualCpuCtrl,
                 ),
               ],
+              fullWidth: true,
             ),
             const SizedBox(height: 20),
             _buildSection(
@@ -53,7 +57,7 @@ class ManualLaptopEntryView extends GetView<ProfileController> {
               children: [
                 _buildChoiceSelector(
                   label: 'RAM Type',
-                  options: ['DDR3', 'DDR4', 'DDR5'],
+                  options: ['DDR3L' , 'DDR3', 'DDR4', 'DDR5'],
                   selectedRx: controller.manualRamType,
                 ),
                 _buildChoiceSelector(
@@ -72,6 +76,7 @@ class ManualLaptopEntryView extends GetView<ProfileController> {
                   selectedRx: controller.manualMaxRam,
                 ),
               ],
+              fullWidth: true,
             ),
             const SizedBox(height: 20),
             _buildSection(
@@ -113,37 +118,41 @@ class ManualLaptopEntryView extends GetView<ProfileController> {
                   controller: controller.manualDisplayResCtrl,
                 ),
               ],
+              fullWidth: true,
             ),
             const SizedBox(height: 32),
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: Obx(
-                () => ElevatedButton(
-                  onPressed: controller.isSavingManualLaptop.value
-                      ? null
-                      : _handleSave,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColor.kGoogleBlue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: Obx(
+                  () => ElevatedButton(
+                    onPressed: controller.isSavingManualLaptop.value
+                        ? null
+                        : _handleSave,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColor.kGoogleBlue,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
                     ),
-                    elevation: 0,
-                  ),
-                  child: controller.isSavingManualLaptop.value
-                      ? const SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: CircularProgressIndicator(
+                    child: controller.isSavingManualLaptop.value
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const AppText(
+                            'Save Laptop to Profile',
                             color: Colors.white,
-                            strokeWidth: 2,
+                            fontWeight: FontWeight.w600,
                           ),
-                        )
-                      : const AppText(
-                          'Save Laptop to Profile',
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
+                  ),
                 ),
               ),
             ),
@@ -199,12 +208,13 @@ class ManualLaptopEntryView extends GetView<ProfileController> {
   Widget _buildSection({
     required String title,
     required List<Widget> children,
+    bool fullWidth = false,
   }) {
-    return Column(
+    final section = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 12),
+          padding: EdgeInsets.only(left: fullWidth ? 24 : 4, bottom: 12),
           child: AppText(
             title,
             variant: AppTextVariant.title,
@@ -213,6 +223,7 @@ class ManualLaptopEntryView extends GetView<ProfileController> {
           ),
         ),
         Container(
+          margin: fullWidth ? const EdgeInsets.symmetric(horizontal: 24) : EdgeInsets.zero,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: AppColor.kAuthSurface,
@@ -223,6 +234,8 @@ class ManualLaptopEntryView extends GetView<ProfileController> {
         ),
       ],
     );
+
+    return section;
   }
 
   Widget _buildBrandSelector() {
@@ -403,66 +416,132 @@ class ManualLaptopEntryView extends GetView<ProfileController> {
     );
   }
 
+  // Widget _buildChoiceSelector({
+  //   required String label,
+  //   required List<String> options,
+  //   required RxString selectedRx,
+  // }) {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(bottom: 20),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         AppText(
+  //           label,
+  //           variant: AppTextVariant.caption,
+  //           color: AppColor.kAuthTextSecondary,
+  //           fontSize: 11,
+  //           fontWeight: FontWeight.w600,
+  //         ),
+  //         const SizedBox(height: 8),
+  //         Obx(
+  //           () => Wrap(
+  //             spacing: 8,
+  //             runSpacing: 8,
+  //             children: options.map((opt) {
+  //               final isSelected = selectedRx.value == opt;
+  //               return GestureDetector(
+  //                 onTap: () => selectedRx.value = opt,
+  //                 child: Container(
+  //                   padding: const EdgeInsets.symmetric(
+  //                     horizontal: 16,
+  //                     vertical: 8,
+  //                   ),
+  //                   decoration: BoxDecoration(
+  //                     color: isSelected
+  //                         ? AppColor.kGoogleBlue
+  //                         : AppColor.kAuthSurface,
+  //                     borderRadius: BorderRadius.circular(10),
+  //                     border: Border.all(
+  //                       color: isSelected
+  //                           ? AppColor.kGoogleBlue
+  //                           : AppColor.kAuthBorder,
+  //                     ),
+  //                   ),
+  //                   child: AppText(
+  //                     opt,
+  //                     variant: AppTextVariant.caption,
+  //                     color: isSelected
+  //                         ? Colors.white
+  //                         : AppColor.kAuthTextPrimary,
+  //                     fontSize: 12,
+  //                     fontWeight: isSelected ? FontWeight.w600 : null,
+  //                   ),
+  //                 ),
+  //               );
+  //             }).toList(),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
   Widget _buildChoiceSelector({
-    required String label,
-    required List<String> options,
-    required RxString selectedRx,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AppText(
-            label,
-            variant: AppTextVariant.caption,
-            color: AppColor.kAuthTextSecondary,
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-          ),
-          const SizedBox(height: 8),
-          Obx(
-            () => Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: options.map((opt) {
-                final isSelected = selectedRx.value == opt;
-                return GestureDetector(
-                  onTap: () => selectedRx.value = opt,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
+  required String label,
+  required List<String> options,
+  required RxString selectedRx,
+}) {
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 20),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AppText(
+          label,
+          variant   : AppTextVariant.caption,
+          color     : AppColor.kAuthTextSecondary,
+          fontSize  : 11,
+          fontWeight: FontWeight.w600,
+        ),
+        const SizedBox(height: 8),
+        Obx(
+          () => Wrap(
+            spacing   : 8,
+            runSpacing: 8,
+            children  : options.map((opt) {
+              final isSelected = selectedRx.value == opt;
+              return GestureDetector(
+                onTap: () => selectedRx.value = opt,
+                child: Container(
+                  // ── FIX: constraints give every chip the same minimum size ──
+                  constraints: const BoxConstraints(
+                    minWidth : 56,   // all chips at least 56px wide
+                    minHeight: 40,   // consistent height
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical  : 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color       : isSelected
+                        ? AppColor.kGoogleBlue
+                        : AppColor.kAuthSurface,
+                    borderRadius: BorderRadius.circular(10),
+                    border      : Border.all(
                       color: isSelected
                           ? AppColor.kGoogleBlue
-                          : AppColor.kAuthSurface,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: isSelected
-                            ? AppColor.kGoogleBlue
-                            : AppColor.kAuthBorder,
-                      ),
-                    ),
-                    child: AppText(
-                      opt,
-                      variant: AppTextVariant.caption,
-                      color: isSelected
-                          ? Colors.white
-                          : AppColor.kAuthTextPrimary,
-                      fontSize: 12,
-                      fontWeight: isSelected ? FontWeight.w600 : null,
+                          : AppColor.kAuthBorder,
                     ),
                   ),
-                );
-              }).toList(),
-            ),
+                  alignment: Alignment.center,  // ← center text inside
+                  child: AppText(
+                    opt,
+                    variant   : AppTextVariant.caption,
+                    color     : isSelected
+                        ? Colors.white
+                        : AppColor.kAuthTextPrimary,
+                    fontSize  : 12,
+                    fontWeight: isSelected ? FontWeight.w600 : null,
+                  ),
+                ),
+              );
+            }).toList(),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _buildField({
     required String label,

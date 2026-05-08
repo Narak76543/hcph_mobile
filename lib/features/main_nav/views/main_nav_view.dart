@@ -5,6 +5,7 @@ import 'package:school_assgn/core/theme/theme_service.dart';
 import 'package:school_assgn/themes/app_color.dart';
 
 import 'package:school_assgn/features/home/views/home_view.dart';
+import 'package:school_assgn/features/alerts/views/alerts_view.dart';
 import 'package:school_assgn/features/profile/views/profile_view.dart';
 import 'package:school_assgn/widget/under_construction_view.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -57,10 +58,7 @@ class MainNavView extends GetView<MainNavController> {
                     );
                     break;
                   case 2:
-                    activeView = UnderConstructionView(
-                      key: ValueKey('2_$isDark'),
-                      title: 'Alerts',
-                    );
+                    activeView = AlertsView(key: ValueKey('2_$isDark'));
                     break;
                   case 3:
                     activeView = ProfileView(key: ValueKey('3_$isDark'));
