@@ -230,3 +230,278 @@ class _FindNowButton extends StatelessWidget {
     );
   }
 }
+// import 'package:flutter/material.dart';
+// import 'package:get/get.dart';
+// import 'package:school_assgn/features/home/controllers/home_controller.dart';
+// import 'package:school_assgn/features/home/models/home_models.dart';
+// import 'package:school_assgn/themes/app_color.dart';
+
+// class HomePromoBanner extends StatefulWidget {
+//   const HomePromoBanner({super.key});
+
+//   @override
+//   State<HomePromoBanner> createState() => _HomePromoBannerState();
+// }
+
+// class _HomePromoBannerState extends State<HomePromoBanner> {
+//   late final PageController _pageCtrl;
+//   final RxInt _pageIndex = 0.obs;
+
+//   HomeController get controller => Get.find<HomeController>();
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _pageCtrl = PageController();
+//   }
+
+//   @override
+//   void dispose() {
+//     _pageCtrl.dispose();
+//     super.dispose();
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final banners = controller.topUpgrades;
+
+//     if (banners.isEmpty) {
+//       return const SizedBox.shrink();
+//     }
+
+//     return Column(
+//       children: [
+//         SizedBox(
+//           height: 182,
+//           child: PageView.builder(
+//             controller: _pageCtrl,
+//             itemCount: banners.length,
+//             onPageChanged: (i) => _pageIndex.value = i,
+//             itemBuilder: (ctx, i) => _BannerCard(item: banners[i]),
+//           ),
+//         ),
+//         const SizedBox(height: 10),
+//         Obx(
+//           () => Row(
+//             mainAxisAlignment: MainAxisAlignment.center,
+//             children: List.generate(
+//               banners.length,
+//               (i) => _PageDot(active: _pageIndex.value == i),
+//             ),
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+// }
+
+// class _PageDot extends StatelessWidget {
+//   final bool active;
+
+//   const _PageDot({required this.active});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return AnimatedContainer(
+//       duration: const Duration(milliseconds: 180),
+//       margin: const EdgeInsets.symmetric(horizontal: 3),
+//       width: active ? 16 : 6,
+//       height: 6,
+//       decoration: BoxDecoration(
+//         color: active
+//             ? AppColor.kTextPrimary
+//             : AppColor.kTextPrimary.withValues(alpha: 0.14),
+//         borderRadius: BorderRadius.circular(999),
+//       ),
+//     );
+//   }
+// }
+
+// class _BannerCard extends StatelessWidget {
+//   final UpgradeModel item;
+
+//   const _BannerCard({required this.item});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       margin: const EdgeInsets.only(bottom: 4),
+//       decoration: BoxDecoration(
+//         borderRadius: BorderRadius.circular(22),
+//         gradient: const LinearGradient(
+//           begin: Alignment.topLeft,
+//           end: Alignment.bottomRight,
+//           colors: [
+//             Color(0xFFF6F9FF),
+//             Color(0xFFEAF2FF),
+//           ],
+//         ),
+//         border: Border.all(
+//           color: Colors.white.withValues(alpha: 0.70),
+//           width: 1,
+//         ),
+//         boxShadow: [
+//           BoxShadow(
+//             blurRadius: 14,
+//             offset: const Offset(0, 5),
+//             color: Colors.black.withValues(alpha: 0.03),
+//           ),
+//         ],
+//       ),
+//       child: Stack(
+//         children: [
+//           Positioned(
+//             right: -28,
+//             top: -12,
+//             child: Container(
+//               width: 110,
+//               height: 110,
+//               decoration: BoxDecoration(
+//                 shape: BoxShape.circle,
+//                 color: const Color(0xFF8DB8FF).withValues(alpha: 0.10),
+//               ),
+//             ),
+//           ),
+//           Positioned(
+//             right: 14,
+//             top: 14,
+//             bottom: 14,
+//             child: _BannerImage(url: item.imageUrl),
+//           ),
+//           Padding(
+//             padding: const EdgeInsets.fromLTRB(18, 18, 118, 18),
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               mainAxisAlignment: MainAxisAlignment.center,
+//               children: [
+//                 _DiscountBadge(label: item.discount),
+//                 const SizedBox(height: 10),
+//                 Text(
+//                   item.title,
+//                   style: TextStyle(
+//                     color: AppColor.kTextPrimary,
+//                     fontFamily: 'Poppins',
+//                     fontSize: 15,
+//                     fontWeight: FontWeight.w600,
+//                     height: 1.28,
+//                   ),
+//                   maxLines: 2,
+//                   overflow: TextOverflow.ellipsis,
+//                 ),
+//                 const SizedBox(height: 4),
+//                 Text(
+//                   item.subtitle,
+//                   style: TextStyle(
+//                     color: AppColor.kTextPrimary.withValues(alpha: 0.56),
+//                     fontFamily: 'Poppins',
+//                     fontSize: 12,
+//                     fontWeight: FontWeight.w400,
+//                   ),
+//                   maxLines: 1,
+//                   overflow: TextOverflow.ellipsis,
+//                 ),
+//                 const SizedBox(height: 12),
+//                 const _FindNowButton(),
+//               ],
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
+// class _BannerImage extends StatelessWidget {
+//   final String url;
+
+//   const _BannerImage({required this.url});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     const fallback = Icon(
+//       Icons.memory_rounded,
+//       color: Colors.black26,
+//       size: 68,
+//     );
+
+//     if (url.startsWith('http')) {
+//       return Image.network(
+//         url,
+//         width: 96,
+//         fit: BoxFit.contain,
+//         errorBuilder: (_, _, _) => fallback,
+//       );
+//     }
+
+//     return Image.asset(
+//       url,
+//       width: 96,
+//       fit: BoxFit.contain,
+//       errorBuilder: (_, _, _) => fallback,
+//     );
+//   }
+// }
+
+// class _DiscountBadge extends StatelessWidget {
+//   final String label;
+
+//   const _DiscountBadge({required this.label});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+//       decoration: BoxDecoration(
+//         color: const Color(0xFF4F8CFF).withValues(alpha: 0.10),
+//         borderRadius: BorderRadius.circular(999),
+//       ),
+//       child: Text(
+//         label,
+//         style: const TextStyle(
+//           color: Color(0xFF4F8CFF),
+//           fontFamily: 'Poppins',
+//           fontSize: 11,
+//           fontWeight: FontWeight.w600,
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+// class _FindNowButton extends StatelessWidget {
+//   const _FindNowButton();
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(999),
+//         border: Border.all(
+//           color: Colors.black.withValues(alpha: 0.04),
+//         ),
+//       ),
+//       child: Row(
+//         mainAxisSize: MainAxisSize.min,
+//         children: [
+//           Icon(
+//             Icons.search_rounded,
+//             color: AppColor.kTextPrimary,
+//             size: 13,
+//           ),
+//           const SizedBox(width: 5),
+//           Text(
+//             'Find Now',
+//             style: TextStyle(
+//               color: AppColor.kTextPrimary,
+//               fontFamily: 'Poppins',
+//               fontSize: 12,
+//               fontWeight: FontWeight.w500,
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }

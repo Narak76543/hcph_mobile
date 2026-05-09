@@ -30,7 +30,7 @@ class MyListingsView extends GetView<ProfileController> {
           'My Shop & Listings',
           variant: AppTextVariant.title,
           color: AppColor.kAuthTextPrimary,
-          fontSize: 18,
+          fontSize: 16,
         ),
         actions: [
           IconButton(
@@ -206,12 +206,12 @@ class MyListingsView extends GetView<ProfileController> {
           const SizedBox(width: 8),
           InkWell(
             onTap: () => _showEditShopSheet(context),
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(AppColor.kCardRadius),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                 color: AppColor.kGoogleBlue.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(5),
+                borderRadius: BorderRadius.circular(AppColor.kCardRadius),
               ),
               child: const AppText(
                 'Edit Shop',
@@ -287,7 +287,7 @@ class MyListingsView extends GetView<ProfileController> {
               AppText(
                 isEditing ? 'Edit Shop Profile' : 'Register Your Shop',
                 variant: AppTextVariant.title,
-                fontSize: 20,
+                fontSize: 17,
               ),
               const SizedBox(height: 16),
 
@@ -365,38 +365,38 @@ class MyListingsView extends GetView<ProfileController> {
               const SizedBox(height: 24),
               _buildTextField(
                 'Shop Name',
-                hint: 'e.g. GTC Computer',
+                hint: 'Input your shop name',
                 controller: controller.shopNameCtrl,
               ),
               _buildTextField(
                 'Province',
-                hint: 'e.g. Phnom Penh',
+                hint: 'Input your Province',
                 controller: controller.shopProvinceCtrl,
               ),
               _buildTextField(
                 'District',
-                hint: 'e.g. Dangkao',
+                hint: 'Input Disstrict',
                 controller: controller.shopDistrictCtrl,
               ),
               _buildTextField(
                 'Address Detail',
-                hint: 'e.g. #123, St. 456',
+                hint: 'Input House No , Street',
                 controller: controller.shopAddrDetailCtrl,
               ),
               _buildTextField(
                 'Shop Phone',
-                hint: 'e.g. 098 777 666',
+                hint: 'Input Mobile number',
                 keyboardType: TextInputType.phone,
                 controller: controller.shopPhoneCtrl,
               ),
               _buildTextField(
                 'Telegram Handle',
-                hint: 'e.g. @narak_shop',
+                hint: 'Input Tekegram handling eg.@hcphshop',
                 controller: controller.shopTelegramCtrl,
               ),
               _buildTextField(
                 'Google Maps URL',
-                hint: 'e.g. https://maps.app.goo.gl/...',
+                hint: 'Select or past your location URL',
                 controller: controller.shopGMapUrlCtrl,
                 suffixIcon: Obx(
                   () => controller.isLocationLoading.value
@@ -438,7 +438,7 @@ class MyListingsView extends GetView<ProfileController> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColor.kGoogleBlue,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(AppColor.kCardRadius),
                       ),
                     ),
                     child: controller.isShopUpdating.value
@@ -452,9 +452,9 @@ class MyListingsView extends GetView<ProfileController> {
                           )
                         : AppText(
                             isEditing ? 'Save Changes' : 'Create My Shop',
-                            variant: AppTextVariant.title,
-                            color: Colors.white,
-                            fontSize: 16,
+                            variant: AppTextVariant.body,
+                            color: AppColor.kAuthAccent,
+                            fontSize: 13,
                           ),
                   ),
                 ),
@@ -494,8 +494,8 @@ class MyListingsView extends GetView<ProfileController> {
           const SizedBox(height: 20),
           const AppText(
             'Ready to Sell?',
-            variant: AppTextVariant.title,
-            fontSize: 20,
+            variant: AppTextVariant.body,
+            fontSize: 16,
           ),
           const SizedBox(height: 8),
           AppText(
@@ -503,25 +503,26 @@ class MyListingsView extends GetView<ProfileController> {
             variant: AppTextVariant.body,
             color: AppColor.kAuthTextSecondary,
             textAlign: TextAlign.center,
+            fontSize: 13,
           ),
           const SizedBox(height: 30),
           SizedBox(
             width: double.infinity,
-            height: 54,
+            height: 50,
             child: ElevatedButton(
               onPressed: () => _showCreateShopSheet(context),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColor.kGoogleBlue,
+                backgroundColor: AppColor.kGoogleBlue.withValues(alpha: 0.4),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(AppColor.kCardRadius),
                 ),
                 elevation: 0,
               ),
-              child: const AppText(
+              child: AppText(
                 'Create Shop Now',
-                variant: AppTextVariant.title,
-                color: Colors.white,
-                fontSize: 16,
+                variant: AppTextVariant.body,
+                color: AppColor.kAuthAccent,
+                fontSize: 13,
               ),
             ),
           ),
@@ -899,7 +900,7 @@ class MyListingsView extends GetView<ProfileController> {
             hintText: hint,
             hintStyle: TextStyle(
               color: AppColor.kAuthTextSecondary.withValues(alpha: 0.4),
-              fontSize: 13,
+              fontSize: 12.5,
             ),
             filled: true,
             fillColor: AppColor.kAuthSurface,
@@ -909,11 +910,11 @@ class MyListingsView extends GetView<ProfileController> {
               vertical: 14,
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(AppColor.kCardRadius),
               borderSide: BorderSide.none,
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(AppColor.kCardRadius),
               borderSide: BorderSide(
                 color: Colors.black.withValues(alpha: 0.03),
               ),

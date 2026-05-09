@@ -17,16 +17,16 @@ class ProductCard extends GetView<HomeController> {
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: AppColor.kSurface,
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: AppColor.kBorder,
+          color: AppColor.kBorder.withValues(alpha: 0.8),
           width: AppColor.kBorderWidth,
         ),
         boxShadow: [
           BoxShadow(
             color: AppColor.kShadow,
-            blurRadius: 18,
-            offset: const Offset(0, 8),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -68,12 +68,10 @@ class _ProductImage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      decoration: BoxDecoration(
-        color: AppColor.kBackground.withValues(alpha: 0.55),
-      ),
+      decoration: const BoxDecoration(color: Color(0xFFF8FAFD)),
       padding: const EdgeInsets.fromLTRB(14, 16, 14, 28),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(16),
         child: imageUrl.startsWith('http')
             ? Image.network(
                 imageUrl,
@@ -122,25 +120,29 @@ class _PriceBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColor.kSurface.withValues(alpha: 0.92),
-        borderRadius: BorderRadius.circular(10),
+        color: AppColor.kSurface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColor.kBorder.withValues(alpha: 0.8),
+          width: 0.5,
+        ),
         boxShadow: [
           BoxShadow(
             color: AppColor.kShadow,
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Text(
         '\$${price.toStringAsFixed(2)}',
         style: TextStyle(
-          color: AppColor.kGoogleRed,
+          color: const Color(0xFF3478D8),
           fontFamily: 'Poppins',
           fontSize: 12.5,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
         ),
       ),
     );
@@ -160,16 +162,10 @@ class _FitBadge extends GetView<HomeController> {
       }
 
       return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
         decoration: BoxDecoration(
-          color: AppColor.kGoogleGreen.withValues(alpha: 0.9),
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              color: AppColor.kGoogleGreen.withValues(alpha: 0.4),
-              blurRadius: 4,
-            ),
-          ],
+          color: const Color(0xFF5CBF91),
+          borderRadius: BorderRadius.circular(12),
         ),
         child: const Row(
           mainAxisSize: MainAxisSize.min,
@@ -192,15 +188,19 @@ class _WishlistButton extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(7),
       decoration: BoxDecoration(
-        color: AppColor.kSurface.withValues(alpha: 0.94),
+        color: AppColor.kSurface,
         shape: BoxShape.circle,
         boxShadow: [
-          BoxShadow(color: AppColor.kShadow, blurRadius: 10),
+          BoxShadow(
+            color: AppColor.kShadow,
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: const Icon(
         Icons.favorite_border_rounded,
-        color: Color(0xFFE57373),
+        color: Color(0xFF8EA3C4),
         size: 16,
       ),
     );
@@ -216,14 +216,14 @@ class _CardInfoSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _BrandRow(brand: post.brand, isVerified: post.isVerified),
-          const SizedBox(height: 5),
+          const SizedBox(height: 4),
           _PartNameText(name: post.partName),
-          const SizedBox(height: 5),
+          const SizedBox(height: 6),
           _ShopRow(shopName: post.shopName),
           const Spacer(),
           _OwnerRow(ownerName: post.ownerFullName),
@@ -243,7 +243,11 @@ class _BrandRow extends StatelessWidget {
     return Row(
       children: [
         if (isVerified) ...[
-          Icon(Icons.verified_rounded, size: 14, color: AppColor.kGoogleBlue),
+          const Icon(
+            Icons.verified_rounded,
+            size: 14,
+            color: Color(0xFF58A6F7),
+          ),
           const SizedBox(width: 4),
         ],
         Expanded(
@@ -251,9 +255,9 @@ class _BrandRow extends StatelessWidget {
             brand.isNotEmpty ? brand : 'Premium Part',
             style: TextStyle(
               fontFamily: 'Poppins',
-              fontSize: 9,
-              fontWeight: FontWeight.w700,
-              color: AppColor.kGoogleBlue,
+              fontSize: 9.5,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF6B8EB9),
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -274,10 +278,10 @@ class _PartNameText extends StatelessWidget {
       name,
       style: TextStyle(
         fontFamily: 'Poppins',
-        fontSize: 13,
+        fontSize: 13.5,
         fontWeight: FontWeight.w700,
         color: AppColor.kAuthTextPrimary,
-        height: 1.25,
+        height: 1.28,
       ),
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
@@ -298,7 +302,7 @@ class _ShopRow extends StatelessWidget {
           width: 12,
           height: 12,
           colorFilter: ColorFilter.mode(
-            AppColor.kTextSecondary,
+            const Color(0xFF9AA4B5),
             BlendMode.srcIn,
           ),
         ),
@@ -308,7 +312,7 @@ class _ShopRow extends StatelessWidget {
             shopName,
             style: TextStyle(
               fontFamily: 'Poppins',
-              fontSize: 10,
+              fontSize: 10.5,
               color: AppColor.kAuthTextSecondary,
             ),
             maxLines: 1,
@@ -339,7 +343,7 @@ class _OwnerRow extends StatelessWidget {
             width: 12,
             height: 12,
             colorFilter: ColorFilter.mode(
-              AppColor.kGoogleGreen,
+              const Color(0xFF6CB895),
               BlendMode.srcIn,
             ),
           ),
@@ -350,8 +354,8 @@ class _OwnerRow extends StatelessWidget {
             ownerName,
             style: TextStyle(
               fontFamily: 'Poppins',
-              fontSize: 9,
-              color: AppColor.kAccentLight,
+              fontSize: 9.5,
+              color: const Color(0xFF9AA7BC),
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

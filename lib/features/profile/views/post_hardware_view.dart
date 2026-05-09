@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:school_assgn/features/home/controllers/home_controller.dart';
 import 'package:school_assgn/features/home/models/home_models.dart';
@@ -162,7 +163,7 @@ class PostHardwareView extends GetView<ProfileController> {
                       alpha: 0.55,
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(AppColor.kCardRadius),
                     ),
                     elevation: 0,
                   ),
@@ -180,6 +181,7 @@ class PostHardwareView extends GetView<ProfileController> {
                               ? 'Post Hardware Listing'
                               : 'Select Category First',
                           color: Colors.white,
+                          fontSize: 13,
                         ),
                 ),
               ),
@@ -213,10 +215,10 @@ class PostHardwareView extends GetView<ProfileController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 6),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.16),
-              borderRadius: BorderRadius.circular(5),
+              borderRadius: BorderRadius.circular(AppColor.kCardRadius),
             ),
             child: const AppText(
               'Technician Console',
@@ -230,7 +232,7 @@ class PostHardwareView extends GetView<ProfileController> {
             'Create a hardware listing with structured specs.',
             variant: AppTextVariant.title,
             color: Colors.white,
-            fontSize: 22,
+            fontSize: 20,
             fontWeight: FontWeight.w700,
           ),
           const SizedBox(height: 8),
@@ -317,13 +319,39 @@ class PostHardwareView extends GetView<ProfileController> {
     final fallbackColor = isSelected ? Colors.white : AppColor.kGoogleBlue;
 
     if (category.imageUrl != null && category.imageUrl!.isNotEmpty) {
+      final isSvg = Uri.tryParse(
+            category.imageUrl!,
+          )?.path.toLowerCase().endsWith('.svg') ??
+          category.imageUrl!.toLowerCase().endsWith('.svg');
+
+      if (isSvg) {
+        return SvgPicture.network(
+          category.imageUrl!,
+          width: 20,
+          height: 20,
+          fit: BoxFit.contain,
+          colorFilter: isSelected
+              ? const ColorFilter.mode(Colors.white, BlendMode.srcIn)
+              : null,
+          placeholderBuilder: (_) => SizedBox(
+            width: 20,
+            height: 20,
+            child: Icon(
+              category.icon ?? Icons.widgets_rounded,
+              size: 20,
+              color: fallbackColor,
+            ),
+          ),
+        );
+      }
+
       return Image.network(
         category.imageUrl!,
         width: 20,
         height: 20,
         color: isSelected ? Colors.white : null,
         errorBuilder: (_, _, _) => Icon(
-          category.icon ?? Icons.memory_rounded,
+          category.icon ?? Icons.widgets_rounded,
           size: 20,
           color: fallbackColor,
         ),
@@ -331,7 +359,7 @@ class PostHardwareView extends GetView<ProfileController> {
     }
 
     return Icon(
-      category.icon ?? Icons.memory_rounded,
+      category.icon ?? Icons.widgets_rounded,
       size: 20,
       color: fallbackColor,
     );

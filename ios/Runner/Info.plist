@@ -70,5 +70,12 @@
 	<string>This app needs access to location to help you fill your shop address automatically.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>This app needs access to location to help you fill your shop address automatically.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>This app connects to the local development backend on your network.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 </dict>
 </plist>

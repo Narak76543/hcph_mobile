@@ -23,35 +23,37 @@ class UpgradeGuideCard extends StatelessWidget {
 
       if (spec == null) return const SizedBox.shrink();
 
-      // ── Build upgrade items from spec 
       final items = _buildUpgradeItems(spec);
 
       return Container(
         margin: const EdgeInsets.symmetric(horizontal: 8),
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
         decoration: BoxDecoration(
           color: AppColor.kSurface,
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppColor.kSurface.withValues(alpha: 0.12),
+            color: AppColor.kBorder.withValues(alpha: 0.8),
             width: AppColor.kBorderWidth,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: AppColor.kShadow,
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ==================Title===========================
             AppText(
               'What can your $modelName upgrade?',
               variant: AppTextVariant.title,
               color: AppColor.kTextPrimary,
               fontSize: 16,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
-
             const SizedBox(height: 16),
-
-            // ── Upgrade items 
             ...items.map(
               (item) => _UpgradeItem(
                 label: item['label']!,
@@ -59,10 +61,7 @@ class UpgradeGuideCard extends StatelessWidget {
                 supported: item['supported'] == 'true',
               ),
             ),
-
             const SizedBox(height: 16),
-
-            // ================BUtton=======================================
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -70,20 +69,22 @@ class UpgradeGuideCard extends StatelessWidget {
                   // TODO: navigate to compatible parts
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColor.kGoogleBlue.withValues(alpha: 0.6),
-                  foregroundColor: Colors.white,
+                  backgroundColor: const Color(0xFFF0F6FD),
+                  foregroundColor: const Color(0xFF3478D8),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppColor.kCardRadius),
+                    borderRadius: BorderRadius.circular(24),
                   ),
                   elevation: 0,
+                  shadowColor: Colors.transparent,
                 ),
-                child: AppText(
-                  'Find Compatible Parts', 
+                child: const AppText(
+                  'Find Compatible Parts',
                   variant: AppTextVariant.body,
-                  color: AppColor.kAuthAccent,
-                  fontSize: 15,
-                  ),
+                  color: Color(0xFF3478D8),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w400,
+                ),
               ),
             ),
           ],
@@ -95,48 +96,46 @@ class UpgradeGuideCard extends StatelessWidget {
   List<Map<String, String>> _buildUpgradeItems(Map spec) {
     final items = <Map<String, String>>[];
 
-    // ===========================Ram===============================================
-    final ramSlots  = int.tryParse(spec['ram_slots']?.toString() ?? '0') ?? 0;
-    final maxRam    = spec['max_ram_gg']?.toString() ?? '';
-    final ramType   = spec['ram_type']?.toString() ?? '';
+    final ramSlots = int.tryParse(spec['ram_slots']?.toString() ?? '0') ?? 0;
+    final maxRam = spec['max_ram_gg']?.toString() ?? '';
+    final ramType = spec['ram_type']?.toString() ?? '';
 
     if (ramSlots == 0) {
       items.add({
-        'label'      : 'RAM soldered (check first version)',
+        'label': 'RAM soldered (check first version)',
         'description': '',
-        'supported'  : 'false',
+        'supported': 'false',
       });
     } else {
       items.add({
-        'label'      : 'RAM (up to ${maxRam}GB $ramType)',
+        'label': 'RAM (up to ${maxRam}GB $ramType)',
         'description': '',
-        'supported'  : 'true',
+        'supported': 'true',
       });
     }
 
-    //================SSD============================================================
-    final ssdSlots    = int.tryParse(spec['ssd_slots']?.toString() ?? '0') ?? 0;
-    final ssdIface    = spec['ssd_interface']?.toString() ?? 'NVMe';
-    final ssdFactor   = spec['ssd_from_factor']?.toString() ?? 'M.2';
+    final ssdSlots = int.tryParse(spec['ssd_slots']?.toString() ?? '0') ?? 0;
+    final ssdIface = spec['ssd_interface']?.toString() ?? 'NVMe';
+    final ssdFactor = spec['ssd_from_factor']?.toString() ?? 'M.2';
 
     if (ssdSlots > 0) {
       items.add({
-        'label'      : '$ssdFactor $ssdIface SSD ($ssdSlots slot${ssdSlots > 1 ? 's' : ''} available)',
+        'label':
+            '$ssdFactor $ssdIface SSD ($ssdSlots slot${ssdSlots > 1 ? 's' : ''} available)',
         'description': '',
-        'supported'  : 'true',
+        'supported': 'true',
       });
     } else {
       items.add({
-        'label'      : 'SSD (no slot available)',
+        'label': 'SSD (no slot available)',
         'description': '',
-        'supported'  : 'false',
+        'supported': 'false',
       });
     }
 
-    // =================HHD Bay =============================================================
     final hasHdd = spec['has_hdd_bay'] == true;
     items.add({
-      'label'    : 'HDD Bay (${hasHdd ? 'supported' : 'not supported'})',
+      'label': 'HDD Bay (${hasHdd ? 'supported' : 'not supported'})',
       'description': '',
       'supported': hasHdd ? 'true' : 'false',
     });
@@ -145,12 +144,10 @@ class UpgradeGuideCard extends StatelessWidget {
   }
 }
 
-// ==============================Single upgrade item row==================================== 
-
 class _UpgradeItem extends StatelessWidget {
   final String label;
   final String description;
-  final bool   supported;
+  final bool supported;
 
   const _UpgradeItem({
     required this.label,
@@ -165,28 +162,35 @@ class _UpgradeItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Icon 
-          Icon(
-            supported
-                ? Icons.check_circle_outline_rounded
-                : Icons.cancel_outlined,
-            size : 20,
-            color: supported
-                ? const Color(0xFF22C55E)   // green
-                : const Color(0xFFEF4444),  // red
+          Container(
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(
+              color: supported
+                  ? const Color(0xFFEAF8F1)
+                  : const Color(0xFFFFF0F0),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              supported
+                  ? Icons.check_circle_outline_rounded
+                  : Icons.cancel_outlined,
+              size: 16,
+              color: supported
+                  ? const Color(0xFF4FB987)
+                  : const Color(0xFFE97878),
+            ),
           ),
-          const SizedBox(width: 10),
-
-          // ── Label 
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
               label,
               style: TextStyle(
                 fontFamily: 'Poppins',
-                fontSize  : 13,
+                fontSize: 13,
                 fontWeight: FontWeight.w400,
-                color     : AppColor.kTextPrimary.withValues(alpha: 0.82),
-                height    : 1.4,
+                color: AppColor.kTextPrimary.withValues(alpha: 0.84),
+                height: 1.4,
               ),
             ),
           ),

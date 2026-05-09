@@ -101,7 +101,9 @@ Future<void> _fetchRecentlyAdded() async {
 // end  Get Recently added Item 
 
   List<PostModel> get displayPosts {
-    List<PostModel> filtered = recentPosts;
+    List<PostModel> filtered = recentPosts
+        .where(isCompatibleWithDevice)
+        .toList();
 
     if (selectedCategoryId.value != '0') {
       filtered = filtered
@@ -214,7 +216,6 @@ Future<void> _fetchRecentlyAdded() async {
               id: e['id']?.toString() ?? '',
               name: name,
               slug: slug,
-              icon: _getIconForSlug(slug),
               imageUrl: imageUrlStr,
             );
           }).toList();
@@ -326,50 +327,6 @@ Future<void> _fetchRecentlyAdded() async {
     } catch (e) {
       debugPrint("[HomeController] Error fetching brands: $e");
     }
-  }
-
-  IconData _getIconForSlug(String slug) {
-    if (slug.contains('ram') || slug.contains('memory')) {
-      return Icons.memory_rounded;
-    }
-    if (slug.contains('ssd') ||
-        slug.contains('storage') ||
-        slug.contains('hdd')) {
-      return Icons.storage_rounded;
-    }
-    if (slug.contains('battery')) return Icons.battery_charging_full_rounded;
-    if (slug.contains('charger') ||
-        slug.contains('psu') ||
-        slug.contains('power')) {
-      return Icons.cable_rounded;
-    }
-    if (slug.contains('screen') ||
-        slug.contains('monitor') ||
-        slug.contains('display')) {
-      return Icons.laptop_chromebook_rounded;
-    }
-    if (slug.contains('cpu') || slug.contains('processor')) {
-      return Icons.developer_board_rounded;
-    }
-    if (slug.contains('gpu') ||
-        slug.contains('graphics') ||
-        slug.contains('video')) {
-      return Icons.grid_view_rounded;
-    }
-    if (slug.contains('motherboard') || slug.contains('mainboard')) {
-      return Icons.account_tree_rounded;
-    }
-    if (slug.contains('case') || slug.contains('chassis')) {
-      return Icons.dns_rounded;
-    }
-    if (slug.contains('cooler') ||
-        slug.contains('cooling') ||
-        slug.contains('fan')) {
-      return Icons.ac_unit_rounded;
-    }
-    if (slug.contains('keyboard')) return Icons.keyboard_rounded;
-    if (slug.contains('mouse')) return Icons.mouse_rounded;
-    return Icons.widgets_rounded;
   }
 
   // ─────────────────── Compatibility Check (Model Logic) ───────────────────

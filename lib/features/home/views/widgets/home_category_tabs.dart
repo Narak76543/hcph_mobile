@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:school_assgn/features/home/controllers/home_controller.dart';
 import 'package:school_assgn/themes/app_color.dart';
@@ -9,20 +10,20 @@ class HomeCategoryTabs extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
-    final cats = controller.categories;
-    return SizedBox(
-      height: 38,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: cats.length + 1, // +1 for "All Parts"
-        separatorBuilder: (_, _) => const SizedBox(width: 8),
-        itemBuilder: (ctx, i) {
-          return Obx(() {
+    return Obx(() {
+      final cats = controller.categories;
+      final selectedCategoryId = controller.selectedCategoryId.value;
+      return SizedBox(
+        height: 38,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: cats.length + 1, // +1 for "All Parts"
+          separatorBuilder: (_, _) => const SizedBox(width: 8),
+          itemBuilder: (ctx, i) {
             final isAll = i == 0;
             final categoryId = isAll ? '0' : cats[i - 1].id;
-            final isSelected =
-                controller.selectedCategoryId.value == categoryId;
+            final isSelected = selectedCategoryId == categoryId;
 
             return CategoryChip(
               label: isAll ? 'All Parts' : cats[i - 1].name,
@@ -31,10 +32,10 @@ class HomeCategoryTabs extends GetView<HomeController> {
               selected: isSelected,
               onTap: () => controller.selectedCategoryId.value = categoryId,
             );
-          });
-        },
-      ),
-    );
+          },
+        ),
+      );
+    });
   }
 }
 
@@ -107,24 +108,46 @@ class _ChipLeading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final color = selected ? AppColor.kBackground : AppColor.kTextSecondary;
+
     if (imageUrl != null && imageUrl!.isNotEmpty) {
+      final isSvg = Uri.tryParse(
+            imageUrl!,
+          )?.path.toLowerCase().endsWith('.svg') ??
+          imageUrl!.toLowerCase().endsWith('.svg');
+
+      if (isSvg) {
+        return SvgPicture.network(
+          imageUrl!,
+          width: 20,
+          height: 20,
+          fit: BoxFit.contain,
+          colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+          placeholderBuilder: (_) => SizedBox(
+            width: 20,
+            height: 20,
+            child: Icon(icon ?? Icons.widgets_rounded, size: 16, color: color),
+          ),
+        );
+      }
+
       return Image.network(
         imageUrl!,
         width: 20,
         height: 20,
         fit: BoxFit.contain,
-        color: selected ? AppColor.kBackground : AppColor.kTextSecondary,
+        color: color,
         errorBuilder: (_, _, _) => Icon(
           icon ?? Icons.widgets_rounded,
           size: 16,
-          color: selected ? AppColor.kBackground : AppColor.kTextSecondary,
+          color: color,
         ),
       );
     }
     return Icon(
       icon ?? Icons.widgets_rounded,
       size: 16,
-      color: selected ? AppColor.kBackground : AppColor.kTextSecondary,
+      color: color,
     );
   }
 }

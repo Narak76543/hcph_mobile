@@ -4,15 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:get/get.dart';
+import 'package:school_assgn/core/network/api_config.dart';
 import 'package:school_assgn/core/session/session_service.dart';
 
 class TelegramAuthService {
   // Replace these with your actual configuration
   static const String botId = "8724350948"; // The numeric ID of your bot
-  static const String backendUrl =
-      "https://grateful-usable-hedy.ngrok-free.dev";
+  static const String backendUrl = ApiConfig.baseUrl;
   static const String deepLinkScheme =
-      "https://grateful-usable-hedy.ngrok-free.dev/auth/telegram/callback";
+      '${ApiConfig.baseUrl}${ApiConfig.telegramCallbackPath}';
 
   static final RxBool isLoading = false.obs;
 

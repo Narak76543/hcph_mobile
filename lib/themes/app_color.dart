@@ -5,8 +5,10 @@ import 'package:school_assgn/core/theme/theme_service.dart';
 class AppColor {
   AppColor._();
 
-  static Color get kCard    => _isDark ? const Color(0xFF251414) : const Color(0xFFFDF0F0);
-static Color get kSuccess => _isDark ? const Color(0xFF5EC97A) : const Color(0xFF2E9E50);
+  static Color get kCard =>
+      _isDark ? const Color(0xFF251414) : const Color(0xFFFDFEFF);
+  static Color get kSuccess =>
+      _isDark ? const Color(0xFF5EC97A) : const Color(0xFF4FB987);
 
   // ── Branding Colors ──────────────────────────────────────────
   static const Color kGoogleBlue = Color(0xFF4285F4);
@@ -24,34 +26,34 @@ static Color get kSuccess => _isDark ? const Color(0xFF5EC97A) : const Color(0xF
 
   // ── Permanent AMOLED Stealth Palette / Light Palette ────────
   static Color get kBackground =>
-      _isDark ? const Color(0xFF000000) : const Color(0xFFF2F2F7);
+      _isDark ? const Color(0xFF000000) : const Color(0xFFF7F8FC);
   static Color get kSurface =>
       _isDark ? const Color(0xFF161616) : const Color(0xFFFFFFFF);
   static Color get kBorder =>
-      _isDark ? const Color(0xFF2D2D2D) : const Color(0xFFE5E5EA);
+      _isDark ? const Color(0xFF2D2D2D) : const Color(0xFFE8ECF3);
   static Color get kOverlay =>
       _isDark ? const Color(0xCC000000) : const Color(0x99FFFFFF);
   static Color get kGlassBorder =>
       _isDark ? const Color(0x1AFFFFFF) : const Color(0x1A000000);
   static Color get kShadow =>
-      _isDark ? Colors.transparent : const Color(0x1A000000);
+      _isDark ? Colors.transparent : const Color(0x0D17213A);
 
   // ── Text Colors ─────────────────────────────────────────────
   static Color get kTextPrimary =>
-      _isDark ? const Color(0xFFFFFFFF) : const Color(0xFF000000);
+      _isDark ? const Color(0xFFFFFFFF) : const Color(0xFF17213A);
   static Color get kTextSecondary =>
-      _isDark ? const Color(0xFF737373) : const Color(0xFF8E8E93);
+      _isDark ? const Color(0xFF737373) : const Color(0xFF8A94A8);
 
   // ── Navigation ──────────────────────────────────────────────
   static Color get kNavIcon =>
-      _isDark ? const Color(0xFFFFFFFF) : const Color(0xFF000000);
+      _isDark ? const Color(0xFFFFFFFF) : const Color(0xFF8A97B3);
   static Color get kNavBarBackground => _isDark
       ? const Color(0xFF000000).withValues(alpha: 0.8)
       : const Color(0xFFFFFFFF).withValues(alpha: 0.8);
   static Color get kNavSelectedStart =>
-      _isDark ? kAccent : const Color(0xFF000000);
+      _isDark ? kAccent : const Color(0xFF5A9FEF);
   static Color get kNavSelectedEnd =>
-      _isDark ? kAccentLight : const Color(0xFF8E8E93);
+      _isDark ? kAccentLight : const Color(0xFF4388E8);
 
   // ── Layout Constants ────────────────────────────────────────
   static const double kCardRadius = 32.0;

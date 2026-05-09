@@ -147,10 +147,10 @@ class ManualLaptopEntryView extends GetView<ProfileController> {
                               strokeWidth: 2,
                             ),
                           )
-                        : const AppText(
+                        : AppText(
                             'Save Laptop to Profile',
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
+                            color: AppColor.kAuthAccent,
+                            fontWeight: FontWeight.w400,
                           ),
                   ),
                 ),

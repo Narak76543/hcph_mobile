@@ -166,7 +166,7 @@ class ProfileView extends GetView<ProfileController> {
                                             Image.asset(
                                               "assets/images/laptop.png",
                                               height: 25,
-                                              color: AppColor.kAccent,
+                                              color: AppColor.kAuthAccent,
                                             ),
                                             const SizedBox(width: 15),
                                             Expanded(
@@ -208,12 +208,10 @@ class ProfileView extends GetView<ProfileController> {
                                                 ],
                                               ),
                                             ),
-                                            Icon(
-                                              Icons.chevron_right_rounded,
-                                              color:
-                                                  AppColor.kAuthTextSecondary,
-                                              size: 18,
-                                            ),
+                                            SvgPicture.asset(
+                                              'assets/icons/spline-pointer.svg',
+                                              colorFilter: ColorFilter.mode(AppColor.kTextSecondary, BlendMode.srcIn),
+                                              )
                                           ],
                                         ),
                                       ),
@@ -256,7 +254,7 @@ class ProfileView extends GetView<ProfileController> {
                                     _buildDivider(),
                                     Obx(
                                       () => _buildRowItem(
-                                        iconPath: 'assets/images/arrow.png',
+                                        iconPath: 'assets/icons/chart-spline.svg',
                                         label: 'Shop Analytics',
                                         trailing: AppText(
                                           '${controller.shopViews.value} views',
@@ -282,7 +280,7 @@ class ProfileView extends GetView<ProfileController> {
                                     if (controller.hasRequestedRole.value) {
                                       return _buildSection([
                                         _buildRowItem(
-                                          iconPath: 'assets/images/info.png',
+                                          iconPath: 'assets/icons/clock.svg',
                                           label: 'Request Pending Review',
                                           iconColor: AppColor.kGoogleYellow,
                                           trailing: Image.asset(
@@ -432,7 +430,7 @@ class ProfileView extends GetView<ProfileController> {
                     controller.userName.value,
                     variant: AppTextVariant.title,
                     color: AppColor.kAuthTextPrimary,
-                    fontSize: 20,
+                    fontSize: 17,
                     fontWeight: FontWeight.bold,
                   ),
                   const SizedBox(height: 3),
@@ -665,13 +663,16 @@ class ProfileView extends GetView<ProfileController> {
             decoration: BoxDecoration(
               color: AppColor.kGoogleGreen.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                width: 0.7, 
+                color: AppColor.kGoogleGreen.withValues(alpha: 0.7)
+              )
             ),
-            child: Image.asset(
-              'assets/images/screw-driver.png',
-              width: 32,
-              height: 32,
-              color: AppColor.kGoogleGreen,
-            ),
+            child: SvgPicture.asset(
+              'assets/icons/wrench.svg', 
+              colorFilter: ColorFilter.mode(
+                AppColor.kGoogleGreen, BlendMode.srcIn),
+              ),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -684,12 +685,12 @@ class ProfileView extends GetView<ProfileController> {
                       'Technical Expert Status',
                       variant: AppTextVariant.body,
                       color: AppColor.kGoogleGreen,
-                      fontSize: 15,
+                      fontSize: 13,
                     ),
                     const SizedBox(width: 6),
                     const Icon(
                       Icons.verified_rounded,
-                      color: AppColor.kGoogleGreen,
+                      color: AppColor.kGoogleBlue,
                       size: 16,
                     ),
                   ],

@@ -37,7 +37,7 @@ class MainNavView extends GetView<MainNavController> {
             Positioned.fill(
               child: Obx(
                 () => AnimatedContainer(
-                  duration: const Duration(milliseconds: 400),
+                  duration: const Duration(milliseconds: 200),
                   curve: Curves.easeInOutCubic,
                   color: AppColor.kBackground,
                 ),
@@ -67,7 +67,7 @@ class MainNavView extends GetView<MainNavController> {
                     activeView = SizedBox.shrink(key: ValueKey('-1_$isDark'));
                 }
                 return AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 400),
+                  duration: const Duration(milliseconds: 200),
                   switchInCurve: Curves.easeInOut,
                   switchOutCurve: Curves.easeInOut,
                   transitionBuilder: (child, animation) => FadeTransition(
@@ -91,7 +91,7 @@ class MainNavView extends GetView<MainNavController> {
                   child: AnimatedOpacity(
                     duration: const Duration(milliseconds: 200),
                     opacity: isKeyboardVisible ? 0 : 1,
-                    child: _buildNavBar(),
+                    child: _buildNavBar(context),
                   ),
                 );
               },
@@ -102,9 +102,10 @@ class MainNavView extends GetView<MainNavController> {
     );
   }
 
-  Widget _buildNavBar() {
+  Widget _buildNavBar(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).padding.bottom;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      padding: EdgeInsets.fromLTRB(16, 0, 16, bottomInset + 12),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 390),
         child: ClipRRect(
@@ -112,14 +113,21 @@ class MainNavView extends GetView<MainNavController> {
           child: Obx(() => AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                 decoration: BoxDecoration(
-                  color: AppColor.kSurface.withValues(alpha: 0.9),
+                  color: AppColor.kSurface.withValues(alpha: 0.96),
                   borderRadius: BorderRadius.circular(50),
                   border: Border.all(
-                    color: AppColor.kBorder,
+                    color: AppColor.kBorder.withValues(alpha: 0.8),
                     width: AppColor.kBorderWidth,
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColor.kShadow,
+                      blurRadius: 14,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: Row(
                   children: List.generate(_items.length, (index) {
@@ -133,8 +141,8 @@ class MainNavView extends GetView<MainNavController> {
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 150),
                             curve: Curves.easeInOut,
-                            width: selected ? 48 : 40,
-                            height: selected ? 48 : 40,
+                            width: 42,
+                            height: 42,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               gradient: selected
@@ -147,15 +155,25 @@ class MainNavView extends GetView<MainNavController> {
                                       ],
                                     )
                                   : null,
+                              boxShadow: selected
+                                  ? [
+                                      BoxShadow(
+                                        color: AppColor.kNavSelectedEnd
+                                            .withValues(alpha: 0.12),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ]
+                                  : null,
                             ),
                             child: Center(
                               child: SvgPicture.asset(
                                 item.iconAssetPath,
-                                width: selected ? 22 : 24,
-                                height: selected ? 22 : 24,
+                                width: selected ? 20 : 21,
+                                height: selected ? 20 : 21,
                                 colorFilter: ColorFilter.mode(
                                   selected
-                                      ? AppColor.kBackground
+                                      ? Colors.white
                                       : AppColor.kNavIcon,
                                   BlendMode.srcIn,
                                 ),

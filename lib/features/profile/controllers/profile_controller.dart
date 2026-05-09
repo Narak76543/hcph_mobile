@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:get/get.dart';
@@ -1324,16 +1325,15 @@ class ProfileController extends GetxController {
               ),
               Row(
                 children: [
-                  Icon(
-                    Icons.storefront_rounded,
-                    color: AppColor.kGoogleBlue,
-                    size: 24,
-                  ),
+                  SvgPicture.asset(
+                    'assets/icons/tangent.svg', 
+                    colorFilter: ColorFilter.mode(AppColor.kAuthAccent, BlendMode.srcIn),
+                    ),
                   SizedBox(width: 10),
                   AppText(
                     'Request Technical Role',
-                    variant: AppTextVariant.title,
-                    fontSize: 18,
+                    variant: AppTextVariant.body,
+                    fontSize: 15,
                   ),
                 ],
               ),
@@ -1347,26 +1347,26 @@ class ProfileController extends GetxController {
               _sheetField(
                 label: 'Shop Name',
                 ctrl: shopNameCtrl,
-                hint: 'e.g. Gold One Computer',
+                hint: 'Input your shop name',
               ),
               const SizedBox(height: 16),
               _sheetField(
                 label: 'Shop Address',
                 ctrl: shopAddressCtrl,
-                hint: 'e.g. Phnom Penh, Street 271',
+                hint: 'Shop address',
               ),
               const SizedBox(height: 16),
               _sheetField(
                 label: 'Phone Number',
                 ctrl: shopPhoneCtrl,
-                hint: 'e.g. 012 345 678',
+                hint: 'Shop mobile number',
                 keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 16),
               _sheetField(
                 label: 'Reason',
                 ctrl: shopReasonCtrl,
-                hint: 'Why do you want to sell parts on HCPH?',
+                hint: 'Input your message here',
                 maxLines: 3,
               ),
               const SizedBox(height: 28),
@@ -1381,7 +1381,7 @@ class ProfileController extends GetxController {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColor.kSurface,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(24),
                       ),
                       elevation: 0,
                     ),
@@ -1394,11 +1394,11 @@ class ProfileController extends GetxController {
                               strokeWidth: 2,
                             ),
                           )
-                        : const AppText(
+                        : AppText(
                             'Submit Request',
                             variant: AppTextVariant.body,
-                            color: Colors.white,
-                            // fontSize: 13,
+                            color: AppColor.kAuthAccent,
+                            fontSize: 13,
                           ),
                   ),
                 ),
@@ -1431,7 +1431,7 @@ class ProfileController extends GetxController {
         Container(
           decoration: BoxDecoration(
             color: AppColor.kAuthSurface,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(24),
             border: Border.all(
               color: AppColor.kAuthBorder.withValues(alpha: 0.6),
             ),
