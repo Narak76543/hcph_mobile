@@ -1027,7 +1027,7 @@ class PostHardwareView extends GetView<ProfileController> {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: AppColor.kSurface,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(AppColor.kCardRadius),
         border: Border.all(color: AppColor.kBorder.withValues(alpha: 0.9)),
         boxShadow: [
           BoxShadow(

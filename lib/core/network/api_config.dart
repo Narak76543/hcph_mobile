@@ -6,7 +6,11 @@ class ApiConfig {
   /// Change this value when your computer's IPv4 address changes.
   /// You can also override it at run/build time:
   /// flutter run --dart-define=API_BASE_URL=http://192.168.0.198:8000
+  /// InnoTech Internet 
   static const String localNetworkBaseUrl = 'http://192.168.0.198:8000';
+
+  // G108 Norton Wifi 
+  // static const String localNetworkBaseUrl = 'http://172.16.42.87:8000';
 
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',

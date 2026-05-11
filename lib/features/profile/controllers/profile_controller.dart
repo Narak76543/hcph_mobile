@@ -47,6 +47,8 @@ class ProfileController extends GetxController {
   final RxString shopDistrict = ''.obs;
   final RxString shopAddrDetail = ''.obs;
   final RxString shopGMapUrl = ''.obs;
+  final RxString shopSaveMessage = ''.obs;
+  final RxString shopSaveError = ''.obs;
   final RxList<PostModel> myListings = <PostModel>[].obs;
   final RxBool isListingsLoading = false.obs;
 
@@ -216,7 +218,9 @@ class ProfileController extends GetxController {
       }
 
       Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
       );
 
       final url =
@@ -1326,9 +1330,12 @@ class ProfileController extends GetxController {
               Row(
                 children: [
                   SvgPicture.asset(
-                    'assets/icons/tangent.svg', 
-                    colorFilter: ColorFilter.mode(AppColor.kAuthAccent, BlendMode.srcIn),
+                    'assets/icons/tangent.svg',
+                    colorFilter: ColorFilter.mode(
+                      AppColor.kAuthAccent,
+                      BlendMode.srcIn,
                     ),
+                  ),
                   SizedBox(width: 10),
                   AppText(
                     'Request Technical Role',
@@ -1521,12 +1528,17 @@ class ProfileController extends GetxController {
     }
   }
 
-  Future<void> createShopProfile() async {
+  Future<bool> createShopProfile() async {
     try {
       isShopUpdating.value = true;
+      shopSaveMessage.value = '';
+      shopSaveError.value = '';
       final session = Get.find<SessionService>();
       final token = session.accessToken;
-      if (token == null) return;
+      if (token == null) {
+        shopSaveError.value = 'Please sign in again before saving your shop.';
+        return false;
+      }
 
       final fields = {
         'name': shopNameCtrl.text.trim(),
@@ -1572,27 +1584,27 @@ class ProfileController extends GetxController {
       }
 
       selectedShopImage.value = null; // Clear local picker
-      Get.back(); // close sheet
-      _showShopSuccessDialog();
+      shopSaveMessage.value = 'Shop profile created successfully.';
+      return true;
     } catch (e) {
-      Get.snackbar(
-        'Creation Failed',
-        e.toString().replaceFirst('Exception: ', ''),
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      shopSaveError.value = e.toString().replaceFirst('Exception: ', '');
+      return false;
     } finally {
       isShopUpdating.value = false;
     }
   }
 
-  Future<void> updateShopProfile() async {
+  Future<bool> updateShopProfile() async {
     try {
       isShopUpdating.value = true;
+      shopSaveMessage.value = '';
+      shopSaveError.value = '';
       final session = Get.find<SessionService>();
       final token = session.accessToken;
-      if (token == null) return;
+      if (token == null) {
+        shopSaveError.value = 'Please sign in again before saving your shop.';
+        return false;
+      }
 
       final fields = {
         'name': shopNameCtrl.text.trim(),
@@ -1637,23 +1649,11 @@ class ProfileController extends GetxController {
       }
 
       selectedShopImage.value = null;
-      Get.snackbar(
-        'Success',
-        'Shop profile updated securely.',
-        backgroundColor: AppColor.kGoogleGreen,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(20),
-        borderRadius: 16,
-      );
+      shopSaveMessage.value = 'Shop profile updated successfully.';
+      return true;
     } catch (e) {
-      Get.snackbar(
-        'Update Failed',
-        e.toString().replaceFirst('Exception: ', ''),
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      shopSaveError.value = e.toString().replaceFirst('Exception: ', '');
+      return false;
     } finally {
       isShopUpdating.value = false;
     }
@@ -2109,56 +2109,6 @@ class ProfileController extends GetxController {
     } finally {
       isSpecsLoading.value = false;
     }
-  }
-
-  void _showShopSuccessDialog() {
-    Get.dialog(
-      Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        backgroundColor: AppColor.kBackground,
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons.check_circle_rounded,
-                color: AppColor.kGoogleGreen,
-                size: 64,
-              ),
-              const SizedBox(height: 24),
-              const AppText(
-                'Shop Created Successfully!',
-                variant: AppTextVariant.title,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-              AppText(
-                'Your shop is now ready. Start adding your hardware listings.',
-                variant: AppTextVariant.body,
-                color: AppColor.kAuthTextSecondary,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => Get.back(),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColor.kGoogleGreen,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  child: const Text('Get Started'),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   Widget _buildSavedBadge() {

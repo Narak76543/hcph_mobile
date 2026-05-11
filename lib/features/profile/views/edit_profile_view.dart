@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:school_assgn/features/profile/controllers/edit_profile_controller.dart';
@@ -98,14 +99,18 @@ class EditProfileView extends GetView<EditProfileController> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: AppColor.kAuthAccent,
+                          color: AppColor.kGoogleBlue,
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(
-                          Icons.camera_alt_rounded,
-                          size: 16,
-                          color: AppColor.kOnAccent,
-                        ),
+                        child: SvgPicture.asset(
+                          'assets/icons/camera.svg' , 
+                          colorFilter: ColorFilter.mode(
+                            AppColor.kAccent, 
+                            BlendMode.srcIn
+                            ),
+                            width: 16,
+                            height: 16,
+                            ),
                       ),
                     ],
                   ),
@@ -177,7 +182,7 @@ class EditProfileView extends GetView<EditProfileController> {
                       ? null
                       : controller.submit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColor.kSurface,
+                    backgroundColor: AppColor.kGoogleBlue,
                     foregroundColor: AppColor.kAccent,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(AppColor.kCardRadius),
@@ -196,8 +201,8 @@ class EditProfileView extends GetView<EditProfileController> {
                       : AppText(
                           'Save Changes',
                           variant: AppTextVariant.body,
-                          color: AppColor.kAuthAccent,
-                          fontSize: 16,
+                          color: AppColor.kAccent,
+                          fontSize: 13,
                           fontWeight: FontWeight.w400,
                         ),
                 ),

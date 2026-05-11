@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 import 'package:school_assgn/features/home/controllers/home_controller.dart';
 import 'package:school_assgn/features/home/views/widgets/home_category_tabs.dart';
 import 'package:school_assgn/features/home/views/widgets/home_header.dart';
@@ -65,12 +66,11 @@ class HomeView extends GetView<HomeController> {
                   final hasLaptop = pc != null && pc.myLaptops.isNotEmpty;
 
                   // get first laptop model name
-                  final laptopName =
-                      hasLaptop
-                          ? (pc.myLaptops.first['laptop_model']?['name']
-                                    ?.toString() ??
-                                'Your Laptop')
-                          : null;
+                  final laptopName = hasLaptop
+                      ? (pc.myLaptops.first['laptop_model']?['name']
+                                ?.toString() ??
+                            'Your Laptop')
+                      : null;
 
                   return Padding(
                     padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
@@ -210,15 +210,24 @@ class HomeView extends GetView<HomeController> {
 
                   // =======================================Has laptop but no compatible posts==========================================
                   if (controller.displayPosts.isEmpty) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 40),
-                      child: Center(
-                        child: AppText(
-                          'No compatible parts found for your device',
-                          variant: AppTextVariant.body,
-                          color: AppColor.kTextSecondary,
+                    return Column(
+                      children: [
+                        Center(
+                          child: Lottie.asset(
+                            'assets/animations/Not-Found.json',
+                            height: 154,
+                            width: 154,
+                            fit: BoxFit.contain,
+                            repeat: true,
+                            errorBuilder: (_, _, _) => Icon(
+                              Icons.check_circle_rounded,
+                              color: AppColor.kSuccess,
+                              size: 84,
+                            ),
+                          ),
                         ),
-                      ),
+                         AppText('Opp !! Nothing Found Now !', fontSize: 12, color: AppColor.kGoogleRed,),
+                      ],
                     );
                   }
 
@@ -236,9 +245,8 @@ class HomeView extends GetView<HomeController> {
                             crossAxisSpacing: 12,
                             childAspectRatio: 0.65,
                           ),
-                      itemBuilder:
-                          (ctx, i) =>
-                              ProductCard(post: controller.displayPosts[i]),
+                      itemBuilder: (ctx, i) =>
+                          ProductCard(post: controller.displayPosts[i]),
                     ),
                   );
                 }),
@@ -262,7 +270,7 @@ class HomeView extends GetView<HomeController> {
 
               SliverToBoxAdapter(
                 child: Obx(() {
-                  // ── Loading state
+                  // ======= Loading state ===================
                   if (controller.isLoadingRecent.value) {
                     return SizedBox(
                       height: 200,
@@ -310,7 +318,6 @@ class HomeView extends GetView<HomeController> {
               // ============================================
               // Start : verify Shop Section
               // =============================================
-
               const SliverToBoxAdapter(
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(16, 26, 16, 12),
@@ -367,7 +374,6 @@ class HomeView extends GetView<HomeController> {
               // =============================================
               // End : verify shop Section
               // =============================================
-
               const SliverPadding(
                 padding: EdgeInsets.fromLTRB(8, 26, 8, 124),
                 sliver: SliverToBoxAdapter(child: UpgradeGuideCard()),

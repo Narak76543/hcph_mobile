@@ -65,7 +65,7 @@ class CategoryChip extends StatelessWidget {
         duration: const Duration(milliseconds: 100),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
-          color: selected ? AppColor.kTextPrimary : AppColor.kSurface,
+          color: selected ? AppColor.kGoogleBlue : AppColor.kSurface,
           borderRadius: BorderRadius.circular(AppColor.kCardRadius),
           border: Border.all(
             color: AppColor.kBorder,
@@ -82,7 +82,7 @@ class CategoryChip extends StatelessWidget {
               style: TextStyle(
                 fontFamily: 'Poppins',
                 fontSize: 12,
-                fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                fontWeight: selected ? FontWeight.w500 : FontWeight.w400,
                 color: selected
                     ? AppColor.kBackground
                     : AppColor.kTextSecondary,

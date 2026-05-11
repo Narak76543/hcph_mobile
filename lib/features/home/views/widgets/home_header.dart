@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 import 'package:school_assgn/features/profile/controllers/profile_controller.dart';
 import 'package:school_assgn/themes/app_color.dart';
 import 'package:school_assgn/widget/text_widget.dart';
@@ -48,6 +49,10 @@ class _Avatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final imageProvider = url.startsWith('assets/')
+        ? AssetImage(url) as ImageProvider
+        : NetworkImage(url);
+
     return Container(
       width: 44,
       height: 44,
@@ -57,7 +62,7 @@ class _Avatar extends StatelessWidget {
           color: AppColor.kBorder,
           width: AppColor.kBorderWidth,
         ),
-        image: DecorationImage(image: NetworkImage(url), fit: BoxFit.cover),
+        image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
       ),
     );
   }
@@ -87,7 +92,18 @@ class _GreetingText extends StatelessWidget {
               fontSize: 15,
             ),
             const SizedBox(width: 4),
-            const Text('🔥', style: TextStyle(fontSize: 14)),
+                Lottie.asset(
+                'assets/animations/Fire.json',
+                height: 16,
+                width: 16,
+                fit: BoxFit.contain,
+                repeat: true,
+                errorBuilder: (_, _, _) => Icon(
+                  Icons.check_circle_rounded,
+                  color: AppColor.kSuccess,
+                  size: 12,
+                ),
+              ),
           ],
         ),
       ],

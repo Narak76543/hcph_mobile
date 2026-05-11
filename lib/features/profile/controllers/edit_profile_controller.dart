@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:school_assgn/core/network/api_client.dart';
 import 'package:school_assgn/features/profile/controllers/profile_controller.dart';
 import 'package:school_assgn/core/session/session_service.dart';
+import 'package:school_assgn/widget/success_dialog.dart';
 
 class EditProfileController extends GetxController {
   final ApiClient _apiClient = ApiClient();
@@ -113,11 +114,8 @@ class EditProfileController extends GetxController {
       }
 
       Get.back();
-      Get.snackbar(
-        'Success',
-        'Profile updated successfully!',
-        backgroundColor: Colors.green.withValues(alpha: 0.9),
-        colorText: Colors.white,
+      SuccessDialog.show(
+        message: 'Your profile has been updated successfully.',
       );
     } catch (e) {
       Get.snackbar(

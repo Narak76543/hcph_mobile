@@ -1,218 +1,135 @@
-// import 'package:flutter/material.dart';
-// import 'package:get/get.dart';
-// import 'package:school_assgn/themes/app_color.dart';
-// import 'package:school_assgn/widget/text_widget.dart';
-
-// class SuccessDialog extends StatelessWidget {
-//   final String title;
-//   final String message;
-//   final String buttonText;
-//   final VoidCallback? onButtonPressed;
-
-//   const SuccessDialog({
-//     super.key,
-//     required this.title,
-//     required this.message,
-//     this.buttonText = 'Get Started',
-//     this.onButtonPressed,
-//   });
-
-//   static void show({
-//     required String title,
-//     required String message,
-//     String buttonText = 'Get Started',
-//     VoidCallback? onButtonPressed,
-//   }) {
-//     Get.dialog(
-//       SuccessDialog(
-//         title: title,
-//         message: message,
-//         buttonText: buttonText,
-//         onButtonPressed: onButtonPressed,
-//       ),
-//       barrierDismissible: false,
-//     );
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Dialog(
-//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-//       backgroundColor: AppColor.kBackground,
-//       child: Padding(
-//         padding: const EdgeInsets.all(24),
-//         child: Column(
-//           mainAxisSize: MainAxisSize.min,
-//           children: [
-//             Container(
-//               padding: const EdgeInsets.all(16),
-//               decoration: BoxDecoration(
-//                 color: AppColor.kGoogleGreen.withValues(alpha: 0.1),
-//                 shape: BoxShape.circle,
-//               ),
-//               child: Icon(Icons.check_circle_rounded,
-//                   color: AppColor.kGoogleGreen, size: 64),
-//             ),
-//             const SizedBox(height: 24),
-//             AppText(
-//               title,
-//               variant: AppTextVariant.title,
-//               fontSize: 20,
-//               textAlign: TextAlign.center,
-//             ),
-//             const SizedBox(height: 12),
-//             AppText(
-//               message,
-//               variant: AppTextVariant.body,
-//               color: AppColor.kAuthTextSecondary,
-//               textAlign: TextAlign.center,
-//             ),
-//             const SizedBox(height: 32),
-//             SizedBox(
-//               width: double.infinity,
-//               child: ElevatedButton(
-//                 onPressed: () {
-//                   Get.back();
-//                   if (onButtonPressed != null) onButtonPressed!();
-//                 },
-//                 style: ElevatedButton.styleFrom(
-//                   backgroundColor: AppColor.kGoogleGreen,
-//                   foregroundColor: Colors.white,
-//                   padding: const EdgeInsets.symmetric(vertical: 16),
-//                   shape: RoundedRectangleBorder(
-//                     borderRadius: BorderRadius.circular(16),
-//                   ),
-//                 ),
-//                 child: AppText(
-//                   buttonText,
-//                   variant: AppTextVariant.label,
-//                   color: Colors.white,
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 import 'package:school_assgn/themes/app_color.dart';
 import 'package:school_assgn/widget/text_widget.dart';
 
 class SuccessDialog extends StatelessWidget {
+  const SuccessDialog({
+    super.key,
+    this.title = 'Successful',
+    required this.message,
+    this.buttonText = 'Done',
+    this.animationAsset = 'assets/animations/tick_animation.json',
+    this.onDone,
+  });
+
   final String title;
   final String message;
   final String buttonText;
-  final VoidCallback? onButtonPressed;
+  final String animationAsset;
+  final VoidCallback? onDone;
 
-  const SuccessDialog({
-    super.key,
-    required this.title,
-    required this.message,
-    this.buttonText = 'Continue',
-    this.onButtonPressed,
-  });
-
-  static void show({
-    required String title,
+  static Future<T?> show<T>({
+    String title = 'Successful',
     required String message,
-    String buttonText = 'Continue',
-    VoidCallback? onButtonPressed,
+    String buttonText = 'Done',
+    String animationAsset = 'assets/animations/Success tick.json',
+    VoidCallback? onDone,
+    bool barrierDismissible = false,
   }) {
-    Get.dialog(
+    return Get.dialog<T>(
       SuccessDialog(
         title: title,
         message: message,
         buttonText: buttonText,
-        onButtonPressed: onButtonPressed,
+        animationAsset: animationAsset,
+        onDone: onDone,
       ),
-      barrierDismissible: false,
+      barrierDismissible: barrierDismissible,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    HapticFeedback.lightImpact();
+
+    Future.delayed(const Duration(seconds: 5), () {
+    if (Get.isDialogOpen ?? false) {
+      Get.back(); 
+      onDone?.call(); 
+    }
+  });
     return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 28),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      backgroundColor: AppColor.kSurface,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // ✅ Soft success icon (better visual)
-            Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  colors: [
-                    AppColor.kGoogleGreen.withValues(alpha: 0.15),
-                    AppColor.kGoogleGreen.withValues(alpha: 0.05),
-                  ],
+      insetPadding: const EdgeInsets.symmetric(horizontal: 26),
+      backgroundColor: Colors.transparent,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 360),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(28, 34, 28, 28),
+          decoration: BoxDecoration(
+            color: AppColor.kSurface,
+            borderRadius: BorderRadius.circular(34),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.16),
+                blurRadius: 28,
+                offset: const Offset(0, 14),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Lottie.asset(
+                animationAsset,
+                height: 94,
+                width: 94,
+                fit: BoxFit.contain,
+                repeat: true,
+                errorBuilder: (_, _, _) => Icon(
+                  Icons.check_circle_rounded,
+                  color: AppColor.kSuccess,
+                  size: 84,
                 ),
               ),
-              child: Icon(
-                Icons.check_rounded,
-                color: AppColor.kGoogleGreen,
-                size: 48, // smaller = cleaner
+              const SizedBox(height: 10),
+              AppText(
+                title,
+                variant: AppTextVariant.title,
+                color: AppColor.kTextPrimary,
+                fontSize: 17,
+                fontWeight: FontWeight.w400,
+                textAlign: TextAlign.center,
               ),
-            ),
-
-            const SizedBox(height: 22),
-
-            // Title
-            AppText(
-              title,
-              variant: AppTextVariant.title,
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: AppColor.kTextPrimary,
-              textAlign: TextAlign.center,
-            ),
-
-            const SizedBox(height: 10),
-
-            // Message
-            AppText(
-              message,
-              variant: AppTextVariant.body,
-              fontSize: 14,
-              color: AppColor.kTextSecondary,
-              textAlign: TextAlign.center,
-            ),
-
-            const SizedBox(height: 26),
-
-            // ✅ Better button (modern feel)
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Get.back();
-                  if (onButtonPressed != null) onButtonPressed!();
-                },
-                style: ElevatedButton.styleFrom(
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  backgroundColor: AppColor.kGoogleGreen,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+              const SizedBox(height: 10),
+              AppText(
+                message,
+                variant: AppTextVariant.body,
+                color: AppColor.kTextSecondary,
+                fontSize: 13,
+                fontWeight: FontWeight.w400,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 34),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                    onDone?.call();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    elevation: 0,
+                    backgroundColor: AppColor.kGoogleBlue,
+                    foregroundColor: AppColor.kOnAccent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppColor.kCardRadius),
+                    ),
+                  ),
+                  child: AppText(
+                    buttonText,
+                    variant: AppTextVariant.label,
+                    color: AppColor.kOnAccent,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-                child: AppText(
-                  buttonText,
-                  variant: AppTextVariant.label,
-                  color: Colors.white,
-                  fontSize: 14,
-                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

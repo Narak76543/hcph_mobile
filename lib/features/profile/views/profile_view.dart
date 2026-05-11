@@ -559,23 +559,26 @@ class ProfileView extends GetView<ProfileController> {
       child: Row(
         children: [
           leading ??
-              // Image.asset(
-              //   iconPath!,
-              //   color: AppColor.kAuthAccent,
-              //   width: 24,
-              //   height: 24,
-              // ),
               SvgPicture.asset(
                 iconPath!, 
                 colorFilter: ColorFilter.mode(iconColor ?? AppColor.kAccent, BlendMode.srcIn),
               ),
           const SizedBox(width: 14),
           Expanded(
-            child: AppText(
-              label,
-              variant: AppTextVariant.body,
-              color: AppColor.kAuthTextPrimary,
-              fontSize: 14,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AppText(
+                  label,
+                  variant: AppTextVariant.body,
+                  color: AppColor.kAuthTextPrimary,
+                  fontSize: 14,
+                ),
+                AppText(
+                  'Light mode is best experince now , because of dark mode is not optimize yet', 
+                  fontSize: 8,
+                ),
+              ],
             ),
           ),
           CupertinoSwitch(

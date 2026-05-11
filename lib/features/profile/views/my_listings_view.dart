@@ -6,7 +6,9 @@ import 'package:school_assgn/features/home/models/home_models.dart';
 import 'package:school_assgn/features/profile/controllers/profile_controller.dart';
 import 'package:school_assgn/features/profile/views/post_hardware_view.dart';
 import 'package:school_assgn/themes/app_color.dart';
+import 'package:school_assgn/widget/success_dialog.dart';
 import 'package:school_assgn/widget/text_widget.dart';
+import 'package:school_assgn/widgets/location_picker_field.dart';
 
 class MyListingsView extends GetView<ProfileController> {
   const MyListingsView({super.key});
@@ -311,25 +313,24 @@ class MyListingsView extends GetView<ProfileController> {
                             color: AppColor.kGoogleBlue.withValues(alpha: 0.2),
                             width: 2,
                           ),
-                          image: localPath != null
-                              ? DecorationImage(
-                                  image: FileImage(File(localPath)),
+                        ),
+                        child: ClipOval(
+                          child: localPath != null
+                              ? Image.file(
+                                  File(localPath),
                                   fit: BoxFit.cover,
+                                  errorBuilder: (_, _, _) =>
+                                      _buildShopImageFallback(),
                                 )
                               : remoteUrl.isNotEmpty
-                              ? DecorationImage(
-                                  image: NetworkImage(remoteUrl),
+                              ? Image.network(
+                                  remoteUrl,
                                   fit: BoxFit.cover,
+                                  errorBuilder: (_, _, _) =>
+                                      _buildShopImageFallback(),
                                 )
-                              : null,
+                              : _buildShopImageFallback(),
                         ),
-                        child: (localPath == null && remoteUrl.isEmpty)
-                            ? Icon(
-                                Icons.add_a_photo_rounded,
-                                color: AppColor.kGoogleBlue,
-                                size: 30,
-                              )
-                            : null,
                       ),
                       Container(
                         padding: const EdgeInsets.all(6),
@@ -394,31 +395,13 @@ class MyListingsView extends GetView<ProfileController> {
                 hint: 'Input Tekegram handling eg.@hcphshop',
                 controller: controller.shopTelegramCtrl,
               ),
-              _buildTextField(
-                'Google Maps URL',
-                hint: 'Select or past your location URL',
-                controller: controller.shopGMapUrlCtrl,
-                suffixIcon: Obx(
-                  () => controller.isLocationLoading.value
-                      ? Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: LoadingAnimationWidget.discreteCircle(
-                            color: AppColor.kGoogleBlue,
-                            secondRingColor: AppColor.kGoogleRed,
-                            thirdRingColor: AppColor.kGoogleYellow,
-                            size: 20,
-                          ),
-                        )
-                      : IconButton(
-                          onPressed: () => controller.getCurrentLocation(),
-                          icon: Icon(
-                            Icons.my_location_rounded,
-                            color: AppColor.kGoogleBlue,
-                            size: 20,
-                          ),
-                        ),
-                ),
+              LocationPickerField(
+                initialGoogleMapsUrl: controller.shopGMapUrlCtrl.text,
+                onLocationSelected: (lat, lng, url) {
+                  controller.shopGMapUrlCtrl.text = url;
+                },
               ),
+              const SizedBox(height: 16),
               const SizedBox(height: 32),
               Obx(
                 () => SizedBox(
@@ -428,17 +411,34 @@ class MyListingsView extends GetView<ProfileController> {
                     onPressed: controller.isShopUpdating.value
                         ? null
                         : () async {
-                            if (isEditing) {
-                              await controller.updateShopProfile();
+                            final saved = isEditing
+                                ? await controller.updateShopProfile()
+                                : await controller.createShopProfile();
+                            if (saved) {
+                              Get.back();
+                              SuccessDialog.show(
+                                title: isEditing
+                                    ? 'Shop Updated'
+                                    : 'Shop Created',
+                                message: controller.shopSaveMessage.value
+                                        .isNotEmpty
+                                    ? controller.shopSaveMessage.value
+                                    : 'Your shop profile was saved successfully.',
+                              );
                             } else {
-                              await controller.createShopProfile();
+                              _showShopSaveMessage(
+                                isEditing ? 'Update Failed' : 'Creation Failed',
+                                controller.shopSaveError.value,
+                                isSuccess: false,
+                              );
                             }
-                            Get.back();
                           },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColor.kGoogleBlue,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppColor.kCardRadius),
+                        borderRadius: BorderRadius.circular(
+                          AppColor.kCardRadius,
+                        ),
                       ),
                     ),
                     child: controller.isShopUpdating.value
@@ -453,7 +453,7 @@ class MyListingsView extends GetView<ProfileController> {
                         : AppText(
                             isEditing ? 'Save Changes' : 'Create My Shop',
                             variant: AppTextVariant.body,
-                            color: AppColor.kAuthAccent,
+                            color: Colors.white,
                             fontSize: 13,
                           ),
                   ),
@@ -465,6 +465,31 @@ class MyListingsView extends GetView<ProfileController> {
         ),
       ),
       isScrollControlled: true,
+    );
+  }
+
+  void _showShopSaveMessage(
+    String title,
+    String message, {
+    required bool isSuccess,
+  }) {
+    Get.snackbar(
+      title,
+      message.isNotEmpty
+          ? message
+          : isSuccess
+          ? 'Your shop profile was saved successfully.'
+          : 'Unable to save your shop profile. Please try again.',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: isSuccess ? AppColor.kGoogleGreen : AppColor.kError,
+      colorText: Colors.white,
+      margin: const EdgeInsets.all(20),
+      borderRadius: 16,
+      icon: Icon(
+        isSuccess ? Icons.check_circle_rounded : Icons.error_rounded,
+        color: Colors.white,
+      ),
+      duration: const Duration(seconds: 4),
     );
   }
 
@@ -527,6 +552,16 @@ class MyListingsView extends GetView<ProfileController> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildShopImageFallback() {
+    return Center(
+      child: Icon(
+        Icons.add_a_photo_rounded,
+        color: AppColor.kGoogleBlue,
+        size: 30,
       ),
     );
   }

@@ -57,7 +57,7 @@ class ManualLaptopEntryView extends GetView<ProfileController> {
               children: [
                 _buildChoiceSelector(
                   label: 'RAM Type',
-                  options: ['DDR3L' , 'DDR3', 'DDR4', 'DDR5'],
+                  options: ['DDR3L', 'DDR3', 'DDR4', 'DDR5'],
                   selectedRx: controller.manualRamType,
                 ),
                 _buildChoiceSelector(
@@ -112,11 +112,7 @@ class ManualLaptopEntryView extends GetView<ProfileController> {
                   ],
                   selectedRx: controller.manualDisplaySizeRange,
                 ),
-                _buildField(
-                  label: 'Exact Resolution',
-                  hint: 'e.g. 1920x1080',
-                  controller: controller.manualDisplayResCtrl,
-                ),
+                _buildResolutionDropdown(),
               ],
               fullWidth: true,
             ),
@@ -223,7 +219,9 @@ class ManualLaptopEntryView extends GetView<ProfileController> {
           ),
         ),
         Container(
-          margin: fullWidth ? const EdgeInsets.symmetric(horizontal: 24) : EdgeInsets.zero,
+          margin: fullWidth
+              ? const EdgeInsets.symmetric(horizontal: 24)
+              : EdgeInsets.zero,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: AppColor.kAuthSurface,
@@ -477,71 +475,71 @@ class ManualLaptopEntryView extends GetView<ProfileController> {
   //   );
   // }
   Widget _buildChoiceSelector({
-  required String label,
-  required List<String> options,
-  required RxString selectedRx,
-}) {
-  return Padding(
-    padding: const EdgeInsets.only(bottom: 20),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AppText(
-          label,
-          variant   : AppTextVariant.caption,
-          color     : AppColor.kAuthTextSecondary,
-          fontSize  : 11,
-          fontWeight: FontWeight.w600,
-        ),
-        const SizedBox(height: 8),
-        Obx(
-          () => Wrap(
-            spacing   : 8,
-            runSpacing: 8,
-            children  : options.map((opt) {
-              final isSelected = selectedRx.value == opt;
-              return GestureDetector(
-                onTap: () => selectedRx.value = opt,
-                child: Container(
-                  // ── FIX: constraints give every chip the same minimum size ──
-                  constraints: const BoxConstraints(
-                    minWidth : 56,   // all chips at least 56px wide
-                    minHeight: 40,   // consistent height
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical  : 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color       : isSelected
-                        ? AppColor.kGoogleBlue
-                        : AppColor.kAuthSurface,
-                    borderRadius: BorderRadius.circular(10),
-                    border      : Border.all(
+    required String label,
+    required List<String> options,
+    required RxString selectedRx,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AppText(
+            label,
+            variant: AppTextVariant.caption,
+            color: AppColor.kAuthTextSecondary,
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+          ),
+          const SizedBox(height: 8),
+          Obx(
+            () => Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: options.map((opt) {
+                final isSelected = selectedRx.value == opt;
+                return GestureDetector(
+                  onTap: () => selectedRx.value = opt,
+                  child: Container(
+                    // ── FIX: constraints give every chip the same minimum size ──
+                    constraints: const BoxConstraints(
+                      minWidth: 56, // all chips at least 56px wide
+                      minHeight: 40, // consistent height
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
                       color: isSelected
                           ? AppColor.kGoogleBlue
-                          : AppColor.kAuthBorder,
+                          : AppColor.kAuthSurface,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: isSelected
+                            ? AppColor.kGoogleBlue
+                            : AppColor.kAuthBorder,
+                      ),
+                    ),
+                    alignment: Alignment.center, // ← center text inside
+                    child: AppText(
+                      opt,
+                      variant: AppTextVariant.caption,
+                      color: isSelected
+                          ? Colors.white
+                          : AppColor.kAuthTextPrimary,
+                      fontSize: 12,
+                      fontWeight: isSelected ? FontWeight.w600 : null,
                     ),
                   ),
-                  alignment: Alignment.center,  // ← center text inside
-                  child: AppText(
-                    opt,
-                    variant   : AppTextVariant.caption,
-                    color     : isSelected
-                        ? Colors.white
-                        : AppColor.kAuthTextPrimary,
-                    fontSize  : 12,
-                    fontWeight: isSelected ? FontWeight.w600 : null,
-                  ),
-                ),
-              );
-            }).toList(),
+                );
+              }).toList(),
+            ),
           ),
-        ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
   Widget _buildField({
     required String label,
@@ -581,6 +579,71 @@ class ManualLaptopEntryView extends GetView<ProfileController> {
                 borderSide: BorderSide(color: AppColor.kGoogleBlue),
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildResolutionDropdown() {
+    final resolutions = [
+      '1366 x 768 HD',
+      '1600 x 900 HD+',
+      '1920 x 1080 FHD',
+      '2560 x 1440 QHD',
+      '3840 x 2160 4K',
+    ];
+    final selectedResolution = controller.manualDisplayResCtrl.text.trim();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AppText(
+            'Exact Resolution',
+            variant: AppTextVariant.caption,
+            color: AppColor.kAuthTextSecondary,
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+          ),
+          const SizedBox(height: 6),
+          DropdownButtonFormField<String>(
+            value:
+                selectedResolution.isEmpty ||
+                    !resolutions.contains(selectedResolution)
+                ? null
+                : selectedResolution,
+            items: resolutions.map((res) {
+              return DropdownMenuItem(
+                value: res,
+                child: Text(
+                  res,
+                  style: const TextStyle(fontSize: 14, fontFamily: 'Poppins'),
+                ),
+              );
+            }).toList(),
+            onChanged: (value) {
+              if (value != null) {
+                controller.manualDisplayResCtrl.text = value;
+              }
+            },
+            decoration: InputDecoration(
+              hintText: 'Select resolution',
+              hintStyle: TextStyle(
+                color: AppColor.kAuthTextSecondary.withValues(alpha: 0.5),
+                fontSize: 13,
+              ),
+              isDense: true,
+              contentPadding: const EdgeInsets.symmetric(vertical: 8),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: AppColor.kAuthBorder),
+              ),
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(color: AppColor.kGoogleBlue),
+              ),
+            ),
+            icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 20),
           ),
         ],
       ),

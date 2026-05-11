@@ -31,6 +31,10 @@ class AppColor {
       _isDark ? const Color(0xFF161616) : const Color(0xFFFFFFFF);
   static Color get kBorder =>
       _isDark ? const Color(0xFF2D2D2D) : const Color(0xFFE8ECF3);
+  static Color get kInputBg =>
+      _isDark ? const Color(0xFF161616) : const Color(0xFFFFFFFF);
+  static Color get kInputBorder =>
+      _isDark ? const Color(0xFF2D2D2D) : const Color(0xFFE8ECF3);
   static Color get kOverlay =>
       _isDark ? const Color(0xCC000000) : const Color(0x99FFFFFF);
   static Color get kGlassBorder =>
