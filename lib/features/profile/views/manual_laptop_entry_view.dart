@@ -130,7 +130,9 @@ class ManualLaptopEntryView extends GetView<ProfileController> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColor.kGoogleBlue,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(
+                          AppColor.kCardRadius,
+                        ),
                       ),
                       elevation: 0,
                     ),
@@ -145,8 +147,9 @@ class ManualLaptopEntryView extends GetView<ProfileController> {
                           )
                         : AppText(
                             'Save Laptop to Profile',
-                            color: AppColor.kAuthAccent,
+                            color: AppColor.kAccent,
                             fontWeight: FontWeight.w400,
+                            fontSize: 13,
                           ),
                   ),
                 ),
@@ -414,66 +417,6 @@ class ManualLaptopEntryView extends GetView<ProfileController> {
     );
   }
 
-  // Widget _buildChoiceSelector({
-  //   required String label,
-  //   required List<String> options,
-  //   required RxString selectedRx,
-  // }) {
-  //   return Padding(
-  //     padding: const EdgeInsets.only(bottom: 20),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         AppText(
-  //           label,
-  //           variant: AppTextVariant.caption,
-  //           color: AppColor.kAuthTextSecondary,
-  //           fontSize: 11,
-  //           fontWeight: FontWeight.w600,
-  //         ),
-  //         const SizedBox(height: 8),
-  //         Obx(
-  //           () => Wrap(
-  //             spacing: 8,
-  //             runSpacing: 8,
-  //             children: options.map((opt) {
-  //               final isSelected = selectedRx.value == opt;
-  //               return GestureDetector(
-  //                 onTap: () => selectedRx.value = opt,
-  //                 child: Container(
-  //                   padding: const EdgeInsets.symmetric(
-  //                     horizontal: 16,
-  //                     vertical: 8,
-  //                   ),
-  //                   decoration: BoxDecoration(
-  //                     color: isSelected
-  //                         ? AppColor.kGoogleBlue
-  //                         : AppColor.kAuthSurface,
-  //                     borderRadius: BorderRadius.circular(10),
-  //                     border: Border.all(
-  //                       color: isSelected
-  //                           ? AppColor.kGoogleBlue
-  //                           : AppColor.kAuthBorder,
-  //                     ),
-  //                   ),
-  //                   child: AppText(
-  //                     opt,
-  //                     variant: AppTextVariant.caption,
-  //                     color: isSelected
-  //                         ? Colors.white
-  //                         : AppColor.kAuthTextPrimary,
-  //                     fontSize: 12,
-  //                     fontWeight: isSelected ? FontWeight.w600 : null,
-  //                   ),
-  //                 ),
-  //               );
-  //             }).toList(),
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
   Widget _buildChoiceSelector({
     required String label,
     required List<String> options,

@@ -80,12 +80,19 @@ class HomeView extends GetView<HomeController> {
                         // ── Title
                         Row(
                           children: [
-                            Icon(
-                              Icons.laptop_rounded,
-                              size: 18,
-                              color: AppColor.kAuthAccent,
+                            Lottie.asset(
+                              'assets/animations/Programming-Computer.json',
+                              height: 45,
+                              width: 45,
+                              fit: BoxFit.contain,
+                              repeat: true,
+                              errorBuilder: (_, _, _) => Icon(
+                                Icons.check_circle_rounded,
+                                color: AppColor.kSuccess,
+                                size: 12,
+                              ),
                             ),
-                            const SizedBox(width: 6),
+                            // const SizedBox(width: 6),
                             Expanded(
                               child: AppText(
                                 hasLaptop
@@ -106,8 +113,8 @@ class HomeView extends GetView<HomeController> {
                           AppText(
                             'Compatible components found for your device',
                             variant: AppTextVariant.body,
-                            color: AppColor.kAuthAccent,
-                            fontSize: 12,
+                            color: AppColor.kTextSecondary,
+                            fontSize: 11,
                           )
                         else
                           GestureDetector(
@@ -148,59 +155,103 @@ class HomeView extends GetView<HomeController> {
                   // ==================================No laptop selected ================================================
                   if (!hasLaptop) {
                     return Container(
-                      margin: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+                      margin: const EdgeInsets.fromLTRB(16, 0, 16, 10),
                       padding: const EdgeInsets.symmetric(
-                        vertical: 28,
-                        horizontal: 20,
+                        vertical: 10,
+                        horizontal: 10,
                       ),
                       decoration: BoxDecoration(
                         color: AppColor.kSurface,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(color: AppColor.kBorder),
                       ),
-                      child: Column(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.laptop_outlined,
-                            size: 40,
-                            color: AppColor.kAuthAccent,
+                          Lottie.asset(
+                            'assets/animations/nothing.json',
+                            height: 160,
+                            width: 160,
+                            fit: BoxFit.contain,
+                            repeat: true,
+
+                            errorBuilder: (_, _, _) => Icon(
+                              Icons.check_circle_rounded,
+                              color: AppColor.kSuccess,
+                              size: 40,
+                            ),
                           ),
-                          const SizedBox(height: 12),
-                          AppText(
-                            'No laptop selected yet',
-                            variant: AppTextVariant.title,
-                            color: AppColor.kTextPrimary,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          const SizedBox(height: 6),
-                          AppText(
-                            'Add your laptop model in Settings to see\nparts that fit your device ✨ ',
-                            variant: AppTextVariant.body,
-                            color: AppColor.kTextSecondary,
-                            fontSize: 12,
-                          ),
-                          const SizedBox(height: 16),
-                          GestureDetector(
-                            onTap: () {
-                              // TODO: navigate to add laptop screen
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 10,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColor.kAccent,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: const AppText(
-                                'Set Your Laptop',
-                                variant: AppTextVariant.body,
-                                color: Colors.white,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                              ),
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 15.0),
+                                  child: AppText(
+                                    'No laptop selected yet !',
+                                    variant: AppTextVariant.title,
+                                    color: AppColor.kGoogleRed,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+
+                                const SizedBox(height: 10),
+
+                                AppText(
+                                  'Add your laptop model in Settings to see parts that fit your device ✨',
+                                  variant: AppTextVariant.body,
+                                  color: AppColor.kTextSecondary,
+                                  fontSize: 10.5,
+                                ),
+                                SizedBox(height: 40),
+                                Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: AppColor.kGoogleBlue,
+                                    borderRadius: BorderRadius.circular(
+                                      AppColor.kCardRadius,
+                                    ),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: AppText(
+                                      'Go Now ',
+                                      color: AppColor.kAccent,
+                                      fontSize: 12,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+
+                                GestureDetector(
+                                  onTap: () {
+                                    // TODO
+                                  },
+
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 10,
+                                    ),
+
+                                    decoration: BoxDecoration(
+                                      color: AppColor.kAccent,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+
+                                    child: const AppText(
+                                      'Set Your Laptop',
+                                      variant: AppTextVariant.body,
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
@@ -226,7 +277,11 @@ class HomeView extends GetView<HomeController> {
                             ),
                           ),
                         ),
-                         AppText('Opp !! Nothing Found Now !', fontSize: 12, color: AppColor.kGoogleRed,),
+                        AppText(
+                          'Opp !! Nothing Found Now !',
+                          fontSize: 12,
+                          color: AppColor.kGoogleRed,
+                        ),
                       ],
                     );
                   }

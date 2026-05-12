@@ -16,7 +16,7 @@ class ShowingCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColor.kGoogleBlue.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(AppColor.kCardRadius),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 12.0),

@@ -69,7 +69,7 @@ class UpgradeGuideCard extends StatelessWidget {
                   // TODO: navigate to compatible parts
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFF0F6FD),
+                  backgroundColor: AppColor.kGoogleBlue,
                   foregroundColor: const Color(0xFF3478D8),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
@@ -81,7 +81,7 @@ class UpgradeGuideCard extends StatelessWidget {
                 child: const AppText(
                   'Find Compatible Parts',
                   variant: AppTextVariant.body,
-                  color: Color(0xFF3478D8),
+                  color: AppColor.kAccent,
                   fontSize: 13,
                   fontWeight: FontWeight.w400,
                 ),

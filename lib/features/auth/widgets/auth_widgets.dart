@@ -301,7 +301,7 @@ class AuthBottomLink extends StatelessWidget {
           ),
           child: AppText(
             linkLabel,
-            variant: AppTextVariant.caption,
+            variant: AppTextVariant.body,
             color: AppColor.kAuthLink,
             fontWeight: FontWeight.w500,
           ),

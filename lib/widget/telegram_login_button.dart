@@ -1,6 +1,5 @@
 // TELEGRAM LOGIN - lib/widgets/telegram_login_button.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:school_assgn/themes/app_color.dart';
 
 class TelegramLoginButton extends StatelessWidget {
@@ -31,11 +30,11 @@ class TelegramLoginButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Transform.rotate(
-              angle: -0.5, // Tilt upwards like the Telegram logo
-              child:SvgPicture.asset(
-                'assets/icons/sends.svg',
-                colorFilter: ColorFilter.mode(AppColor.kAuthAccent, BlendMode.srcIn),
-
+              angle: 0,
+              child: Image.asset(
+                'assets/images/telegram.png',
+                width: 25,
+                height: 25,
               ),
             ),
             const SizedBox(width: 12),

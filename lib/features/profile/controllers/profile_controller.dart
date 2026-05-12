@@ -812,8 +812,9 @@ class ProfileController extends GetxController {
                     Expanded(
                       child: AppText(
                         brand == null ? 'Select Brand' : 'Select Model',
-                        variant: AppTextVariant.title,
-                        fontSize: 18,
+                        variant: AppTextVariant.body,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     if (brand != null)
@@ -1206,7 +1207,7 @@ class ProfileController extends GetxController {
         width: double.infinity,
         decoration: BoxDecoration(
           color: AppColor.kGoogleBlue.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppColor.kCardRadius),
           border: Border.all(
             color: AppColor.kGoogleBlue.withValues(alpha: 0.2),
           ),
@@ -1216,9 +1217,9 @@ class ProfileController extends GetxController {
             Get.back(); // close current sheet
             showManualLaptopEntry(context);
           },
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppColor.kCardRadius),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             child: Row(
               children: [
                 Container(
@@ -1240,9 +1241,9 @@ class ProfileController extends GetxController {
                     children: [
                       const AppText(
                         "Can't find your model?",
-                        variant: AppTextVariant.title,
+                        variant: AppTextVariant.body,
                         fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                       ),
                       AppText(
                         "Input details manually",

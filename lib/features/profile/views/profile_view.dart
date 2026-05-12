@@ -40,10 +40,12 @@ class ProfileView extends GetView<ProfileController> {
                       ),
                       const Spacer(),
                       SvgPicture.asset(
-                        'assets/icons/search.svg' , 
+                        'assets/icons/search.svg',
                         colorFilter: ColorFilter.mode(
-                          AppColor.kAuthAccent, BlendMode.srcIn),
-                      )
+                          AppColor.kAuthAccent,
+                          BlendMode.srcIn,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -210,8 +212,11 @@ class ProfileView extends GetView<ProfileController> {
                                             ),
                                             SvgPicture.asset(
                                               'assets/icons/spline-pointer.svg',
-                                              colorFilter: ColorFilter.mode(AppColor.kTextSecondary, BlendMode.srcIn),
-                                              )
+                                              colorFilter: ColorFilter.mode(
+                                                AppColor.kTextSecondary,
+                                                BlendMode.srcIn,
+                                              ),
+                                            ),
                                           ],
                                         ),
                                       ),
@@ -254,7 +259,8 @@ class ProfileView extends GetView<ProfileController> {
                                     _buildDivider(),
                                     Obx(
                                       () => _buildRowItem(
-                                        iconPath: 'assets/icons/chart-spline.svg',
+                                        iconPath:
+                                            'assets/icons/chart-spline.svg',
                                         label: 'Shop Analytics',
                                         trailing: AppText(
                                           '${controller.shopViews.value} views',
@@ -320,7 +326,9 @@ class ProfileView extends GetView<ProfileController> {
                                 leading: SvgPicture.asset(
                                   'assets/icons/moon-star.svg',
                                   colorFilter: ColorFilter.mode(
-                                      AppColor.kAuthAccent, BlendMode.srcIn),
+                                    AppColor.kAuthAccent,
+                                    BlendMode.srcIn,
+                                  ),
                                 ),
                                 label: 'Dark Mode',
                                 value: themeService.isDarkMode.value,
@@ -367,6 +375,56 @@ class ProfileView extends GetView<ProfileController> {
                             child: SwipeLogoutButton(
                               onLogout: controller.logout,
                             ),
+                          ),
+                          const SizedBox(height: 20),
+                          Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/icons/copyright.svg',
+                                    width: 12,
+                                    height: 12,
+                                    colorFilter: ColorFilter.mode(
+                                      AppColor.kTextSecondary,
+                                      BlendMode.srcIn,
+                                    ),
+                                  ),
+                                  AppText(
+                                    'Power By : ',
+                                    variant: AppTextVariant.body,
+                                    fontSize: 11,
+                                    color: AppColor.kTextSecondary,
+                                  ),
+
+                                  AppText(
+                                    'Sarat Narak',
+                                    variant: AppTextVariant.body,
+                                    fontSize: 11,
+                                    color: AppColor.kGoogleBlue,
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  AppText(
+                                    'Start Date : ',
+                                    variant: AppTextVariant.body,
+                                    fontSize: 11,
+                                    color: AppColor.kTextSecondary,
+                                  ),
+
+                                  AppText(
+                                    '25-Mar-2026',
+                                    variant: AppTextVariant.body,
+                                    fontSize: 11,
+                                    color: AppColor.kGoogleBlue,
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 120), // Extra space for navbar
                         ],
@@ -521,8 +579,11 @@ class ProfileView extends GetView<ProfileController> {
             //   height: 25,
             // ),
             SvgPicture.asset(
-              iconPath, 
-              colorFilter:  ColorFilter.mode( iconColor ?? AppColor.kAuthAccent, BlendMode.srcIn),
+              iconPath,
+              colorFilter: ColorFilter.mode(
+                iconColor ?? AppColor.kAuthAccent,
+                BlendMode.srcIn,
+              ),
             ),
             const SizedBox(width: 17),
             Expanded(
@@ -560,8 +621,11 @@ class ProfileView extends GetView<ProfileController> {
         children: [
           leading ??
               SvgPicture.asset(
-                iconPath!, 
-                colorFilter: ColorFilter.mode(iconColor ?? AppColor.kAccent, BlendMode.srcIn),
+                iconPath!,
+                colorFilter: ColorFilter.mode(
+                  iconColor ?? AppColor.kAccent,
+                  BlendMode.srcIn,
+                ),
               ),
           const SizedBox(width: 14),
           Expanded(
@@ -575,7 +639,7 @@ class ProfileView extends GetView<ProfileController> {
                   fontSize: 14,
                 ),
                 AppText(
-                  'Light mode is best experince now , because of dark mode is not optimize yet', 
+                  'Light mode is best experince now , because of dark mode is not optimize yet',
                   fontSize: 8,
                 ),
               ],
@@ -609,7 +673,10 @@ class ProfileView extends GetView<ProfileController> {
           // ),
           SvgPicture.asset(
             'assets/icons/globe.svg',
-            colorFilter: ColorFilter.mode(AppColor.kAuthAccent, BlendMode.srcIn),
+            colorFilter: ColorFilter.mode(
+              AppColor.kAuthAccent,
+              BlendMode.srcIn,
+            ),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -667,15 +734,17 @@ class ProfileView extends GetView<ProfileController> {
               color: AppColor.kGoogleGreen.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                width: 0.7, 
-                color: AppColor.kGoogleGreen.withValues(alpha: 0.7)
-              )
+                width: 0.7,
+                color: AppColor.kGoogleGreen.withValues(alpha: 0.7),
+              ),
             ),
             child: SvgPicture.asset(
-              'assets/icons/wrench.svg', 
+              'assets/icons/wrench.svg',
               colorFilter: ColorFilter.mode(
-                AppColor.kGoogleGreen, BlendMode.srcIn),
+                AppColor.kGoogleGreen,
+                BlendMode.srcIn,
               ),
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(

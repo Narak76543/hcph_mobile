@@ -92,18 +92,18 @@ class _GreetingText extends StatelessWidget {
               fontSize: 15,
             ),
             const SizedBox(width: 4),
-                Lottie.asset(
-                'assets/animations/Fire.json',
-                height: 16,
-                width: 16,
-                fit: BoxFit.contain,
-                repeat: true,
-                errorBuilder: (_, _, _) => Icon(
-                  Icons.check_circle_rounded,
-                  color: AppColor.kSuccess,
-                  size: 12,
-                ),
+            Lottie.asset(
+              'assets/animations/Fire.json',
+              height: 16,
+              width: 16,
+              fit: BoxFit.contain,
+              repeat: true,
+              errorBuilder: (_, _, _) => Icon(
+                Icons.check_circle_rounded,
+                color: AppColor.kSuccess,
+                size: 12,
               ),
+            ),
           ],
         ),
       ],
@@ -127,11 +127,14 @@ class _NotificationBell extends StatelessWidget {
         ),
       ),
       child: ColorFiltered(
-        colorFilter: ColorFilter.mode(
-          AppColor.kAuthTextPrimary,
-          BlendMode.srcIn,
+        colorFilter: ColorFilter.mode(AppColor.kTextSecondary, BlendMode.srcIn),
+        child: SvgPicture.asset(
+          'assets/icons/bell-ring.svg',
+          colorFilter: ColorFilter.mode(
+            AppColor.kTextSecondary,
+            BlendMode.srcIn,
+          ),
         ),
-        child: SvgPicture.asset('assets/icons/bell-ring.svg'),
       ),
     );
   }

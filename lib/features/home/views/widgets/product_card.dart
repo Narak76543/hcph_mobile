@@ -18,7 +18,7 @@ class ProductCard extends GetView<HomeController> {
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: AppColor.kSurface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: AppColor.kBorder.withValues(alpha: 0.8),
           width: AppColor.kBorderWidth,

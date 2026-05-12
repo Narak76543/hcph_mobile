@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:school_assgn/features/auth/controllers/sign_in_controller.dart';
@@ -146,13 +145,11 @@ class SignInView extends GetView<SignInController> {
           const SizedBox(height: 20),
           Obx(
             () => AuthSocialButton(
-              label: 'Continue with Google',
-              icon: SvgPicture.asset(
-                'assets/icons/google.svg',
-                colorFilter: const ColorFilter.mode(
-                  AppColor.kAccentLight,
-                  BlendMode.srcIn,
-                ),
+              label: 'With Google',
+              icon: Image.asset(
+                'assets/images/google.png',
+                width: 25,
+                height: 25,
               ),
               onPressed: controller.isSubmitting.value
                   ? null
@@ -165,13 +162,13 @@ class SignInView extends GetView<SignInController> {
           const SizedBox(height: 12),
           Obx(
             () => AuthSocialButton(
-              label: 'Continue with Telegram',
+              label: 'Telegram',
               icon: Transform.rotate(
-                angle: -0.5,
-                child: Icon(
-                  Icons.send_outlined,
-                  color: AppColor.kAuthTextPrimary,
-                  size: 20,
+                angle: 0,
+                child: Image.asset(
+                  'assets/images/telegram.png',
+                  width: 25,
+                  height: 25,
                 ),
               ),
               onPressed: TelegramAuthService.isLoading.value

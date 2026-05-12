@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:lottie/lottie.dart';
 import 'package:school_assgn/themes/app_color.dart';
 import 'package:school_assgn/widget/text_widget.dart';
 
@@ -37,16 +37,17 @@ class UnderConstructionView extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 // 🔥 Icon Circle (better than plain image)
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: AppColor.kAuthAccent.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
+                Lottie.asset(
+                  'assets/animations/Under-construction.json',
+                  height: 186,
+                  width: 186,
+                  fit: BoxFit.contain,
+                  repeat: true,
+                  errorBuilder: (_, _, _) => Icon(
+                    Icons.check_circle_rounded,
+                    color: AppColor.kSuccess,
+                    size: 12,
                   ),
-                  child: SvgPicture.asset(
-                    width: 50 , 
-                    height: 50, 
-                    'assets/icons/drill.svg' , colorFilter: ColorFilter.mode(AppColor.kAuthAccent, BlendMode.srcIn),)
                 ),
 
                 const SizedBox(height: 24),
@@ -55,7 +56,7 @@ class UnderConstructionView extends StatelessWidget {
                 AppText(
                   "$title Module ",
                   variant: AppTextVariant.title,
-                  fontSize: 20,
+                  fontSize: 15,
                   fontWeight: FontWeight.w400,
                   color: AppColor.kTextPrimary,
                   textAlign: TextAlign.center,
@@ -67,7 +68,7 @@ class UnderConstructionView extends StatelessWidget {
                 AppText(
                   'Coming Soon! We are hard at work building this feature for you. Thanks for waiting! ✨',
                   variant: AppTextVariant.body,
-                  fontSize: 14,
+                  fontSize: 12,
                   color: AppColor.kTextSecondary,
                   textAlign: TextAlign.center,
                 ),
@@ -77,7 +78,7 @@ class UnderConstructionView extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColor.kAccent,
+                      backgroundColor: AppColor.kGoogleBlue,
                       foregroundColor: AppColor.kOnAccent,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
@@ -88,12 +89,10 @@ class UnderConstructionView extends StatelessWidget {
                       elevation: 0,
                     ),
                     onPressed: () => Navigator.pop(context),
-                    child: const Text(
+                    child: AppText(
                       "Go Back",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 14,
-                      ),
+                      color: AppColor.kAccent,
+                      fontSize: 13,
                     ),
                   ),
                 ),

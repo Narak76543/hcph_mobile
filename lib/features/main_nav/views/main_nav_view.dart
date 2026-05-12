@@ -17,7 +17,9 @@ class MainNavView extends GetView<MainNavController> {
     _NavItemData(label: 'Home', iconAssetPath: 'assets/icons/house.svg'),
     _NavItemData(label: 'Search', iconAssetPath: 'assets/icons/search.svg'),
     _NavItemData(label: 'Alerts', iconAssetPath: 'assets/icons/bell-ring.svg'),
-    _NavItemData(label: 'Profile',iconAssetPath: 'assets/icons/user-round.svg',
+    _NavItemData(
+      label: 'Profile',
+      iconAssetPath: 'assets/icons/user-round.svg',
     ),
   ];
 
@@ -35,7 +37,7 @@ class MainNavView extends GetView<MainNavController> {
             Positioned.fill(
               child: Obx(
                 () => AnimatedContainer(
-                  duration: const Duration(milliseconds: 500),
+                  duration: const Duration(milliseconds: 800),
                   curve: Curves.easeInOutCubic,
                   color: AppColor.kBackground,
                 ),
@@ -62,7 +64,7 @@ class MainNavView extends GetView<MainNavController> {
                     activeView = SizedBox.shrink(key: ValueKey('-1_$isDark'));
                 }
                 return AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 500),
+                  duration: const Duration(milliseconds: 800),
                   switchInCurve: Curves.easeInOut,
                   switchOutCurve: Curves.easeInOut,
                   transitionBuilder: (child, animation) => FadeTransition(
@@ -84,7 +86,7 @@ class MainNavView extends GetView<MainNavController> {
                   right: 0,
                   bottom: 0,
                   child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 500),
+                    duration: const Duration(milliseconds: 800),
                     opacity: isKeyboardVisible ? 0 : 1,
                     child: _buildNavBar(context),
                   ),
@@ -105,82 +107,81 @@ class MainNavView extends GetView<MainNavController> {
         constraints: const BoxConstraints(maxWidth: 390),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(50),
-          child: Obx(() => AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-                decoration: BoxDecoration(
-                  color: AppColor.kSurface.withValues(alpha: 0.96),
-                  borderRadius: BorderRadius.circular(50),
-                  border: Border.all(
-                    color: AppColor.kBorder.withValues(alpha: 0.8),
-                    width: AppColor.kBorderWidth,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColor.kShadow,
-                      blurRadius: 14,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+          child: Obx(
+            () => AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColor.kSurface.withValues(alpha: 0.96),
+                borderRadius: BorderRadius.circular(50),
+                border: Border.all(
+                  color: AppColor.kBorder.withValues(alpha: 0.8),
+                  width: AppColor.kBorderWidth,
                 ),
-                child: Row(
-                  children: List.generate(_items.length, (index) {
-                    final item = _items[index];
-                    final selected = index == controller.currentIndex.value;
-                    return Expanded(
-                      child: Center(
-                        child: GestureDetector(
-                          onTap: () => controller.changeTab(index),
-                          behavior: HitTestBehavior.opaque,
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 150),
-                            curve: Curves.easeInOut,
-                            width: 43,
-                            height: 43,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: selected
-                                  ? LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                      colors: [
-                                        AppColor.kNavSelectedStart,
-                                        AppColor.kNavSelectedEnd,
-                                      ],
-                                    )
-                                  : null,
-                              boxShadow: selected
-                                  ? [
-                                      BoxShadow(
-                                        color: AppColor.kNavSelectedEnd
-                                            .withValues(alpha: 0.12),
-                                        blurRadius: 8,
-                                        offset: const Offset(0, 3),
-                                      ),
-                                    ]
-                                  : null,
-                            ),
-                            child: Center(
-                              child: SvgPicture.asset(
-                                item.iconAssetPath,
-                                width: selected ? 21 : 20,
-                                height: selected ? 21 : 20,
-                                colorFilter: ColorFilter.mode(
-                                  selected
-                                      ? Colors.white
-                                      : AppColor.kNavIcon,
-                                  BlendMode.srcIn,
-                                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColor.kShadow,
+                    blurRadius: 14,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: List.generate(_items.length, (index) {
+                  final item = _items[index];
+                  final selected = index == controller.currentIndex.value;
+                  return Expanded(
+                    child: Center(
+                      child: GestureDetector(
+                        onTap: () => controller.changeTab(index),
+                        behavior: HitTestBehavior.opaque,
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 150),
+                          curve: Curves.easeInOut,
+                          width: 43,
+                          height: 43,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: selected
+                                ? LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      AppColor.kNavSelectedStart,
+                                      AppColor.kNavSelectedEnd,
+                                    ],
+                                  )
+                                : null,
+                            boxShadow: selected
+                                ? [
+                                    BoxShadow(
+                                      color: AppColor.kNavSelectedEnd
+                                          .withValues(alpha: 0.12),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ]
+                                : null,
+                          ),
+                          child: Center(
+                            child: SvgPicture.asset(
+                              item.iconAssetPath,
+                              width: selected ? 21 : 20,
+                              height: selected ? 21 : 20,
+                              colorFilter: ColorFilter.mode(
+                                selected ? Colors.white : AppColor.kNavIcon,
+                                BlendMode.srcIn,
                               ),
                             ),
                           ),
                         ),
                       ),
-                    );
-                  }),
-                ),
-              )),
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ),
         ),
       ),
     );

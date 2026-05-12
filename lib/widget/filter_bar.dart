@@ -46,6 +46,7 @@ class _FilterBarState extends State<FilterBar> {
             variant: AppTextVariant.body,
             fontSize: 14,
             color: AppColor.kTextSecondary,
+            fontWeight: FontWeight.w500,
           ),
           const SizedBox(height: 10),
           Row(
@@ -66,14 +67,17 @@ class _FilterBarState extends State<FilterBar> {
                 ),
               ),
               const SizedBox(width: 12),
-          
+
               // Laptop Icon
               SvgPicture.asset(
                 'assets/icons/laptop-minimal.svg',
-                colorFilter: ColorFilter.mode(AppColor.kGoogleBlue, BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(
+                  AppColor.kGoogleBlue,
+                  BlendMode.srcIn,
+                ),
               ),
               const SizedBox(width: 6),
-          
+
               // Custom Switch
               GestureDetector(
                 onTap: () {
@@ -88,7 +92,9 @@ class _FilterBarState extends State<FilterBar> {
                   height: 28,
                   padding: const EdgeInsets.all(3),
                   decoration: BoxDecoration(
-                    color: isSwitched ? Colors.blue.shade600 : Colors.grey.shade300,
+                    color: isSwitched
+                        ? Colors.blue.shade600
+                        : Colors.grey.shade300,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: AnimatedAlign(
@@ -134,7 +140,11 @@ class _FilterBarState extends State<FilterBar> {
             ),
           ),
           const SizedBox(width: 2),
-          const Icon(Icons.keyboard_arrow_down, size: 16, color: Colors.black54),
+          const Icon(
+            Icons.keyboard_arrow_down,
+            size: 16,
+            color: Colors.black54,
+          ),
         ],
       ),
     );
