@@ -466,24 +466,10 @@ class ProfileController extends GetxController {
           .map((e) {
             final model = PostModel.fromJson(Map<String, dynamic>.from(e));
 
-            // Normalize image URL
-            String imageUrl = model.imageUrl;
-            if (imageUrl.isNotEmpty) {
-              if (imageUrl.startsWith('http://localhost:8000')) {
-                imageUrl = imageUrl.replaceFirst(
-                  'http://localhost:8000',
-                  ApiConfig.baseUrl,
-                );
-              } else if (imageUrl.startsWith('http://127.0.0.1:8000')) {
-                imageUrl = imageUrl.replaceFirst(
-                  'http://127.0.0.1:8000',
-                  ApiConfig.baseUrl,
-                );
-              } else if (!imageUrl.startsWith('http')) {
-                imageUrl =
-                    '${ApiConfig.baseUrl}${imageUrl.startsWith('/') ? imageUrl : '/$imageUrl'}';
-              }
-            }
+            final imageUrl = _normalizeMediaUrl(model.imageUrl);
+            final ownerProfileImageUrl = _normalizeMediaUrl(
+              model.ownerProfileImageUrl,
+            );
 
             return PostModel(
               id: model.id,
@@ -495,9 +481,14 @@ class ProfileController extends GetxController {
               postedBy: model.postedBy,
               ownerFullName: model.ownerFullName,
               ownerUserId: model.ownerUserId,
+              ownerProfileImageUrl: ownerProfileImageUrl,
+              postedAt: model.postedAt,
               price: model.price,
               imageUrl: imageUrl,
+              categoryId: model.categoryId,
+              categorySlug: model.categorySlug,
               isVerified: model.isVerified,
+              partSpecs: model.partSpecs,
             );
           })
           .cast<PostModel>()
@@ -531,6 +522,10 @@ class ProfileController extends GetxController {
     } catch (e) {
       debugPrint('[ProfileController] Could not fetch my laptops: $e');
     }
+  }
+
+  String _normalizeMediaUrl(String url) {
+    return ApiConfig.normalizeMediaUrl(url);
   }
 
   Future<void> fetchLaptopBrands() async {
@@ -893,27 +888,9 @@ class ProfileController extends GetxController {
                               // ... (keep existing Brand item code)
                               String? imageUrlStr = brand['brand_img_url']
                                   ?.toString();
-                              if (imageUrlStr != null &&
-                                  imageUrlStr.isNotEmpty) {
-                                if (imageUrlStr.startsWith(
-                                  'http://localhost:8000',
-                                )) {
-                                  imageUrlStr = imageUrlStr.replaceFirst(
-                                    'http://localhost:8000',
-                                    ApiConfig.baseUrl,
-                                  );
-                                } else if (imageUrlStr.startsWith(
-                                  'http://127.0.0.1:8000',
-                                )) {
-                                  imageUrlStr = imageUrlStr.replaceFirst(
-                                    'http://127.0.0.1:8000',
-                                    ApiConfig.baseUrl,
-                                  );
-                                } else if (!imageUrlStr.startsWith('http')) {
-                                  imageUrlStr =
-                                      '${ApiConfig.baseUrl}${imageUrlStr.startsWith('/') ? imageUrlStr : '/$imageUrlStr'}';
-                                }
-                              }
+                              imageUrlStr = imageUrlStr == null
+                                  ? null
+                                  : ApiConfig.normalizeMediaUrl(imageUrlStr);
 
                               return InkWell(
                                 onTap: () {

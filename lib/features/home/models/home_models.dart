@@ -40,6 +40,8 @@ class PostModel {
   final String postedBy;
   final String ownerFullName;
   final String? ownerUserId;
+  final String ownerProfileImageUrl;
+  final DateTime? postedAt;
   final double price;
   final String imageUrl;
   final String? categoryId;
@@ -57,6 +59,8 @@ class PostModel {
     required this.postedBy,
     String? ownerFullName,
     this.ownerUserId,
+    this.ownerProfileImageUrl = '',
+    this.postedAt,
     required this.price,
     required this.imageUrl,
     this.categoryId,
@@ -65,6 +69,68 @@ class PostModel {
     Map<String, dynamic>? partSpecs, // ← NEW
   }) : ownerFullName = ownerFullName ?? postedBy,
        partSpecs = partSpecs ?? {}; // ← NEW
+
+  PostModel copyWith({
+    String? id,
+    String? partName,
+    String? brand,
+    String? model,
+    String? compatibleModel,
+    String? shopName,
+    String? postedBy,
+    String? ownerFullName,
+    String? ownerUserId,
+    String? ownerProfileImageUrl,
+    DateTime? postedAt,
+    double? price,
+    String? imageUrl,
+    String? categoryId,
+    String? categorySlug,
+    bool? isVerified,
+    Map<String, dynamic>? partSpecs,
+  }) {
+    return PostModel(
+      id: id ?? this.id,
+      partName: partName ?? this.partName,
+      brand: brand ?? this.brand,
+      model: model ?? this.model,
+      compatibleModel: compatibleModel ?? this.compatibleModel,
+      shopName: shopName ?? this.shopName,
+      postedBy: postedBy ?? this.postedBy,
+      ownerFullName: ownerFullName ?? this.ownerFullName,
+      ownerUserId: ownerUserId ?? this.ownerUserId,
+      ownerProfileImageUrl: ownerProfileImageUrl ?? this.ownerProfileImageUrl,
+      postedAt: postedAt ?? this.postedAt,
+      price: price ?? this.price,
+      imageUrl: imageUrl ?? this.imageUrl,
+      categoryId: categoryId ?? this.categoryId,
+      categorySlug: categorySlug ?? this.categorySlug,
+      isVerified: isVerified ?? this.isVerified,
+      partSpecs: partSpecs ?? this.partSpecs,
+    );
+  }
+
+  String get formattedPostedDate {
+    if (postedAt == null) return '';
+
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    final localDate = postedAt!.toLocal();
+    final day = localDate.day.toString().padLeft(2, '0');
+    return '$day-${months[localDate.month - 1]}-${localDate.year}';
+  }
 
   factory PostModel.fromJson(Map<String, dynamic> json) {
     // ====================================
@@ -174,8 +240,42 @@ class PostModel {
     // =============================================================
     // Owner
     // =============================================================
-    final ownerFullName = json['owner_full_name']?.toString() ?? shop;
-    final ownerUserId = json['owner_id']?.toString();
+    final ownerMap = json['owner'] is Map ? json['owner'] as Map : null;
+    final sellerMap = json['seller'] is Map ? json['seller'] as Map : null;
+    final userMap = json['user'] is Map ? json['user'] as Map : null;
+    final ownerSource = ownerMap ?? sellerMap ?? userMap;
+    final ownerFirstName =
+        ownerSource?['first_name'] ?? ownerSource?['fname'] ?? '';
+    final ownerLastName =
+        ownerSource?['last_name'] ?? ownerSource?['lname'] ?? '';
+    final nestedOwnerName =
+        ownerSource?['full_name'] ??
+        ownerSource?['name'] ??
+        [
+          ownerFirstName,
+          ownerLastName,
+        ].where((value) => value.toString().trim().isNotEmpty).join(' ');
+    final ownerFullName =
+        json['owner_full_name']?.toString() ??
+        json['posted_by_name']?.toString() ??
+        (nestedOwnerName.toString().trim().isNotEmpty
+            ? nestedOwnerName.toString()
+            : shop);
+    final ownerUserId =
+        (json['owner_id'] ?? ownerSource?['id'] ?? json['user_id'])?.toString();
+    final ownerProfileImageUrl =
+        (json['owner_profile_image_url'] ??
+                json['owner_image'] ??
+                json['owner_img_url'] ??
+                json['owner_profile_img_url'] ??
+                ownerSource?['profile_image_url'] ??
+                ownerSource?['avatar_url'] ??
+                ownerSource?['image_url'] ??
+                ownerSource?['profile_image'] ??
+                json['profile_image_url'])
+            ?.toString() ??
+        '';
+    final postedAt = _parsePostedAt(json);
     // ==================================================================
     //  Category
     // =================================================================
@@ -239,6 +339,8 @@ class PostModel {
       postedBy: shop,
       ownerFullName: ownerFullName,
       ownerUserId: ownerUserId,
+      ownerProfileImageUrl: ownerProfileImageUrl,
+      postedAt: postedAt,
       price: priceVal,
       imageUrl: image,
       categoryId: categoryId,
@@ -246,6 +348,28 @@ class PostModel {
       isVerified: isVerified,
       partSpecs: partSpecs,
     );
+  }
+
+  static DateTime? _parsePostedAt(Map<String, dynamic> json) {
+    final raw =
+        json['posted_at'] ??
+        json['post_date'] ??
+        json['created_at'] ??
+        json['createdAt'] ??
+        json['create_at'] ??
+        json['date_created'] ??
+        json['updated_at'] ??
+        json['update_at'] ??
+        (json['part'] is Map ? json['part']['create_at'] : null);
+    if (raw == null) return null;
+    if (raw is DateTime) return raw;
+    if (raw is num) {
+      final value = raw.toInt();
+      return DateTime.fromMillisecondsSinceEpoch(
+        value < 10000000000 ? value * 1000 : value,
+      );
+    }
+    return DateTime.tryParse(raw.toString());
   }
 }
 

@@ -29,76 +29,74 @@ class HomeController extends GetxController {
   final searchQuery = ''.obs;
 
   final verifiedShops = <Map<String, dynamic>>[].obs;
-  final recentlyAdded    = <PostModel>[].obs;
-  final isLoadingRecent  = false.obs; 
+  final recentlyAdded = <PostModel>[].obs;
+  final isLoadingRecent = false.obs;
   // ==============get verified shop ======================
-Future<void> _fetchVerifiedShops() async {
-  try {
-    final response = await _apiClient.getRequest(
-      '/shops/verified/',          // ← updated endpoint
-      queryParameters: {'limit': '10'},
-    );
-    if (response != null) {
-      List<dynamic> list = [];
-      if (response is List) {
-        list = response;
-      } else if (response is Map<String, dynamic> && response['data'] is List) {
-        list = response['data'] as List;
-      }
- 
-      verifiedShops.value = list.map((e) {
-        // normalize image URL
-        String? imgUrl = e['shop_pro_img_url']?.toString();
-        if (imgUrl != null && imgUrl.isNotEmpty) {
-          if (imgUrl.startsWith('http://localhost:8000')) {
-            imgUrl = imgUrl.replaceFirst('http://localhost:8000', ApiConfig.baseUrl);
-          } else if (imgUrl.startsWith('http://127.0.0.1:8000')) {
-            imgUrl = imgUrl.replaceFirst('http://127.0.0.1:8000', ApiConfig.baseUrl);
-          } else if (!imgUrl.startsWith('http')) {
-            imgUrl = '${ApiConfig.baseUrl}${imgUrl.startsWith('/') ? imgUrl : '/$imgUrl'}';
-          }
+  Future<void> _fetchVerifiedShops() async {
+    try {
+      final response = await _apiClient.getRequest(
+        '/shops/verified/', // ← updated endpoint
+        queryParameters: {'limit': '10'},
+      );
+      if (response != null) {
+        List<dynamic> list = [];
+        if (response is List) {
+          list = response;
+        } else if (response is Map<String, dynamic> &&
+            response['data'] is List) {
+          list = response['data'] as List;
         }
- 
-        return <String, dynamic>{
-          'id'              : e['id']?.toString()               ?? '',
-          'name'            : e['name']?.toString()             ?? 'Unknown Shop',
-          'address'         : e['address']?.toString()          ?? '',
-          'province'        : e['province']?.toString()         ?? '',
-          'district'        : e['district']?.toString()         ?? '',
-          'shop_pro_img_url': imgUrl,
-          'listing_count'   : int.tryParse(e['listing_count']?.toString() ?? '0') ?? 0,
-          'status'          : e['status']?.toString()           ?? '',
-        };
-      }).toList();
- 
-      debugPrint('[HomeController] Verified shops loaded: ${verifiedShops.length}');
-    }
-  } catch (e) {
-    debugPrint('[HomeController] Error fetching verified shops: $e');
-  }
-}
 
-// Get Recently added Item 
+        verifiedShops.value = list.map((e) {
+          final imgUrl = ApiConfig.normalizeMediaUrl(
+            e['shop_pro_img_url']?.toString() ?? '',
+          );
 
-Future<void> _fetchRecentlyAdded() async {
-  isLoadingRecent.value = true;
-  try {
-    final response = await _apiClient.getRequest(
-      '/listings/recently-added/',
-      queryParameters: {'limit': '10'},
-    );
-    if (response is List) {
-      recentlyAdded.value = response
-          .map((e) => PostModel.fromJson(Map<String, dynamic>.from(e)))
-          .toList();
+          return <String, dynamic>{
+            'id': e['id']?.toString() ?? '',
+            'name': e['name']?.toString() ?? 'Unknown Shop',
+            'address': e['address']?.toString() ?? '',
+            'province': e['province']?.toString() ?? '',
+            'district': e['district']?.toString() ?? '',
+            'shop_pro_img_url': imgUrl,
+            'listing_count':
+                int.tryParse(e['listing_count']?.toString() ?? '0') ?? 0,
+            'status': e['status']?.toString() ?? '',
+          };
+        }).toList();
+
+        debugPrint(
+          '[HomeController] Verified shops loaded: ${verifiedShops.length}',
+        );
+      }
+    } catch (e) {
+      debugPrint('[HomeController] Error fetching verified shops: $e');
     }
-  } catch (e) {
-    debugPrint('[HomeController] Error fetching recently added: $e');
-  } finally {
-    isLoadingRecent.value = false;       // ← always reset
   }
-}
-// end  Get Recently added Item 
+
+  // Get Recently added Item
+
+  Future<void> _fetchRecentlyAdded() async {
+    isLoadingRecent.value = true;
+    try {
+      final response = await _apiClient.getRequest(
+        '/listings/recently-added/',
+        queryParameters: {'limit': '10'},
+      );
+      if (response is List) {
+        final loadedPosts = response
+            .map((e) => PostModel.fromJson(Map<String, dynamic>.from(e)))
+            .map(_withNormalizedImages)
+            .toList();
+        recentlyAdded.value = loadedPosts;
+      }
+    } catch (e) {
+      debugPrint('[HomeController] Error fetching recently added: $e');
+    } finally {
+      isLoadingRecent.value = false; // ← always reset
+    }
+  }
+  // end  Get Recently added Item
 
   List<PostModel> get displayPosts {
     List<PostModel> filtered = recentPosts
@@ -126,7 +124,6 @@ Future<void> _fetchRecentlyAdded() async {
     return filtered;
   }
 
-
   final recentPosts = <PostModel>[].obs;
 
   final ApiClient _apiClient = ApiClient();
@@ -150,7 +147,7 @@ Future<void> _fetchRecentlyAdded() async {
       _fetchBrandsFromBackend(),
       _fetchPostsFromBackend(),
       _fetchVerifiedShops(),
-      _fetchRecentlyAdded()
+      _fetchRecentlyAdded(),
     ]);
   }
 
@@ -195,22 +192,9 @@ Future<void> _fetchRecentlyAdded() async {
                     ?.toString();
 
             // ── URL Normalization (same as used for brands) ──
-            if (imageUrlStr != null && imageUrlStr.isNotEmpty) {
-              if (imageUrlStr.startsWith('http://localhost:8000')) {
-                imageUrlStr = imageUrlStr.replaceFirst(
-                  'http://localhost:8000',
-                  ApiConfig.baseUrl,
-                );
-              } else if (imageUrlStr.startsWith('http://127.0.0.1:8000')) {
-                imageUrlStr = imageUrlStr.replaceFirst(
-                  'http://127.0.0.1:8000',
-                  ApiConfig.baseUrl,
-                );
-              } else if (!imageUrlStr.startsWith('http')) {
-                imageUrlStr =
-                    '${ApiConfig.baseUrl}${imageUrlStr.startsWith('/') ? imageUrlStr : '/$imageUrlStr'}';
-              }
-            }
+            imageUrlStr = imageUrlStr == null
+                ? null
+                : ApiConfig.normalizeMediaUrl(imageUrlStr);
 
             return CategoryModel(
               id: e['id']?.toString() ?? '',
@@ -247,24 +231,10 @@ Future<void> _fetchRecentlyAdded() async {
             .map((e) {
               final model = PostModel.fromJson(Map<String, dynamic>.from(e));
 
-              // Normalize image URL
-              String imageUrl = model.imageUrl;
-              if (imageUrl.isNotEmpty) {
-                if (imageUrl.startsWith('http://localhost:8000')) {
-                  imageUrl = imageUrl.replaceFirst(
-                    'http://localhost:8000',
-                    ApiConfig.baseUrl,
-                  );
-                } else if (imageUrl.startsWith('http://127.0.0.1:8000')) {
-                  imageUrl = imageUrl.replaceFirst(
-                    'http://127.0.0.1:8000',
-                    ApiConfig.baseUrl,
-                  );
-                } else if (!imageUrl.startsWith('http')) {
-                  imageUrl =
-                      '${ApiConfig.baseUrl}${imageUrl.startsWith('/') ? imageUrl : '/$imageUrl'}';
-                }
-              }
+              String imageUrl = _normalizeMediaUrl(model.imageUrl);
+              final ownerProfileImageUrl = _normalizeMediaUrl(
+                model.ownerProfileImageUrl,
+              );
 
               // If image is still empty, use fallback
               if (imageUrl.isEmpty) {
@@ -282,6 +252,8 @@ Future<void> _fetchRecentlyAdded() async {
                 postedBy: model.postedBy,
                 ownerFullName: model.ownerFullName,
                 ownerUserId: model.ownerUserId,
+                ownerProfileImageUrl: ownerProfileImageUrl,
+                postedAt: model.postedAt,
                 price: model.price,
                 imageUrl: imageUrl,
                 categoryId: model.categoryId,
@@ -327,6 +299,23 @@ Future<void> _fetchRecentlyAdded() async {
     } catch (e) {
       debugPrint("[HomeController] Error fetching brands: $e");
     }
+  }
+
+  String _normalizeMediaUrl(String url) {
+    return ApiConfig.normalizeMediaUrl(url);
+  }
+
+  PostModel _withNormalizedImages(
+    PostModel model, {
+    String fallbackImage = 'assets/images/ss990.webp',
+  }) {
+    var imageUrl = _normalizeMediaUrl(model.imageUrl);
+    if (imageUrl.isEmpty) imageUrl = fallbackImage;
+
+    return model.copyWith(
+      imageUrl: imageUrl,
+      ownerProfileImageUrl: _normalizeMediaUrl(model.ownerProfileImageUrl),
+    );
   }
 
   // ─────────────────── Compatibility Check (Model Logic) ───────────────────
@@ -556,7 +545,6 @@ Future<void> _fetchRecentlyAdded() async {
     }
     return false;
   }
-
 
   void _loadDummyCategories() {
     categories.value = [

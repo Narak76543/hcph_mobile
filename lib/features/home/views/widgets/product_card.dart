@@ -5,6 +5,7 @@ import 'package:school_assgn/features/home/controllers/home_controller.dart';
 import 'package:school_assgn/features/home/models/home_models.dart';
 import 'package:school_assgn/themes/app_color.dart';
 import 'package:school_assgn/widget/text_widget.dart';
+import 'package:flutter/services.dart';
 
 /// ==========================Grid card displaying a product listing with price, fit badge, and metadata.=========================
 class ProductCard extends GetView<HomeController> {
@@ -164,7 +165,7 @@ class _FitBadge extends GetView<HomeController> {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
         decoration: BoxDecoration(
-          color: const Color(0xFF5CBF91),
+          color: AppColor.kGoogleGreen,
           borderRadius: BorderRadius.circular(12),
         ),
         child: const Row(
@@ -180,28 +181,98 @@ class _FitBadge extends GetView<HomeController> {
   }
 }
 
-class _WishlistButton extends StatelessWidget {
+class _WishlistButton extends StatefulWidget {
   const _WishlistButton();
 
   @override
+  State<_WishlistButton> createState() => _WishlistButtonState();
+}
+
+class _WishlistButtonState extends State<_WishlistButton>
+    with SingleTickerProviderStateMixin {
+  bool _isFavorite = false;
+
+  late AnimationController _controller;
+  late Animation<double> _scale;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 250),
+    );
+
+    _scale = TweenSequence([
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.3), weight: 50),
+      TweenSequenceItem(tween: Tween(begin: 1.3, end: 1.0), weight: 50),
+    ]).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onTap() {
+    HapticFeedback.lightImpact();
+
+    setState(() {
+      _isFavorite = !_isFavorite;
+    });
+
+    _controller.forward(from: 0);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(7),
-      decoration: BoxDecoration(
-        color: AppColor.kSurface,
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: AppColor.kShadow,
-            blurRadius: 6,
-            offset: const Offset(0, 2),
+    return GestureDetector(
+      onTap: _onTap,
+
+      child: ScaleTransition(
+        scale: _scale,
+
+        child: Container(
+          padding: const EdgeInsets.all(7),
+
+          decoration: BoxDecoration(
+            color: AppColor.kSurface,
+            shape: BoxShape.circle,
+
+            boxShadow: [
+              BoxShadow(
+                color: AppColor.kShadow,
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: const Icon(
-        Icons.favorite_border_rounded,
-        color: Color(0xFF8EA3C4),
-        size: 16,
+
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+
+            transitionBuilder: (child, animation) {
+              return ScaleTransition(
+                scale: animation,
+                child: FadeTransition(opacity: animation, child: child),
+              );
+            },
+
+            child: Icon(
+              _isFavorite
+                  ? Icons.favorite_rounded
+                  : Icons.favorite_border_rounded,
+
+              key: ValueKey(_isFavorite),
+
+              color: _isFavorite ? Colors.redAccent : const Color(0xFF8EA3C4),
+
+              size: 16,
+            ),
+          ),
+        ),
       ),
     );
   }

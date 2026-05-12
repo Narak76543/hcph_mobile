@@ -64,7 +64,7 @@ class ShopCard extends StatelessWidget {
                     ? Image.network(
                         logoUrl!,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => const _DefaultLogo(),
+                        errorBuilder: (_, _, _) => const _DefaultLogo(),
                       )
                     : const _DefaultLogo(),
               ),

@@ -609,7 +609,7 @@ class ManualLaptopEntryView extends GetView<ProfileController> {
           ),
           const SizedBox(height: 6),
           DropdownButtonFormField<String>(
-            value:
+            initialValue:
                 selectedResolution.isEmpty ||
                     !resolutions.contains(selectedResolution)
                 ? null

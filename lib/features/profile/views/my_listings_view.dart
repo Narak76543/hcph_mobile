@@ -8,7 +8,7 @@ import 'package:school_assgn/features/profile/views/post_hardware_view.dart';
 import 'package:school_assgn/themes/app_color.dart';
 import 'package:school_assgn/widget/success_dialog.dart';
 import 'package:school_assgn/widget/text_widget.dart';
-import 'package:school_assgn/widgets/location_picker_field.dart';
+import 'package:school_assgn/widget/location_picker_field.dart';
 
 class MyListingsView extends GetView<ProfileController> {
   const MyListingsView({super.key});
@@ -65,9 +65,9 @@ class MyListingsView extends GetView<ProfileController> {
                   children: [
                     AppText(
                       'Active Listings',
-                      variant: AppTextVariant.title,
+                      variant: AppTextVariant.body,
                       color: AppColor.kAuthTextPrimary,
-                      fontSize: 16,
+                      fontSize: 14,
                     ),
                     AppText(
                       '${controller.myListings.length} items',
@@ -420,8 +420,8 @@ class MyListingsView extends GetView<ProfileController> {
                                 title: isEditing
                                     ? 'Shop Updated'
                                     : 'Shop Created',
-                                message: controller.shopSaveMessage.value
-                                        .isNotEmpty
+                                message:
+                                    controller.shopSaveMessage.value.isNotEmpty
                                     ? controller.shopSaveMessage.value
                                     : 'Your shop profile was saved successfully.',
                               );
@@ -653,9 +653,9 @@ class MyListingsView extends GetView<ProfileController> {
                             children: [
                               AppText(
                                 listing.partName,
-                                variant: AppTextVariant.title,
+                                variant: AppTextVariant.body,
                                 fontSize: 15,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w500,
                                 color: AppColor.kAuthTextPrimary,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -678,10 +678,9 @@ class MyListingsView extends GetView<ProfileController> {
                           children: [
                             AppText(
                               _formatPrice(listing.price),
-                              variant: AppTextVariant.title,
+                              variant: AppTextVariant.body,
                               color: AppColor.kGoogleBlue,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
                             ),
                           ],
                         ),
@@ -731,7 +730,6 @@ class MyListingsView extends GetView<ProfileController> {
                                 variant: AppTextVariant.body,
                                 color: statusColor,
                                 fontSize: 10,
-                                fontWeight: FontWeight.bold,
                               ),
                             ],
                           ),
@@ -787,7 +785,7 @@ class MyListingsView extends GetView<ProfileController> {
                           child: Container(
                             padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
-                              color: AppColor.kBackground,
+                              color: AppColor.kSurface.withValues(alpha: 0.85),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(

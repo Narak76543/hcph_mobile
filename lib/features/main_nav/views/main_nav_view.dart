@@ -7,7 +7,7 @@ import 'package:school_assgn/themes/app_color.dart';
 import 'package:school_assgn/features/home/views/home_view.dart';
 import 'package:school_assgn/features/alerts/views/alerts_view.dart';
 import 'package:school_assgn/features/profile/views/profile_view.dart';
-import 'package:school_assgn/widget/under_construction_view.dart';
+import 'package:school_assgn/features/search/views/search_view.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class MainNavView extends GetView<MainNavController> {
@@ -17,9 +17,7 @@ class MainNavView extends GetView<MainNavController> {
     _NavItemData(label: 'Home', iconAssetPath: 'assets/icons/house.svg'),
     _NavItemData(label: 'Search', iconAssetPath: 'assets/icons/search.svg'),
     _NavItemData(label: 'Alerts', iconAssetPath: 'assets/icons/bell-ring.svg'),
-    _NavItemData(
-      label: 'Profile',
-      iconAssetPath: 'assets/icons/user-round.svg',
+    _NavItemData(label: 'Profile',iconAssetPath: 'assets/icons/user-round.svg',
     ),
   ];
 
@@ -52,10 +50,7 @@ class MainNavView extends GetView<MainNavController> {
                     activeView = HomeView(key: ValueKey('0_$isDark'));
                     break;
                   case 1:
-                    activeView = UnderConstructionView(
-                      key: ValueKey('1_$isDark'),
-                      title: 'Search',
-                    );
+                    activeView = SearchView(key: ValueKey('1_$isDark'));
                     break;
                   case 2:
                     activeView = AlertsView(key: ValueKey('2_$isDark'));

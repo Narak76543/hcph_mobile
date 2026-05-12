@@ -533,7 +533,7 @@ class ProfileView extends GetView<ProfileController> {
                 fontSize: 14,
               ),
             ),
-            if (trailing != null) trailing,
+            ?trailing,
             if (showChevron)
               Icon(
                 Icons.chevron_right_rounded,
