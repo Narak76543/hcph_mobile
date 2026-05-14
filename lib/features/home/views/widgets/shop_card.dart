@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:school_assgn/themes/app_color.dart';
 
 class ShopCard extends StatelessWidget {
@@ -61,10 +62,10 @@ class ShopCard extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(14),
                 child: logoUrl != null && logoUrl!.isNotEmpty
-                    ? Image.network(
-                        logoUrl!,
+                    ? CachedNetworkImage(
+                        imageUrl: logoUrl!,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) => const _DefaultLogo(),
+                        errorWidget: (_, _, _) => const _DefaultLogo(),
                       )
                     : const _DefaultLogo(),
               ),

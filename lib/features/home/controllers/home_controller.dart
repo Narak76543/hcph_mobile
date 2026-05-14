@@ -34,15 +34,14 @@ class HomeController extends GetxController {
   // ==============get verified shop ======================
   Future<void> _fetchVerifiedShops() async {
     try {
-      final response = await _apiClient.getRequest(
+      await _apiClient.getCachedThenFresh(
         '/shops/verified/', // ← updated endpoint
         queryParameters: {'limit': '10'},
-      );
-      if (response != null) {
+        onData: (response) {
         List<dynamic> list = [];
         if (response is List) {
           list = response;
-        } else if (response is Map<String, dynamic> &&
+        } else if (response is Map &&
             response['data'] is List) {
           list = response['data'] as List;
         }
@@ -68,7 +67,8 @@ class HomeController extends GetxController {
         debugPrint(
           '[HomeController] Verified shops loaded: ${verifiedShops.length}',
         );
-      }
+        },
+      );
     } catch (e) {
       debugPrint('[HomeController] Error fetching verified shops: $e');
     }
@@ -79,17 +79,18 @@ class HomeController extends GetxController {
   Future<void> _fetchRecentlyAdded() async {
     isLoadingRecent.value = true;
     try {
-      final response = await _apiClient.getRequest(
+      await _apiClient.getCachedThenFresh(
         '/listings/recently-added/',
         queryParameters: {'limit': '10'},
-      );
-      if (response is List) {
-        final loadedPosts = response
+        onData: (response) {
+          final list = response is List ? response : <dynamic>[];
+          final loadedPosts = list
             .map((e) => PostModel.fromJson(Map<String, dynamic>.from(e)))
             .map(_withNormalizedImages)
             .toList();
-        recentlyAdded.value = loadedPosts;
-      }
+          recentlyAdded.value = loadedPosts;
+        },
+      );
     } catch (e) {
       debugPrint('[HomeController] Error fetching recently added: $e');
     } finally {
@@ -153,12 +154,13 @@ class HomeController extends GetxController {
 
   Future<void> _fetchCategoriesFromBackend() async {
     try {
-      final response = await _apiClient.getRequest('/part-categories/');
-      if (response != null) {
+      await _apiClient.getCachedThenFresh(
+        '/part-categories/',
+        onData: (response) {
         List<dynamic> list = [];
         if (response is List) {
           list = response;
-        } else if (response is Map<String, dynamic> &&
+        } else if (response is Map &&
             response['data'] is List) {
           list = response['data'] as List;
         }
@@ -204,7 +206,8 @@ class HomeController extends GetxController {
             );
           }).toList();
         }
-      }
+        },
+      );
     } catch (e) {
       debugPrint("[HomeController] Error fetching categories: $e");
       _loadDummyCategories();
@@ -214,15 +217,14 @@ class HomeController extends GetxController {
   Future<void> _fetchPostsFromBackend() async {
     try {
       // Use listings so we also get shop_name, part_image, and price
-      final response = await _apiClient.getRequest(
+      await _apiClient.getCachedThenFresh(
         '/listings/',
         queryParameters: {'limit': '20'},
-      );
-      if (response != null) {
+        onData: (response) {
         List<dynamic> list = [];
         if (response is List) {
           list = response;
-        } else if (response is Map<String, dynamic> &&
+        } else if (response is Map &&
             response['data'] is List) {
           list = response['data'] as List;
         }
@@ -252,7 +254,11 @@ class HomeController extends GetxController {
                 postedBy: model.postedBy,
                 ownerFullName: model.ownerFullName,
                 ownerUserId: model.ownerUserId,
+                ownerRole: model.ownerRole,
+                ownerTelegramUsername: model.ownerTelegramUsername,
                 ownerProfileImageUrl: ownerProfileImageUrl,
+                shopTelegramHandle: model.shopTelegramHandle,
+                shopGoogleMapsUrl: model.shopGoogleMapsUrl,
                 postedAt: model.postedAt,
                 price: model.price,
                 imageUrl: imageUrl,
@@ -265,7 +271,8 @@ class HomeController extends GetxController {
             })
             .cast<PostModel>()
             .toList();
-      }
+        },
+      );
     } catch (e) {
       debugPrint("[HomeController] Error fetching posts: $e");
     }
@@ -273,15 +280,14 @@ class HomeController extends GetxController {
 
   Future<void> _fetchBrandsFromBackend() async {
     try {
-      final response = await _apiClient.getRequest(
+      await _apiClient.getCachedThenFresh(
         '/laptop-brands/',
         queryParameters: {'limit': '30'},
-      );
-      if (response != null) {
+        onData: (response) {
         List<dynamic> list = [];
         if (response is List) {
           list = response;
-        } else if (response is Map<String, dynamic> &&
+        } else if (response is Map &&
             response['data'] is List) {
           list = response['data'] as List;
         }
@@ -295,7 +301,8 @@ class HomeController extends GetxController {
                 ?.toString(), // newly added backend field
           );
         }).toList();
-      }
+        },
+      );
     } catch (e) {
       debugPrint("[HomeController] Error fetching brands: $e");
     }

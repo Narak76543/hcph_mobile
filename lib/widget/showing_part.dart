@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
+import 'package:school_assgn/core/network/api_client.dart';
+import 'package:school_assgn/core/session/session_service.dart';
 import 'package:school_assgn/features/home/models/home_models.dart';
 import 'package:school_assgn/themes/app_color.dart';
 import 'package:school_assgn/widget/reacttion_button.dart';
@@ -126,7 +129,9 @@ class SearchProductCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    ThreeDotButton(onTap: () {}),
+                    _FollowTechnicalButton(post: post),
+                    const SizedBox(width: 8),
+                    ThreeDotButton(onTap: () {}, post: post),
                   ],
                 ),
               ),
@@ -253,6 +258,154 @@ class SearchProductCard extends StatelessWidget {
     if (pieces.isNotEmpty) return pieces.join(' · ');
     if (post.compatibleModel.isNotEmpty) return post.compatibleModel;
     return post.model.isNotEmpty ? post.model : 'Compatible hardware part';
+  }
+}
+
+class _FollowTechnicalButton extends StatefulWidget {
+  const _FollowTechnicalButton({required this.post});
+
+  final PostModel post;
+
+  @override
+  State<_FollowTechnicalButton> createState() => _FollowTechnicalButtonState();
+}
+
+class _FollowTechnicalButtonState extends State<_FollowTechnicalButton> {
+  final ApiClient _apiClient = ApiClient();
+
+  bool _isFollowing = false;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStatus();
+  }
+
+  @override
+  void didUpdateWidget(covariant _FollowTechnicalButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.post.ownerUserId != widget.post.ownerUserId) {
+      _isFollowing = false;
+      _loadStatus();
+    }
+  }
+
+  bool get _canShow {
+    final ownerId = widget.post.ownerUserId?.trim() ?? '';
+    if (ownerId.isEmpty) return false;
+    if (ownerId == _currentUserId) return false;
+    return widget.post.ownerRole.toLowerCase() == 'technical';
+  }
+
+  Future<void> _loadStatus() async {
+    if (!_canShow) return;
+    try {
+      final response = await _apiClient.getRequest(
+        '/users/${widget.post.ownerUserId}/follow-status',
+        bearerToken: _accessToken,
+      );
+      if (!mounted) return;
+      _applyStatus(response);
+    } catch (_) {}
+  }
+
+  Future<void> _toggleFollow() async {
+    if (_isLoading || !_canShow) return;
+    final token = _accessToken;
+    if (token == null || token.isEmpty) {
+      _showMessage('Please sign in to follow technical users.');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    try {
+      final response = await _apiClient.postJson(
+        '/users/${widget.post.ownerUserId}/follow',
+        body: const {},
+        bearerToken: token,
+      );
+      if (!mounted) return;
+      _applyStatus(response);
+    } catch (_) {
+      _showMessage('Could not update follow. Try again.');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _applyStatus(dynamic response) {
+    if (response is! Map) return;
+    setState(() {
+      _isFollowing = response['is_following'] == true;
+    });
+  }
+
+  String? get _accessToken {
+    try {
+      return Get.find<SessionService>().accessToken;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  String? get _currentUserId {
+    try {
+      return Get.find<SessionService>().userId;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  void _showMessage(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_canShow) return const SizedBox.shrink();
+
+    final label = _isFollowing ? 'Following' : 'Follow';
+
+    return GestureDetector(
+      onTap: _toggleFollow,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: _isFollowing ? AppColor.kGoogleBlue : AppColor.kSurface,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(
+            color: _isFollowing ? AppColor.kGoogleBlue : AppColor.kBorder,
+            width: AppColor.kBorderWidth,
+          ),
+        ),
+        child: _isLoading
+            ? SizedBox(
+                width: 12,
+                height: 12,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: _isFollowing ? Colors.white : AppColor.kGoogleBlue,
+                ),
+              )
+            : AppText(
+                label,
+                variant: AppTextVariant.label,
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: _isFollowing ? Colors.white : AppColor.kGoogleBlue,
+              ),
+      ),
+    );
   }
 }
 

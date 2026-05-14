@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:school_assgn/features/home/models/home_models.dart';
 import 'package:school_assgn/themes/app_color.dart';
 import 'package:school_assgn/widget/text_widget.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ThreeDotButton extends StatelessWidget {
   final VoidCallback onTap;
-  const ThreeDotButton({super.key, required this.onTap});
+  final PostModel? post;
+  const ThreeDotButton({super.key, required this.onTap, this.post});
 
   @override
   Widget build(BuildContext context) {
@@ -74,13 +77,15 @@ class ThreeDotButton extends StatelessWidget {
           ],
         );
 
+        if (!context.mounted) return;
+
         switch (selected) {
           case 'direct_contact':
-            print('direct contact clicked');
+            await _openTelegram(context);
             break;
 
           case 'go_to_shop':
-            print('go to shop clicked');
+            await _openShopMap(context);
             break;
         }
       },
@@ -97,6 +102,73 @@ class ThreeDotButton extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> _openTelegram(BuildContext context) async {
+    final username = _normalizeTelegramUsername(
+      post?.ownerTelegramUsername.isNotEmpty == true
+          ? post!.ownerTelegramUsername
+          : post?.shopTelegramHandle ?? '',
+    );
+
+    if (username.isEmpty) {
+      _showMessage(context, 'Telegram contact is not available.');
+      return;
+    }
+
+    final uri = Uri.parse('https://t.me/$username');
+    await _launchExternal(context, uri, 'Could not open Telegram.');
+  }
+
+  Future<void> _openShopMap(BuildContext context) async {
+    final url = post?.shopGoogleMapsUrl.trim() ?? '';
+    if (url.isEmpty) {
+      _showMessage(context, 'Shop map location is not available.');
+      return;
+    }
+
+    final uri = Uri.tryParse(url);
+    if (uri == null || !uri.hasScheme) {
+      _showMessage(context, 'Shop map location is invalid.');
+      return;
+    }
+
+    await _launchExternal(context, uri, 'Could not open Google Maps.');
+  }
+
+  Future<void> _launchExternal(
+    BuildContext context,
+    Uri uri,
+    String errorMessage,
+  ) async {
+    if (await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      return;
+    }
+
+    if (!context.mounted) return;
+    _showMessage(context, errorMessage);
+  }
+
+  String _normalizeTelegramUsername(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return '';
+
+    final uri = Uri.tryParse(trimmed);
+    if (uri != null && uri.host.toLowerCase().contains('t.me')) {
+      final username = uri.pathSegments.isEmpty ? '' : uri.pathSegments.first;
+      return username.replaceFirst(RegExp(r'^@+'), '');
+    }
+    if (uri != null && uri.scheme == 'tg') {
+      return uri.queryParameters['domain']?.trim() ?? '';
+    }
+
+    return trimmed.replaceFirst(RegExp(r'^@+'), '');
+  }
+
+  void _showMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
     );
   }
 }

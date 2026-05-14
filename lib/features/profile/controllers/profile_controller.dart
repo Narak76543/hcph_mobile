@@ -26,6 +26,7 @@ class ProfileController extends GetxController {
   final RxString userBadge = 'Member'.obs;
   final RxString userRole = 'technical'.obs;
   final RxString userAvatarUrl = 'assets/images/norton_university.png'.obs;
+  final RxString userTelegramUsername = ''.obs;
   final Rx<String?> selectedShopImage = Rx<String?>(null);
 
   final RxString userRoleIcon = 'assets/images/user.png'.obs;
@@ -324,7 +325,7 @@ class ProfileController extends GetxController {
 
       // ── User profile ──
       final data = results[0];
-      if (data is Map<String, dynamic>) {
+      if (data is Map) {
         final first = (data['firstname'] as String? ?? '').trim();
         final last = (data['lastname'] as String? ?? '').trim();
         final fullName = [first, last].where((s) => s.isNotEmpty).join(' ');
@@ -336,6 +337,8 @@ class ProfileController extends GetxController {
         } else {
           userAvatarUrl.value = 'assets/images/norton_university.png';
         }
+        userTelegramUsername.value =
+            data['telegram_username']?.toString() ?? '';
 
         final role = (data['role'] as String? ?? 'user').toUpperCase();
         userRole.value = role;
@@ -347,7 +350,7 @@ class ProfileController extends GetxController {
 
       // ── Pending request ──
       final requestData = results[1];
-      if (requestData != null && requestData is Map<String, dynamic>) {
+      if (requestData != null && requestData is Map) {
         final status = (requestData['status']?.toString().toUpperCase()) ?? '';
 
         // If approved, update shop profile info
@@ -365,7 +368,7 @@ class ProfileController extends GetxController {
 
       // ── Shop Data (TBL_Shop) ──
       final shopData = results[2];
-      if (shopData != null && shopData is Map<String, dynamic>) {
+      if (shopData != null && shopData is Map) {
         shopId.value = shopData['id']?.toString() ?? '';
         shopName.value = shopData['name'] ?? shopName.value;
         shopPhone.value = shopData['phone'] ?? '';
@@ -458,7 +461,7 @@ class ProfileController extends GetxController {
       List<dynamic> list = [];
       if (response is List) {
         list = response;
-      } else if (response is Map<String, dynamic> && response['data'] is List) {
+      } else if (response is Map && response['data'] is List) {
         list = response['data'] as List;
       }
 
@@ -481,7 +484,11 @@ class ProfileController extends GetxController {
               postedBy: model.postedBy,
               ownerFullName: model.ownerFullName,
               ownerUserId: model.ownerUserId,
+              ownerRole: model.ownerRole,
+              ownerTelegramUsername: model.ownerTelegramUsername,
               ownerProfileImageUrl: ownerProfileImageUrl,
+              shopTelegramHandle: model.shopTelegramHandle,
+              shopGoogleMapsUrl: model.shopGoogleMapsUrl,
               postedAt: model.postedAt,
               price: model.price,
               imageUrl: imageUrl,
@@ -510,7 +517,7 @@ class ProfileController extends GetxController {
         '/my-laptops/',
         bearerToken: token,
       );
-      if (response is Map<String, dynamic> && response['data'] is List) {
+      if (response is Map && response['data'] is List) {
         myLaptops.value = List<Map<String, dynamic>>.from(
           (response['data'] as List).map((e) => Map<String, dynamic>.from(e)),
         );
@@ -540,7 +547,7 @@ class ProfileController extends GetxController {
       List<dynamic> list = [];
       if (response is List) {
         list = response;
-      } else if (response is Map<String, dynamic> && response['data'] is List) {
+      } else if (response is Map && response['data'] is List) {
         list = response['data'] as List;
       }
       laptopBrands.value = List<Map<String, dynamic>>.from(
@@ -566,7 +573,7 @@ class ProfileController extends GetxController {
       List<dynamic> list = [];
       if (response is List) {
         list = response;
-      } else if (response is Map<String, dynamic> && response['data'] is List) {
+      } else if (response is Map && response['data'] is List) {
         list = response['data'] as List;
       }
       laptopModels.value = List<Map<String, dynamic>>.from(
@@ -717,10 +724,13 @@ class ProfileController extends GetxController {
   }
 
   Future<void> removeLaptop(String laptopId) async {
+    // Optimistically remove from local state to satisfy Dismissible requirement
+    myLaptops.removeWhere((l) => l['id']?.toString() == laptopId);
+
     try {
       final session = Get.find<SessionService>();
       await _deleteRequest('/my-laptops/$laptopId', session.accessToken);
-      await _fetchMyLaptops();
+      // await _fetchMyLaptops(); // Optional: Refetching is safer but not strictly needed if delete was successful
       Get.snackbar(
         'Laptop Removed',
         'Removed from your profile.',
@@ -733,6 +743,8 @@ class ProfileController extends GetxController {
       );
     } catch (e) {
       debugPrint('[ProfileController] Could not remove laptop: $e');
+      // If failed, we might want to refresh to bring it back
+      await _fetchMyLaptops();
     }
   }
 

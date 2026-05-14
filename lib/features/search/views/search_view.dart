@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:school_assgn/features/home/views/widgets/home_category_tabs.dart';
+import 'package:school_assgn/features/home/views/widgets/home_category_tabs.dart'
+    show CategoryChip;
 import 'package:school_assgn/features/search/controllers/search_controller.dart';
 import 'package:school_assgn/themes/app_color.dart';
 import 'package:school_assgn/widget/filter_bar.dart';
@@ -22,33 +23,37 @@ class SearchView extends GetView<SearchFeatureController> {
           backgroundColor: AppColor.kSurface,
           child: CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(
-              parent: BouncingScrollPhysics()
+              parent: BouncingScrollPhysics(),
             ),
             slivers: [
-              // Search Header 
-              const SliverToBoxAdapter(
-                child: HeaderWidget(),
-              ),
-              // SearcrBar 
+              // Search Header
+              const SliverToBoxAdapter(child: HeaderWidget()),
+              // SearchBar
               const SliverToBoxAdapter(
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(16, 12, 16, 0),
                   child: _SearchInput(),
-                  ),
+                ),
               ),
               const SliverToBoxAdapter(
                 child: Padding(
-                  padding: EdgeInsets.only(top: 16), 
-                  child: HomeCategoryTabs(),
-                  ),
+                  padding: EdgeInsets.only(top: 16),
+                  child: _SearchCategoryTabs(),
+                ),
               ),
               SliverToBoxAdapter(
                 child: Obx(
                   () => FilterBar(
                     fitsYourDeviceOnly: controller.fitsYourDeviceOnly.value,
-                    onFitsYourDeviceChanged: (value) {
-                      controller.fitsYourDeviceOnly.value = value;
-                    },
+                    onFitsYourDeviceChanged:
+                        controller.setFitsYourDeviceOnly,
+                    sortOption: controller.sortOption.value,
+                    onSortOptionChanged: controller.setSortOption,
+                    conditionFilter: controller.conditionFilter.value,
+                    onConditionFilterChanged:
+                        controller.setConditionFilter,
+                    showClearFilters: controller.hasActiveFilters,
+                    onClearFilters: controller.clearFilters,
                   ),
                 ),
               ),
@@ -57,7 +62,9 @@ class SearchView extends GetView<SearchFeatureController> {
                   () => Padding(
                     padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                     child: ShowingCard(
-                      laptopName: controller.selectedLaptopName,
+                      laptopName: controller.fitsYourDeviceOnly.value
+                          ? controller.selectedLaptopName
+                          : null,
                     ),
                   ),
                 ),
@@ -84,7 +91,8 @@ class SearchView extends GetView<SearchFeatureController> {
                     return const _EmptySearchState(
                       icon: Icons.search_off_rounded,
                       title: 'No matching parts found',
-                      subtitle: 'Try another keyword or turn off the device filter.',
+                      subtitle:
+                          'Try another keyword or turn off the device filter.',
                     );
                   }
 
@@ -105,10 +113,51 @@ class SearchView extends GetView<SearchFeatureController> {
                 }),
               ),
             ],
-          )
-          )
+          ),
+        ),
       ),
     );
+  }
+}
+
+class _SearchCategoryTabs extends GetView<SearchFeatureController> {
+  const _SearchCategoryTabs();
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final categories = controller.categories;
+      final selectedCategoryId = controller.selectedCategoryId.value;
+
+      return SizedBox(
+        height: 38,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: categories.length + 1,
+          separatorBuilder: (_, _) => const SizedBox(width: 8),
+          itemBuilder: (_, index) {
+            if (index == 0) {
+              return CategoryChip(
+                label: 'All Parts',
+                icon: Icons.apps_rounded,
+                selected: selectedCategoryId == '0',
+                onTap: () => controller.setCategory('0'),
+              );
+            }
+
+            final category = categories[index - 1];
+            return CategoryChip(
+              label: category.name,
+              icon: category.icon,
+              imageUrl: category.imageUrl,
+              selected: selectedCategoryId == category.id,
+              onTap: () => controller.setCategory(category.id),
+            );
+          },
+        ),
+      );
+    });
   }
 }
 

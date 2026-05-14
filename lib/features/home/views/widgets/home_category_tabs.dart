@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:school_assgn/features/home/controllers/home_controller.dart';
@@ -131,13 +132,13 @@ class _ChipLeading extends StatelessWidget {
         );
       }
 
-      return Image.network(
-        imageUrl!,
+      return CachedNetworkImage(
+        imageUrl: imageUrl!,
         width: 20,
         height: 20,
         fit: BoxFit.contain,
         color: color,
-        errorBuilder: (_, _, _) => Icon(
+        errorWidget: (_, _, _) => Icon(
           icon ?? Icons.widgets_rounded,
           size: 16,
           color: color,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:school_assgn/features/home/controllers/home_controller.dart';
@@ -74,19 +75,17 @@ class _ProductImage extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: imageUrl.startsWith('http')
-            ? Image.network(
-                imageUrl,
+            ? CachedNetworkImage(
+                imageUrl: imageUrl,
                 width: double.infinity,
                 fit: BoxFit.contain,
-                loadingBuilder: (_, child, progress) => progress == null
-                    ? child
-                    : Center(
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: AppColor.kAuthAccent.withValues(alpha: 0.5),
-                        ),
-                      ),
-                errorBuilder: (_, _, _) => const _ImagePlaceholder(),
+                placeholder: (_, _) => Center(
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColor.kAuthAccent.withValues(alpha: 0.5),
+                  ),
+                ),
+                errorWidget: (_, _, _) => const _ImagePlaceholder(),
               )
             : Image.asset(
                 imageUrl,
@@ -173,7 +172,7 @@ class _FitBadge extends GetView<HomeController> {
           children: [
             Icon(Icons.check_circle_rounded, color: Colors.white, size: 10),
             SizedBox(width: 4),
-            AppText('Fit with your device', color: Colors.white, fontSize: 8),
+            AppText('Fits', color: Colors.white, fontSize: 8),
           ],
         ),
       );

@@ -1,12 +1,18 @@
+import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
+import 'package:school_assgn/core/cache/api_cache_service.dart';
 import 'package:school_assgn/core/network/api_config.dart';
 import 'package:school_assgn/core/network/api_exception.dart';
 
 class ApiClient {
   ApiClient({http.Client? httpClient})
     : _httpClient = httpClient ?? http.Client();
+
+  static const Duration requestTimeout = Duration(seconds: 12);
 
   final http.Client _httpClient;
 
@@ -23,7 +29,7 @@ class ApiClient {
         if (bearerToken != null) 'Authorization': 'Bearer $bearerToken',
       },
       body: fields,
-    );
+    ).timeout(requestTimeout);
 
     return _handleResponse(response);
   }
@@ -32,30 +38,118 @@ class ApiClient {
     String path, {
     Map<String, String>? queryParameters,
     String? bearerToken,
+    bool forceRefresh = false,
+    bool cacheResponse = true,
+    bool returnCachedOnError = true,
+    Duration cacheDuration = ApiCacheService.defaultTtl,
   }) async {
     Uri uri = _buildUri(path);
     if (queryParameters != null) {
       uri = uri.replace(queryParameters: queryParameters);
     }
-    final response = await _httpClient.get(
-      uri,
-      headers: {
-        'Accept': 'application/json',
-        'ngrok-skip-browser-warning': 'true',
-        if (bearerToken != null) 'Authorization': 'Bearer $bearerToken',
-      },
+    final cache = _cacheService;
+    final cacheKey = cache?.buildKey('GET', uri, bearerToken: bearerToken);
+    final cached = cacheKey == null
+        ? null
+        : await cache?.read(cacheKey, allowExpired: true);
+
+    if (!forceRefresh && cached != null && !cached.isExpired) {
+      return cached.data;
+    }
+
+    try {
+      final request = () async {
+        final response = await _httpClient.get(
+          uri,
+          headers: {
+            'Accept': 'application/json',
+            'ngrok-skip-browser-warning': 'true',
+            if (bearerToken != null) 'Authorization': 'Bearer $bearerToken',
+          },
+        ).timeout(requestTimeout);
+
+        final decoded = _decodeBody(response.body);
+
+        if (response.statusCode < 200 || response.statusCode >= 300) {
+          throw ApiException(
+            message: _extractErrorMessage(decoded),
+            statusCode: response.statusCode,
+            data: decoded,
+          );
+        }
+
+        if (cacheResponse && cache != null && cacheKey != null) {
+          await cache.write(cacheKey, decoded, ttl: cacheDuration);
+        }
+        return decoded;
+      };
+
+      if (cache != null && cacheKey != null) {
+        return await cache.dedupe(cacheKey, request);
+      }
+      return await request();
+    } catch (error) {
+      if (returnCachedOnError && cached != null) {
+        debugPrint('[ApiClient] Returning cached data for $uri after: $error');
+        return cached.data;
+      }
+      rethrow;
+    }
+  }
+
+  Future<dynamic> getCachedRequest(
+    String path, {
+    Map<String, String>? queryParameters,
+    String? bearerToken,
+    bool allowExpired = true,
+  }) async {
+    Uri uri = _buildUri(path);
+    if (queryParameters != null) {
+      uri = uri.replace(queryParameters: queryParameters);
+    }
+
+    final cache = _cacheService;
+    if (cache == null) return null;
+    final cacheKey = cache.buildKey('GET', uri, bearerToken: bearerToken);
+    return (await cache.read(cacheKey, allowExpired: allowExpired))?.data;
+  }
+
+  Future<void> getCachedThenFresh(
+    String path, {
+    Map<String, String>? queryParameters,
+    String? bearerToken,
+    Duration cacheDuration = ApiCacheService.defaultTtl,
+    required void Function(dynamic data) onData,
+    void Function(Object error)? onError,
+  }) async {
+    final cached = await getCachedRequest(
+      path,
+      queryParameters: queryParameters,
+      bearerToken: bearerToken,
     );
 
-    final decoded = _decodeBody(response.body);
-
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw ApiException(
-        message: _extractErrorMessage(decoded),
-        statusCode: response.statusCode,
-        data: decoded,
-      );
+    if (cached != null) {
+      onData(cached);
     }
-    return decoded;
+
+    try {
+      final fresh = await getRequest(
+        path,
+        queryParameters: queryParameters,
+        bearerToken: bearerToken,
+        forceRefresh: true,
+        cacheDuration: cacheDuration,
+      );
+      if (cached == null || jsonEncode(cached) != jsonEncode(fresh)) {
+        onData(fresh);
+      }
+    } catch (error) {
+      if (cached == null) {
+        onError?.call(error);
+      } else {
+        debugPrint('[ApiClient] Fresh refresh failed for $path: $error');
+      }
+    }
   }
 
   Future<Map<String, dynamic>> postJson(
@@ -72,9 +166,11 @@ class ApiClient {
         if (bearerToken != null) 'Authorization': 'Bearer $bearerToken',
       },
       body: jsonEncode(body),
-    );
+    ).timeout(requestTimeout);
 
-    return _handleResponse(response);
+    final decoded = _handleResponse(response);
+    unawaited(_clearApiCache());
+    return decoded;
   }
 
   Future<Map<String, dynamic>> deleteJson(
@@ -89,9 +185,11 @@ class ApiClient {
         'ngrok-skip-browser-warning': 'true',
         if (bearerToken != null) 'Authorization': 'Bearer $bearerToken',
       },
-    );
+    ).timeout(requestTimeout);
 
-    return _handleResponse(response);
+    final decoded = _handleResponse(response);
+    unawaited(_clearApiCache());
+    return decoded;
   }
 
   Future<Map<String, dynamic>> postMultipart(
@@ -144,9 +242,11 @@ class ApiClient {
 
     print('📊 Multipart request files count: ${request.files.length}');
 
-    final streamed = await request.send();
+    final streamed = await request.send().timeout(requestTimeout);
     final response = await http.Response.fromStream(streamed);
-    return _handleResponse(response);
+    final decoded = _handleResponse(response);
+    unawaited(_clearApiCache());
+    return decoded;
   }
 
   Future<Map<String, dynamic>> patchMultipart(
@@ -188,9 +288,11 @@ class ApiClient {
       }
     }
 
-    final streamed = await request.send();
+    final streamed = await request.send().timeout(requestTimeout);
     final response = await http.Response.fromStream(streamed);
-    return _handleResponse(response);
+    final decoded = _handleResponse(response);
+    unawaited(_clearApiCache());
+    return decoded;
   }
 
   Uri _buildUri(String path) {
@@ -218,8 +320,8 @@ class ApiClient {
       return <String, dynamic>{};
     }
 
-    if (decoded is Map<String, dynamic>) {
-      return decoded;
+    if (decoded is Map) {
+      return Map<String, dynamic>.from(decoded);
     }
 
     return <String, dynamic>{'data': decoded};
@@ -231,21 +333,25 @@ class ApiClient {
     }
 
     try {
-      return jsonDecode(body);
+      final decoded = jsonDecode(body);
+      if (decoded is Map) {
+        return Map<String, dynamic>.from(decoded);
+      }
+      return decoded;
     } catch (_) {
       return body;
     }
   }
 
   String _extractErrorMessage(dynamic decoded) {
-    if (decoded is Map<String, dynamic>) {
+    if (decoded is Map) {
       final detail = decoded['detail'];
       if (detail is String && detail.trim().isNotEmpty) {
         return detail;
       }
       if (detail is List && detail.isNotEmpty) {
         final first = detail.first;
-        if (first is Map<String, dynamic> && first['msg'] is String) {
+        if (first is Map && first['msg'] is String) {
           final msg = first['msg'] as String;
           final loc = first['loc'];
           if (loc is List && loc.isNotEmpty) {
@@ -278,5 +384,21 @@ class ApiClient {
     if (lower.endsWith('.gif')) return MediaType('image', 'gif');
     // default to jpeg for common camera images
     return MediaType('image', 'jpeg');
+  }
+
+  ApiCacheService? get _cacheService {
+    try {
+      return Get.find<ApiCacheService>();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _clearApiCache() async {
+    try {
+      await _cacheService?.clear();
+    } catch (error) {
+      debugPrint('[ApiClient] Cache invalidation failed: $error');
+    }
   }
 }

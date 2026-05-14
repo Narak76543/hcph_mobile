@@ -162,7 +162,7 @@ class SignInView extends GetView<SignInController> {
           const SizedBox(height: 12),
           Obx(
             () => AuthSocialButton(
-              label: 'Telegram',
+              label: 'With Telegram',
               icon: Transform.rotate(
                 angle: 0,
                 child: Image.asset(

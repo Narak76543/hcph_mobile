@@ -16,7 +16,10 @@ class MainNavView extends GetView<MainNavController> {
   static const _items = <_NavItemData>[
     _NavItemData(label: 'Home', iconAssetPath: 'assets/icons/house.svg'),
     _NavItemData(label: 'Search', iconAssetPath: 'assets/icons/search.svg'),
-    _NavItemData(label: 'Alerts', iconAssetPath: 'assets/icons/bell-ring.svg'),
+    _NavItemData(
+      label: 'Alert',
+      iconAssetPath: 'assets/icons/chart-spline.svg',
+    ),
     _NavItemData(
       label: 'Profile',
       iconAssetPath: 'assets/icons/user-round.svg',
@@ -63,6 +66,7 @@ class MainNavView extends GetView<MainNavController> {
                   default:
                     activeView = SizedBox.shrink(key: ValueKey('-1_$isDark'));
                 }
+
                 return AnimatedSwitcher(
                   duration: const Duration(milliseconds: 800),
                   switchInCurve: Curves.easeInOut,
@@ -77,7 +81,7 @@ class MainNavView extends GetView<MainNavController> {
             ),
             Builder(
               builder: (context) {
-                final bool isKeyboardVisible =
+                final isKeyboardVisible =
                     MediaQuery.of(context).viewInsets.bottom > 0;
                 return AnimatedPositioned(
                   duration: const Duration(milliseconds: 250),

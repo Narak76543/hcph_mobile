@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:school_assgn/core/auth/google_auth_service.dart';
+import 'package:school_assgn/core/cache/api_cache_service.dart';
 import 'package:school_assgn/core/firebase/firebase_initializer.dart';
 import 'package:school_assgn/core/session/session_service.dart';
 import 'package:school_assgn/routes/app_pages.dart';
@@ -29,6 +30,9 @@ Future<void> main() async {
   HttpOverrides.global = MyHttpOverrides();
 
   await _safeInitFirebase();
+
+  final cacheService = await ApiCacheService().init();
+  Get.put<ApiCacheService>(cacheService, permanent: true);
 
   final sessionService = SessionService();
   await _safeInitSession(sessionService);

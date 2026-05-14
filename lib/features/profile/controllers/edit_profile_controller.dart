@@ -15,6 +15,7 @@ class EditProfileController extends GetxController {
   final lastnameLcCtrl = TextEditingController();
   final usernameCtrl = TextEditingController();
   final phoneCtrl = TextEditingController();
+  final telegram_username = TextEditingController();
 
   final RxBool isLoading = false.obs;
   final RxString selectedImagePath = ''.obs;
@@ -44,6 +45,9 @@ class EditProfileController extends GetxController {
           lastnameLcCtrl.text = data['lastname_lc'] as String? ?? '';
           usernameCtrl.text = data['username'] as String? ?? '';
           phoneCtrl.text = data['phone_number'] as String? ?? '';
+          telegram_username.text = _normalizeTelegramUsername(
+            data['telegram_username']?.toString() ?? '',
+          );
           return;
         }
       }
@@ -71,6 +75,17 @@ class EditProfileController extends GetxController {
       return;
     }
 
+    final telegramUsername = _normalizeTelegramUsername(
+      telegram_username.text,
+    );
+    if (!_isValidTelegramUsername(telegramUsername)) {
+      Get.snackbar(
+        'Invalid Telegram username',
+        'Use 5-32 characters: letters, numbers, or underscore.',
+      );
+      return;
+    }
+
     isLoading.value = true;
     try {
       final fields = <String, String>{};
@@ -88,6 +103,7 @@ class EditProfileController extends GetxController {
       }
       if (usernameCtrl.text.isNotEmpty) fields['username'] = usernameCtrl.text;
       if (phoneCtrl.text.isNotEmpty) fields['phone_number'] = phoneCtrl.text;
+      fields['telegram_username'] = telegramUsername;
 
       final response = await _apiClient.patchMultipart(
         '/users/me',
@@ -111,6 +127,7 @@ class EditProfileController extends GetxController {
           profileCtrl.userAvatarUrl.value =
               response['profile_image_url'] as String;
         }
+        await profileCtrl.refreshProfile();
       }
 
       Get.back();
@@ -137,6 +154,20 @@ class EditProfileController extends GetxController {
     lastnameLcCtrl.dispose();
     usernameCtrl.dispose();
     phoneCtrl.dispose();
+    telegram_username.dispose();
     super.onClose();
+  }
+
+  String _normalizeTelegramUsername(String value) {
+    final trimmed = value.trim().replaceAll(RegExp(r'\s+'), '');
+    if (trimmed.isEmpty) return '';
+
+    final withoutAt = trimmed.replaceFirst(RegExp(r'^@+'), '');
+    return '@$withoutAt';
+  }
+
+  bool _isValidTelegramUsername(String value) {
+    if (value.isEmpty) return true;
+    return RegExp(r'^@[A-Za-z0-9_]{5,32}$').hasMatch(value);
   }
 }

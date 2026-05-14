@@ -9,9 +9,13 @@ import 'package:school_assgn/features/home/views/widgets/home_search_bar.dart';
 import 'package:school_assgn/features/home/views/widgets/product_card.dart';
 import 'package:school_assgn/features/home/views/widgets/shop_card.dart';
 import 'package:school_assgn/features/home/views/widgets/upgrade_guide_card.dart';
+import 'package:school_assgn/features/main_nav/controllers/main_nav_controller.dart';
 import 'package:school_assgn/features/profile/controllers/profile_controller.dart';
+import 'package:school_assgn/features/search/controllers/search_controller.dart';
 import 'package:school_assgn/themes/app_color.dart';
 import 'package:school_assgn/widget/text_widget.dart';
+
+import '../../../widget/no_select_laptop_banner.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
@@ -71,6 +75,9 @@ class HomeView extends GetView<HomeController> {
                                 ?.toString() ??
                             'Your Laptop')
                       : null;
+                  final compatibleCount = hasLaptop
+                      ? controller.displayPosts.length
+                      : 0;
 
                   return Padding(
                     padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
@@ -80,19 +87,6 @@ class HomeView extends GetView<HomeController> {
                         // ── Title
                         Row(
                           children: [
-                            Lottie.asset(
-                              'assets/animations/Programming-Computer.json',
-                              height: 45,
-                              width: 45,
-                              fit: BoxFit.contain,
-                              repeat: true,
-                              errorBuilder: (_, _, _) => Icon(
-                                Icons.check_circle_rounded,
-                                color: AppColor.kSuccess,
-                                size: 12,
-                              ),
-                            ),
-                            // const SizedBox(width: 6),
                             Expanded(
                               child: AppText(
                                 hasLaptop
@@ -100,10 +94,30 @@ class HomeView extends GetView<HomeController> {
                                     : 'For your Laptop',
                                 variant: AppTextVariant.title,
                                 color: AppColor.kTextPrimary,
-                                fontSize: 15,
+                                fontSize: 13,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
+                            if (compatibleCount > 4) ...[
+                              const SizedBox(width: 12),
+                              GestureDetector(
+                                onTap: _openAllFitDeviceParts,
+                                behavior: HitTestBehavior.opaque,
+                                child: const Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 2,
+                                    vertical: 6,
+                                  ),
+                                  child: AppText(
+                                    'See All',
+                                    variant: AppTextVariant.label,
+                                    color: AppColor.kGoogleBlue,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                         const SizedBox(height: 4),
@@ -154,109 +168,7 @@ class HomeView extends GetView<HomeController> {
 
                   // ==================================No laptop selected ================================================
                   if (!hasLaptop) {
-                    return Container(
-                      margin: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 10,
-                        horizontal: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColor.kSurface,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColor.kBorder),
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Lottie.asset(
-                            'assets/animations/nothing.json',
-                            height: 160,
-                            width: 160,
-                            fit: BoxFit.contain,
-                            repeat: true,
-
-                            errorBuilder: (_, _, _) => Icon(
-                              Icons.check_circle_rounded,
-                              color: AppColor.kSuccess,
-                              size: 40,
-                            ),
-                          ),
-                          Expanded(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 15.0),
-                                  child: AppText(
-                                    'No laptop selected yet !',
-                                    variant: AppTextVariant.title,
-                                    color: AppColor.kGoogleRed,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-
-                                const SizedBox(height: 10),
-
-                                AppText(
-                                  'Add your laptop model in Settings to see parts that fit your device ✨',
-                                  variant: AppTextVariant.body,
-                                  color: AppColor.kTextSecondary,
-                                  fontSize: 10.5,
-                                ),
-                                SizedBox(height: 40),
-                                Container(
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(
-                                    color: AppColor.kGoogleBlue,
-                                    borderRadius: BorderRadius.circular(
-                                      AppColor.kCardRadius,
-                                    ),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: AppText(
-                                      'Go Now ',
-                                      color: AppColor.kAccent,
-                                      fontSize: 12,
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                ),
-
-                                GestureDetector(
-                                  onTap: () {
-                                    // TODO
-                                  },
-
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 10,
-                                    ),
-
-                                    decoration: BoxDecoration(
-                                      color: AppColor.kAccent,
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-
-                                    child: const AppText(
-                                      'Set Your Laptop',
-                                      variant: AppTextVariant.body,
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
+                    return NoSelectedLaptopBanner();
                   }
 
                   // =======================================Has laptop but no compatible posts==========================================
@@ -287,12 +199,15 @@ class HomeView extends GetView<HomeController> {
                   }
 
                   // =================================Show compatible products grid ==================================================
+                  final compatiblePosts = controller.displayPosts;
+                  final visiblePosts = compatiblePosts.take(4).toList();
+
                   return Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
                     child: GridView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      itemCount: controller.displayPosts.length,
+                      itemCount: visiblePosts.length,
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
@@ -300,8 +215,7 @@ class HomeView extends GetView<HomeController> {
                             crossAxisSpacing: 12,
                             childAspectRatio: 0.65,
                           ),
-                      itemBuilder: (ctx, i) =>
-                          ProductCard(post: controller.displayPosts[i]),
+                      itemBuilder: (ctx, i) => ProductCard(post: visiblePosts[i]),
                     ),
                   );
                 }),
@@ -438,6 +352,21 @@ class HomeView extends GetView<HomeController> {
         ),
       ),
     );
+  }
+
+  void _openAllFitDeviceParts() {
+    if (Get.isRegistered<SearchFeatureController>()) {
+      final search = Get.find<SearchFeatureController>();
+      search.searchController.clear();
+      search.setCategory('0');
+      search.setFitsYourDeviceOnly(true);
+      search.setSortOption(SearchSortOption.newest);
+      search.setConditionFilter(SearchConditionFilter.any);
+    }
+
+    if (Get.isRegistered<MainNavController>()) {
+      Get.find<MainNavController>().changeTab(1);
+    }
   }
 }
 

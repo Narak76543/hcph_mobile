@@ -40,7 +40,11 @@ class PostModel {
   final String postedBy;
   final String ownerFullName;
   final String? ownerUserId;
+  final String ownerRole;
+  final String ownerTelegramUsername;
   final String ownerProfileImageUrl;
+  final String shopTelegramHandle;
+  final String shopGoogleMapsUrl;
   final DateTime? postedAt;
   final double price;
   final String imageUrl;
@@ -59,7 +63,11 @@ class PostModel {
     required this.postedBy,
     String? ownerFullName,
     this.ownerUserId,
+    this.ownerRole = '',
+    this.ownerTelegramUsername = '',
     this.ownerProfileImageUrl = '',
+    this.shopTelegramHandle = '',
+    this.shopGoogleMapsUrl = '',
     this.postedAt,
     required this.price,
     required this.imageUrl,
@@ -80,7 +88,11 @@ class PostModel {
     String? postedBy,
     String? ownerFullName,
     String? ownerUserId,
+    String? ownerRole,
+    String? ownerTelegramUsername,
     String? ownerProfileImageUrl,
+    String? shopTelegramHandle,
+    String? shopGoogleMapsUrl,
     DateTime? postedAt,
     double? price,
     String? imageUrl,
@@ -99,7 +111,12 @@ class PostModel {
       postedBy: postedBy ?? this.postedBy,
       ownerFullName: ownerFullName ?? this.ownerFullName,
       ownerUserId: ownerUserId ?? this.ownerUserId,
+      ownerRole: ownerRole ?? this.ownerRole,
+      ownerTelegramUsername:
+          ownerTelegramUsername ?? this.ownerTelegramUsername,
       ownerProfileImageUrl: ownerProfileImageUrl ?? this.ownerProfileImageUrl,
+      shopTelegramHandle: shopTelegramHandle ?? this.shopTelegramHandle,
+      shopGoogleMapsUrl: shopGoogleMapsUrl ?? this.shopGoogleMapsUrl,
       postedAt: postedAt ?? this.postedAt,
       price: price ?? this.price,
       imageUrl: imageUrl ?? this.imageUrl,
@@ -171,7 +188,7 @@ class PostModel {
     // =================================================
     // Part Info
     // =================================================
-    final partMap = json['part'] as Map<String, dynamic>?;
+    final partMap = json['part'] is Map ? Map<String, dynamic>.from(json['part']) : null;
     final brand =
         json['part_brand'] ?? partMap?['brand'] ?? json['brand'] ?? '';
     final model =
@@ -263,6 +280,22 @@ class PostModel {
             : shop);
     final ownerUserId =
         (json['owner_id'] ?? ownerSource?['id'] ?? json['user_id'])?.toString();
+    final ownerRole =
+        (json['owner_role'] ??
+                json['role'] ??
+                ownerSource?['role'] ??
+                ownerSource?['user_role'])
+            ?.toString()
+            .toLowerCase() ??
+        '';
+    final ownerTelegramUsername =
+        (json['owner_telegram_username'] ??
+                json['posted_by_telegram'] ??
+                ownerSource?['telegram_username'] ??
+                ownerSource?['telegram_handle'] ??
+                ownerSource?['telegram'])
+            ?.toString() ??
+        '';
     final ownerProfileImageUrl =
         (json['owner_profile_image_url'] ??
                 json['owner_image'] ??
@@ -273,6 +306,28 @@ class PostModel {
                 ownerSource?['image_url'] ??
                 ownerSource?['profile_image'] ??
                 json['profile_image_url'])
+            ?.toString() ??
+        '';
+    final shopDetailsMap = json['shop_details'] is Map
+        ? json['shop_details'] as Map
+        : null;
+    final shopTelegramHandle =
+        (json['telegram_handle'] ??
+                json['shop_telegram_handle'] ??
+                (shopJson is Map ? shopJson['telegram_handle'] : null) ??
+                (shopJson is Map ? shopJson['telegram_username'] : null) ??
+                shopDetailsMap?['telegram_handle'] ??
+                shopDetailsMap?['telegram_username'])
+            ?.toString() ??
+        '';
+    final shopGoogleMapsUrl =
+        (json['google_maps_url'] ??
+                json['shop_google_maps_url'] ??
+                json['shop_gmap_url'] ??
+                (shopJson is Map ? shopJson['google_maps_url'] : null) ??
+                (shopJson is Map ? shopJson['gmap_url'] : null) ??
+                shopDetailsMap?['google_maps_url'] ??
+                shopDetailsMap?['gmap_url'])
             ?.toString() ??
         '';
     final postedAt = _parsePostedAt(json);
@@ -339,7 +394,11 @@ class PostModel {
       postedBy: shop,
       ownerFullName: ownerFullName,
       ownerUserId: ownerUserId,
+      ownerRole: ownerRole,
+      ownerTelegramUsername: ownerTelegramUsername,
       ownerProfileImageUrl: ownerProfileImageUrl,
+      shopTelegramHandle: shopTelegramHandle,
+      shopGoogleMapsUrl: shopGoogleMapsUrl,
       postedAt: postedAt,
       price: priceVal,
       imageUrl: image,
